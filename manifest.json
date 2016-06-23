@@ -1,0 +1,41 @@
+{
+  "manifest_version" : 2,
+
+  "name": "(Unofficial) Asana - Chrome Extension",
+  "description": "This is unofficial chrome plugin to enable easy access to - Asana.",
+  "version": "0.1",
+
+  "icons": {
+    "16": "img/icon16.png",
+    "48": "img/icon48.png",
+    "128": "img/icon128.png"
+  },
+
+  "author": "Amit Gangrade - amitgangrade04@gmail.com",
+
+  "background": {
+    "scripts": [
+      "js/constants.js",
+      "js/background.js"
+    ],
+    "persistent": true
+  },
+
+  "browser_action": {
+    "default_icon": {
+      "19": "img/icon16.png"
+    },
+    "default_title": "Asana",
+    "default_popup": "popup.html"
+  },
+
+  "permissions": ["cookies", "tabs", "*://*.asana.com/"],
+
+  "commands": {
+    "_execute_browser_action": {
+      "suggested_key": {
+        "default": "Alt+A"
+      }
+    }
+  }
+}

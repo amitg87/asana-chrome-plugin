@@ -1,0 +1,68 @@
+<form>
+    <div class="form-group">
+        <ui-select ng-model="selectedWorkspace.id" theme="bootstrap" on-select="onWorkspaceSelect($item, $model)">
+            <ui-select-match placeholder="Select Workspace">
+                <span ng-bind="$select.selected.name"></span>
+            </ui-select-match>
+            <ui-select-choices repeat="workspace in (workspaces | filter: $select.search)">
+                <span ng-bind="workspace.name"></span>
+            </ui-select-choices>
+        </ui-select>
+    </div>
+
+    <div class="form-group">
+        <ui-select ng-model="selectedProject.id" ng-disabled="workspaceNotSelected">
+            <ui-select-match placeholder="Select Project">
+                <span ng-bind="$select.selected.name"></span>
+            </ui-select-match>
+            <ui-select-choices repeat="project in (projects | filter: $select.search)">
+                <span ng-bind="project.name"></span>
+            </ui-select-choices>
+        </ui-select>
+    </div>
+
+    <div class="form-group">
+        <ui-select ng-model="selectedUser.id" ng-disabled="workspaceNotSelected">
+            <ui-select-match placeholder="Select User">
+                <span ng-bind="$select.selected.name"></span>
+            </ui-select-match>
+            <ui-select-choices repeat="user in (users | filter: $select.search)">
+                <span ng-bind="user.name"></span>
+            </ui-select-choices>
+        </ui-select>
+    </div>
+
+    <div class="form-group">
+        <ui-select multiple tagging="tagTransform" ng-model="selectedTags.list" ng-disabled="workspaceNotSelected">
+            <ui-select-match placeholder="Select tag(s)">
+                {{$item.name}}
+            </ui-select-match>
+            <ui-select-choices repeat="tag in (tags | filter: $select.search) track by tag.id">
+                <span ng-bind="tag.name"></span>
+            </ui-select-choices>
+        </ui-select>
+    </div>
+
+    <div class="form-group">
+        <p class="input-group">
+            <input type="text" class="form-control" datetime-picker="yyyy-MM-dd HH:mm:ss" ng-model="dueDate.date"
+                   is-open="dueDate.open"/>
+              <span class="input-group-btn">
+                  <button type="button" class="btn btn-default" ng-click="dueDate.open=!dueDate.open">
+                      <i class="fa fa-calendar"></i>
+                  </button>
+              </span>
+        </p>
+    </div>
+
+    <div class="form-group">
+        <input type="text" id="taskName" name="taskName" ng-model="taskName" placeholder="Task Name" required
+               style="width: 100%;padding-left: 10px">
+    <textarea id="taskDescription" name="taskNotes" ng-model="taskNotes" placeholder="Task Description"
+              style="resize: none;width: 100%;height: 62px; font-size: 12px; line-height: 14px; padding-left: 10px;"></textarea>
+
+    </div>
+    <div class="form-group text-center" ng-click="createTask()">
+        <button type="button" class="btn btn-asana">Create Task</button>
+    </div>
+</form>

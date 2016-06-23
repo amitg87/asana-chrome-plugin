@@ -1,0 +1,104 @@
+
+body{
+    width: 370px;
+    font-family: Montserrat, 'Helvetica Neue', Arial, sans-serif;
+    padding: 5px;
+}
+
+.container{
+    padding: 5px
+}
+
+.navbar{
+    min-height: initial;
+    margin-bottom: 0;
+}
+
+.navbar-nav {
+    margin: 0;
+}
+
+.navbar-nav>li>a{
+    padding: 5px;
+}
+
+.navbar-nav>li {
+    float: left;
+}
+
+/* profile image */
+img.profile-img{
+    height: auto;
+    width: auto;
+}
+img.profile-img-lg {
+    max-width: 40px;
+    max-height: 40px;
+}
+img.profile-img-md{
+    max-width: 32px;
+    max-height: 32px;
+}
+img.profile-img-sm{
+    max-width: 18px;
+    max-height: 18px;
+}
+
+/* padding zero */
+.padding-right-xs{
+    padding-right: 5px !important;
+}
+
+.padding-left-xs{
+    padding-left: 5px !important;
+}
+
+.padding-bottom-xs{
+    padding-bottom: 5px !important;
+}
+
+.padding-top-xs{
+    padding-bottom: 5px !important;
+}
+
+.padding-all-xs{
+    padding: 5px !important;
+}
+
+.padding-left-zero {
+    padding-left: 0px;
+}
+
+/* asana buttons */
+.btn-asana{
+    color: #fff !important;
+    background-color: #1AAFD0 !important;
+    border: 1px solid #1AAFD0 !important;
+}
+
+.btn-asana:hover{
+    background-color: #02CEFF;
+    box-shadow: 0 0 0 3px #80E6FF;
+}
+
+/* custom select */
+.select2 > .select2-choice.ui-select-match {
+    /* Because of the inclusion of Bootstrap */
+    height: 29px;
+}
+
+.selectize-control > .selectize-dropdown {
+    top: 36px;
+}
+/* Some additional styling to demonstrate that append-to-body helps achieve the proper z-index layering. */
+.select-box {
+    background: #fff;
+    position: relative;
+    z-index: 1;
+}
+.alert-info.positioned {
+    margin-top: 1em;
+    position: relative;
+    z-index: 10000; /* The select2 dropdown has a z-index of 9999 */
+}
+
