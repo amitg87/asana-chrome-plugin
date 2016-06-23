@@ -1,7 +1,6 @@
 chrome.runtime.onInstalled.addListener(function(details){
     if(details.reason == "install"){
         //plugin install initialize
-        Asana.setLoggedIn(false);
     } else if(details.reason == "update"){
         //plugin update
     }
