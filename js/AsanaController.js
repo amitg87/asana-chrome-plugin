@@ -50,7 +50,7 @@ asanaModule.controller("createTaskController", function ($scope, AsanaGateway, $
         if($scope.isDefined($scope.selectedProject.id))
             options.data.projects = [$scope.selectedProject.id.id];
         if($scope.isDefined($scope.selectedUser.id))
-            options.data.asignee = $scope.selectedUser.id.id;
+            options.data.assignee = $scope.selectedUser.id.id;
         if($scope.isDefined($scope.dueDate.date))
             options.data.due_at = $scope.dueDate.date;
 
