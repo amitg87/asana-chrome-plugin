@@ -4,7 +4,7 @@
   "name": "AsanaNG - better Asana Extension for Chrome",
   "short_name": "AsanaNG",
   "description": "Access Asana - quick and easy",
-  "version": "0.1",
+  "version": "0.2.0",
 
   "icons": {
     "16": "img/icon16.png",
