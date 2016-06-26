@@ -5,7 +5,6 @@ asanaModule.service("AsanaGateway", ["$http", function ($http) {
         options.method = "GET";
         options.path = "workspaces";
         this.api(function (response) {
-            console.log("Workspaces: " + JSON.stringify(response));
             success(response);
         }, failure, options);
     };
@@ -70,7 +69,6 @@ asanaModule.service("AsanaGateway", ["$http", function ($http) {
         options.method = "GET";
         options.path = "tasks?assignee=me&workspace=42783899288073&completed_since=now&opt_fields=name,due_at,due_on,completed,tags,projects.name";
         this.api(function (response) {
-            console.log("my taks list:" + response);
             success(response);
         }, failure, options);
     };
@@ -95,7 +93,6 @@ asanaModule.service("AsanaGateway", ["$http", function ($http) {
         }
 
         var url = Asana.getBaseApiUrl() + options.path;
-        console.log(options.method, ":", url);
         $http({
             method: options.method,
             url: url,
@@ -104,7 +101,6 @@ asanaModule.service("AsanaGateway", ["$http", function ($http) {
             params: params,
             data: {data: options.data, options: asanaOptions}
         }).then(function (response) {
-            console.log("Success: ", JSON.stringify(response));
             if(response.data.data){
                 var result = response.data.data;
                 if(response.next_page){
@@ -113,7 +109,6 @@ asanaModule.service("AsanaGateway", ["$http", function ($http) {
                 success(result);
             }
         }, function (response) {
-            console.log("Failure: ", JSON.stringify(response));
             if(response.status == 401){
                 Asana.setLoggedIn(false);
             }

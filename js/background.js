@@ -6,6 +6,9 @@ chrome.runtime.onInstalled.addListener(function(details){
     }
 });
 
+chrome.browserAction.setBadgeText({text: "NG"});
+chrome.browserAction.setBadgeBackgroundColor({color: "#FC636B"});
+
 var ASANA_COOKIE_MANAGER = {
     init: function () {
         chrome.cookies.get({

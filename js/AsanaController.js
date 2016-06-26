@@ -12,7 +12,7 @@ asanaModule.controller("userController", function ($scope, AsanaGateway) {
     }
 });
 
-asanaModule.controller("createTaskController", function ($scope, AsanaGateway, $http) {
+asanaModule.controller("createTaskController", function ($scope, AsanaGateway, $timeout) {
     $scope.loggedIn = Asana.isLoggedIn();
     $scope.workspaceNotSelected = true;
 
@@ -22,10 +22,12 @@ asanaModule.controller("createTaskController", function ($scope, AsanaGateway, $
     $scope.selectedTags = {};
     $scope.selectedTags.list = [];
 
+    $scope.taskCreationStatus = {
+        success: false,
+        message: "",
+        show: false
+    };
     $scope.onWorkspaceSelect = function (item, model) {
-        //console.log("Item: " + JSON.stringify(item));
-        //console.log("Model: " + JSON.stringify(model));
-        //$scope.selectedWorkspaceId = item.id;
         $scope.selectedWorkspaceId = $scope.selectedWorkspace.id.id;
         $scope.workspaceNotSelected = false;
 
@@ -70,8 +72,28 @@ asanaModule.controller("createTaskController", function ($scope, AsanaGateway, $
             $scope.selectedProject = {id: undefined};
             $scope.selectedUser = {id: undefined};
             $scope.selectedTags = {id: []};
+            $scope.taskName = undefined;
+            $scope.taskNotes = undefined;
+            $scope.dueDate = undefined;
+
+            $scope.taskCreationStatus = {
+                success: true,
+                message: "Task created",
+                show: true
+            };
+            $timeout(function () {
+                $scope.taskCreationStatus.show = false;
+            }, 5000);
         }, function (response) {
-            console.log("Error: creating task: " + response);
+            console.log("Error: creating task: " + JSON.stringify(response));
+            $scope.taskCreationStatus = {
+                success: false,
+                message: "Failed to create task", //@todo error message
+                show: true
+            };
+            $timeout(function () {
+                $scope.taskCreationStatus.show = false;
+            }, 5000);
         }, options);
     };
 

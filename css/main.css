@@ -102,6 +102,22 @@ img.profile-img-sm{
     z-index: 10000; /* The select2 dropdown has a z-index of 9999 */
 }
 
+.form-group {
+    margin-bottom: 5px;
+}
+
+/*
+Calendar popup above rather than below
+*/
+.dropdown-menu.datetime-picker-dropdown.ng-valid-date-disabled {
+    top: calc(-50% - 275px) !important;
+}
+
+.dropdown-menu.datetime-picker-dropdown.ng-not-empty.ng-valid-time,
+.dropdown-menu.datetime-picker-dropdown.ng-empty{
+    top: calc( -15% - 159px);
+}
+
 /*
 bug in angular-ui-select
 fix taken from here

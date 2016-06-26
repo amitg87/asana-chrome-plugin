@@ -44,25 +44,31 @@
     </div>
 
     <div class="form-group">
-        <p class="input-group">
-            <input type="text" class="form-control" datetime-picker="yyyy-MM-dd HH:mm:ss" ng-model="dueDate.date"
-                   is-open="dueDate.open" placeholder="Due Date" ng-disabled="workspaceNotSelected"/>
-              <span class="input-group-btn">
-                  <button type="button" class="btn btn-default" ng-click="dueDate.open=!dueDate.open">
-                      <i class="fa fa-calendar"></i>
-                  </button>
-              </span>
-        </p>
-    </div>
-
-    <div class="form-group">
         <input type="text" id="taskName" name="taskName" ng-model="taskName" placeholder="Task Name" required
                style="width: 100%;padding-left: 10px" ng-disabled="workspaceNotSelected">
         <textarea id="taskDescription" name="taskNotes" ng-model="taskNotes" placeholder="Task Description"
               style="resize: none;width: 100%;height: 62px; font-size: 12px; line-height: 14px; padding-left: 10px;" ng-disabled="workspaceNotSelected"></textarea>
 
     </div>
-    <div class="form-group text-center" ng-click="createTask()">
+
+    <div class="form-group">
+        <p class="input-group">
+            <input type="text" class="form-control" datetime-picker="yyyy-MM-dd HH:mm:ss" ng-model="dueDate.date"
+                   is-open="dueDate.open" placeholder="Due Date" ng-disabled="workspaceNotSelected"
+                   ng-click="dueDate.open=!dueDate.open"/>
+              <span class="input-group-btn">
+                  <button type="button" class="btn btn-default selectDueDate" ng-click="dueDate.open=!dueDate.open">
+                      <i class="fa fa-calendar"></i>
+                  </button>
+              </span>
+        </p>
+    </div>
+
+    <div class="form-group" ng-click="createTask()">
         <button type="button" class="btn btn-asana">Create Task</button>
+        <span class="status label" ng-show="taskCreationStatus.show"
+              ng-class="{'label-success': taskCreationStatus.success, 'label-danger': !taskCreationStatus.success}">
+            {{taskCreationStatus.message}}
+        </span>
     </div>
 </form>

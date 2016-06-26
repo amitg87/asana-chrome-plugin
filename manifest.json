@@ -1,8 +1,9 @@
 {
   "manifest_version" : 2,
 
-  "name": "(Unofficial) Asana - Chrome Extension",
-  "description": "This is unofficial chrome plugin to enable easy access to - Asana.",
+  "name": "AsanaNG - better Asana Extension for Chrome",
+  "short_name": "AsanaNG",
+  "description": "Access Asana - quick and easy",
   "version": "0.1",
 
   "icons": {
@@ -25,7 +26,7 @@
     "default_icon": {
       "19": "img/icon16.png"
     },
-    "default_title": "Asana",
+    "default_title": "AsanaNG",
     "default_popup": "popup.html"
   },
 
