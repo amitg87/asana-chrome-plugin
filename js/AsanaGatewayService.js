@@ -13,7 +13,7 @@ asanaModule.service("AsanaGateway", ["$http", function ($http) {
         if(typeof options === 'undefined' || typeof options.workspace_id === 'undefined')
             failure({"error": "Missing Parameter", message: "Fix this"});
         options.method = "GET";
-        options.path = "workspaces/" + options.workspace_id + "/users?opt_fields=name,photo.image_128x128";
+        options.path = "workspaces/" + options.workspace_id + "/users?opt_fields=name,email,photo.image_128x128";
 
         this.api(function (response) {
             if(response.photo == null)

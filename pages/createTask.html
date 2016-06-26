@@ -1,11 +1,13 @@
-<form>
+    <form>
     <div class="form-group">
         <ui-select ng-model="selectedWorkspace.id" theme="bootstrap" on-select="onWorkspaceSelect($item, $model)">
             <ui-select-match placeholder="Select Workspace">
                 <span ng-bind="$select.selected.name"></span>
             </ui-select-match>
             <ui-select-choices repeat="workspace in (workspaces | filter: $select.search)">
-                <span ng-bind="workspace.name"></span>
+                <div class="overflow-ellipsis">
+                    <span ng-bind="workspace.name"></span>
+                </div>
             </ui-select-choices>
         </ui-select>
     </div>
@@ -16,7 +18,10 @@
                 <span ng-bind="$select.selected.name"></span>
             </ui-select-match>
             <ui-select-choices repeat="project in (projects | filter: $select.search)">
-                <span ng-bind="project.name"></span>
+                <div class="overflow-ellipsis">
+                    <i class="fa fa-archive" ng-show="{{project.archived}}" title="Archived Project"></i>
+                    <span ng-bind="project.name"></span>
+                </div>
             </ui-select-choices>
         </ui-select>
     </div>
@@ -27,18 +32,27 @@
                 <span ng-bind="$select.selected.name"></span>
             </ui-select-match>
             <ui-select-choices repeat="user in (users | filter: $select.search)">
-                <span ng-bind="user.name"></span>
+                <div class="overflow-ellipsis">
+                    <img class="img-circle profile-img profile-img-md"
+                         ng-src="{{user.photo.image_128x128}}"
+                            src="../img/nopicture.png">
+                    <span ng-bind="user.name" class="font-size-12"></span>
+                    <span ng-bind="user.email" class="font-size-10"></span>
+                </div>
             </ui-select-choices>
         </ui-select>
     </div>
 
     <div class="form-group">
         <ui-select multiple tagging="tagTransform" ng-model="selectedTags.list" ng-disabled="workspaceNotSelected">
-            <ui-select-match placeholder="Select tag(s)">
+            <ui-select-match placeholder="Select tag(s)" style="padding-left: 10px;">
                 {{$item.name}}
             </ui-select-match>
             <ui-select-choices repeat="tag in (tags | filter: $select.search) track by tag.id">
-                <span ng-bind="tag.name"></span>
+                <div class="overflow-ellipsis">
+                    <i class="fa fa-tag"></i>
+                    <span ng-bind="tag.name"></span>
+                </div>
             </ui-select-choices>
         </ui-select>
     </div>
@@ -47,7 +61,7 @@
         <input type="text" id="taskName" name="taskName" ng-model="taskName" placeholder="Task Name" required
                style="width: 100%;padding-left: 10px" ng-disabled="workspaceNotSelected">
         <textarea id="taskDescription" name="taskNotes" ng-model="taskNotes" placeholder="Task Description"
-              style="resize: none;width: 100%;height: 62px; font-size: 12px; line-height: 14px; padding-left: 10px;" ng-disabled="workspaceNotSelected"></textarea>
+               style="resize: none;width: 100%;height: 62px; line-height: 14px; padding-left: 10px;" ng-disabled="workspaceNotSelected"></textarea>
 
     </div>
 
