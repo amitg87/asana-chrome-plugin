@@ -12,14 +12,14 @@ var ASANA_COOKIE_MANAGER = {
             url: Asana.getBaseApiUrl(),
             name: Asana.ASANA_LOGIN_COOKIE_NAME
         }, function(cookie) {
-            console.log("asana cookie: " + JSON.stringify(cookie));
+            //console.log("asana cookie: " + JSON.stringify(cookie));
             var loggedIn = !!(cookie && cookie.value);
             Asana.setLoggedIn(loggedIn);
         });
         chrome.cookies.onChanged.addListener(function (changeInfo) {
             if(Asana.isAsanaDomain(changeInfo.cookie.domain)
                 && Asana.isAsanaLoginCookie(changeInfo.cookie.name)){
-                console.log(JSON.stringify(changeInfo));
+                //console.log(JSON.stringify(changeInfo));
                 Asana.setLoggedIn(!changeInfo.removed);
             }
         });
@@ -29,6 +29,6 @@ var ASANA_COOKIE_MANAGER = {
 ASANA_COOKIE_MANAGER.init();
 
 chrome.commands.onCommand.addListener(function(command) {
-    console.log("Received command: ", command);
+    //console.log("Received command: ", command);
     chrome.browserAction.enable();
 });

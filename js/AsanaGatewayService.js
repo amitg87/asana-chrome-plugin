@@ -12,7 +12,6 @@ asanaModule.service("AsanaGateway", ["$http", function ($http) {
 
     this.getWorkspaceUsers = function (success, failure, options) {
         if(typeof options === 'undefined' || typeof options.workspace_id === 'undefined')
-        //@todo - externalize error message
             failure({"error": "Missing Parameter", message: "Fix this"});
         options.method = "GET";
         options.path = "workspaces/" + options.workspace_id + "/users?opt_fields=name,photo.image_128x128";

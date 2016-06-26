@@ -102,3 +102,15 @@ img.profile-img-sm{
     z-index: 10000; /* The select2 dropdown has a z-index of 9999 */
 }
 
+/*
+bug in angular-ui-select
+fix taken from here
+https://github.com/angular-ui/ui-select/issues/379
+*/
+.ui-select-multiple.ui-select-bootstrap {
+    min-height: 31px;
+}
+
+.ui-select-multiple .ui-select-search.ng-hide{
+    width: 100%; display: inline-block !important; cursor: not-allowed;
+}
