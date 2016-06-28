@@ -19,8 +19,8 @@
             </ui-select-match>
             <ui-select-choices repeat="project in (projects | filter: $select.search)">
                 <div class="overflow-ellipsis">
-                    <i class="fa fa-archive" ng-show="{{project.archived}}" title="Archived Project"></i>
-                    <span ng-bind="project.name"></span>
+                    <span ng-class="{'archived-project': project.archived}" ng-bind="project.name" title="{{project.notes}}"></span>
+                    <i class="fa fa-lock" ng-hide="{{project.public}}" title="Private to me"></i>
                 </div>
             </ui-select-choices>
         </ui-select>
@@ -49,7 +49,7 @@
                 {{$item.name}}
             </ui-select-match>
             <ui-select-choices repeat="tag in (tags | filter: $select.search) track by tag.id">
-                <div class="overflow-ellipsis">
+                <div class="overflow-ellipsis" title="{{tag.notes}}">
                     <i class="fa fa-tag"></i>
                     <span ng-bind="tag.name"></span>
                 </div>

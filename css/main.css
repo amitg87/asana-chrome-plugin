@@ -90,6 +90,11 @@ img.profile-img-sm{
     box-shadow: 0 0 0 3px #80E6FF;
 }
 
+span.archived-project{
+    border-left: 3px solid #62d26f;
+    padding-left: 5px;
+}
+
 .overflow-ellipsis{
     overflow: hidden;
     text-overflow: ellipsis;

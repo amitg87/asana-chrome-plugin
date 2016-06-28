@@ -28,7 +28,7 @@ asanaModule.service("AsanaGateway", ["$http", function ($http) {
         if(typeof options === 'undefined' || typeof options.workspace_id === 'undefined')
             failure({"error": "Missing Parameter", message: "Fix this"});
         options.method = "GET";
-        options.path = "workspaces/" + options.workspace_id + "/projects?opt_fields=name,archived";
+        options.path = "workspaces/" + options.workspace_id + "/projects?opt_fields=name,archived,notes";
         this.api(success, failure, options);
     };
 
@@ -36,7 +36,7 @@ asanaModule.service("AsanaGateway", ["$http", function ($http) {
         if(typeof options === 'undefined' || typeof options.workspace_id === 'undefined')
             failure({"error": "Missing Parameter", message: "Fix this"});
         options.method = "GET";
-        options.path = "workspaces/" + options.workspace_id + "/tags";
+        options.path = "workspaces/" + options.workspace_id + "/tags?opt_fields=name,notes";
         this.api(success, failure, options);
     };
 
