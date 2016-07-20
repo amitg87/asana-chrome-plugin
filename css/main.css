@@ -126,6 +126,10 @@ span.archived-project{
     margin-bottom: 5px;
 }
 
+.form-group.multi-select input.ui-select-search{
+    width: auto !important;
+}
+
 /*
 Calendar popup above rather than below
 */
