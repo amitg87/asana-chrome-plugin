@@ -17,9 +17,9 @@
   "background": {
     "scripts": [
       "js/constants.js",
-      "js/background.js"
+      "js/chrome/background.js"
     ],
-    "persistent": true
+    "persistent": false
   },
 
   "browser_action": {
