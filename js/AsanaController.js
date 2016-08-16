@@ -17,7 +17,7 @@ asanaModule.controller("createTaskController", function ($scope, AsanaGateway, $
     $scope.workspaceNotSelected = true;
 
     $scope.selectedWorkspace = {id: undefined};
-    $scope.selectedProject = {id: undefined};
+    $scope.selectedProject = {list: []};
     $scope.selectedUser = {id: undefined};
     $scope.selectedTags = {};
     $scope.selectedTags.list = [];
@@ -29,6 +29,7 @@ asanaModule.controller("createTaskController", function ($scope, AsanaGateway, $
     };
     $scope.onWorkspaceSelect = function (item, model) {
         $scope.selectedWorkspaceId = $scope.selectedWorkspace.id.id;
+        $scope.clearFields();
         $scope.workspaceNotSelected = false;
 
         AsanaGateway.getWorkspaceTags(function (response) {
@@ -47,12 +48,18 @@ asanaModule.controller("createTaskController", function ($scope, AsanaGateway, $
     $scope.createTask = function () {
         var options = {data: {}};
         options.data.workspace = $scope.selectedWorkspaceId;
-        if($scope.isDefined($scope.selectedProject.id))
-            options.data.projects = [$scope.selectedProject.id.id];
         if($scope.isDefined($scope.selectedUser.id))
             options.data.assignee = $scope.selectedUser.id.id;
         if($scope.isDefined($scope.dueDate.date))
             options.data.due_at = $scope.dueDate.date;
+
+        var projectList = $scope.selectedProject.list;
+        var projectIds = projectList.map(function (element) {
+            return element.id;
+        });
+        if(projectIds.length > 0){
+            options.data.projects = projectIds;
+        }
 
         var taglist = $scope.selectedTags.list;
         var tags = taglist.map(function (element) {
@@ -69,12 +76,7 @@ asanaModule.controller("createTaskController", function ($scope, AsanaGateway, $
         AsanaGateway.createTask(function (response) {
             console.log("Success: creating task: " + response);
             $scope.selectedWorkspace = {id: undefined};
-            $scope.selectedProject = {id: undefined};
-            $scope.selectedUser = {id: undefined};
-            $scope.selectedTags = {id: []};
-            $scope.taskName = undefined;
-            $scope.taskNotes = undefined;
-            $scope.dueDate = undefined;
+            $scope.clearFields();
 
             $scope.taskCreationStatus = {
                 success: true,
@@ -106,13 +108,21 @@ asanaModule.controller("createTaskController", function ($scope, AsanaGateway, $
         /*date: new Date()*/
     };
 
+    $scope.clearFields = function () {
+        $scope.selectedProject = { list: [] };
+        $scope.selectedUser = {id: undefined};
+        $scope.selectedTags = {list: []};
+        $scope.taskName = undefined;
+        $scope.taskNotes = undefined;
+        $scope.dueDate = undefined;
+    };
+
     $scope.isDefined = function (param) {
         return typeof param != 'undefined';
-    }
+    };
 });
 
 asanaModule.controller("todoController", function ($scope, AsanaGateway) {
     $scope.loggedIn = Asana.isLoggedIn();
-
 });
 

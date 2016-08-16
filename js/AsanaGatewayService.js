@@ -68,9 +68,7 @@ asanaModule.service("AsanaGateway", ["$http", function ($http) {
             options = {};
         options.method = "GET";
         options.path = "tasks?assignee=me&workspace=42783899288073&completed_since=now&opt_fields=name,due_at,due_on,completed,tags,projects.name";
-        this.api(function (response) {
-            success(response);
-        }, failure, options);
+        this.api(success, failure, options);
     };
 
     //called by others
