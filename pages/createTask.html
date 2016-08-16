@@ -1,6 +1,6 @@
-    <form>
+<form>
     <div class="form-group">
-        <ui-select ng-model="selectedWorkspace.id" theme="bootstrap" on-select="onWorkspaceSelect($item, $model)">
+        <ui-select ng-model="selectedWorkspace.id" on-select="onWorkspaceSelect($item, $model)">
             <ui-select-match placeholder="Select Workspace">
                 <span ng-bind="$select.selected.name"></span>
             </ui-select-match>
@@ -12,10 +12,10 @@
         </ui-select>
     </div>
 
-    <div class="form-group">
-        <ui-select ng-model="selectedProject.id" ng-disabled="workspaceNotSelected">
-            <ui-select-match placeholder="Select Project">
-                <span ng-bind="$select.selected.name"></span>
+    <div class="form-group multi-select">
+        <ui-select multiple ng-model="selectedProject.list" ng-disabled="workspaceNotSelected">
+            <ui-select-match placeholder="Select Project" style="padding-left: 10px;">
+                {{$item.name}}
             </ui-select-match>
             <ui-select-choices repeat="project in (projects | filter: $select.search)">
                 <div class="overflow-ellipsis">
@@ -43,7 +43,7 @@
         </ui-select>
     </div>
 
-    <div class="form-group">
+    <div class="form-group multi-select">
         <ui-select multiple tagging="tagTransform" ng-model="selectedTags.list" ng-disabled="workspaceNotSelected">
             <ui-select-match placeholder="Select tag(s)" style="padding-left: 10px;">
                 {{$item.name}}
