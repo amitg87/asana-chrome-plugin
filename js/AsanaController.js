@@ -15,20 +15,33 @@ asanaModule.controller("userController", function ($scope, AsanaGateway) {
 asanaModule.controller("createTaskController", function ($scope, AsanaGateway, $timeout) {
     $scope.loggedIn = Asana.isLoggedIn();
     $scope.workspaceNotSelected = true;
-
-    $scope.selectedWorkspace = {id: undefined};
-    $scope.selectedProject = {list: []};
-    $scope.selectedUser = {id: undefined};
-    $scope.selectedTags = {};
-    $scope.selectedTags.list = [];
+    $scope.projectRequired = false;
+    $scope.taskNameRequired = false;
 
     $scope.taskCreationStatus = {
         success: false,
         message: "",
         show: false
     };
+
+    $scope.clearFields = function () {
+        $scope.selectedProject = { list: [] };
+        $scope.selectedUser = { selected : undefined};
+        $scope.selectedTags = {list: []};
+        $scope.taskName = undefined;
+        $scope.taskNotes = undefined;
+        $scope.dueDate = undefined;
+        $scope.taskNameRequired = false;
+    };
+
+    $scope.clearFields();
+
+    $scope.onProjectSelected = function (item, model) {
+        $scope.projectRequired = false;
+    };
+
     $scope.onWorkspaceSelect = function (item, model) {
-        $scope.selectedWorkspaceId = $scope.selectedWorkspace.id.id;
+        $scope.selectedWorkspaceId = $scope.selectedWorkspace.selected.id;
         $scope.clearFields();
         $scope.workspaceNotSelected = false;
 
@@ -48,12 +61,16 @@ asanaModule.controller("createTaskController", function ($scope, AsanaGateway, $
     $scope.createTask = function () {
         var options = {data: {}};
         options.data.workspace = $scope.selectedWorkspaceId;
-        if($scope.isDefined($scope.selectedUser.id))
-            options.data.assignee = $scope.selectedUser.id.id;
-        if($scope.isDefined($scope.dueDate.date))
+        if($scope.isDefined($scope.selectedUser.selected))
+            options.data.assignee = $scope.selectedUser.selected.id;
+        if($scope.isDefined($scope.dueDate))
             options.data.due_at = $scope.dueDate.date;
 
         var projectList = $scope.selectedProject.list;
+        if($scope.selectedProject.list.length == 0){
+            $scope.projectRequired = true;
+            return;
+        }
         var projectIds = projectList.map(function (element) {
             return element.id;
         });
@@ -69,13 +86,17 @@ asanaModule.controller("createTaskController", function ($scope, AsanaGateway, $
             options.data.tags = tags;
         }
 
+        if(!$scope.isDefined($scope.taskName)){
+            $scope.taskNameRequired = true;
+            return;
+        }
         options.data.name = $scope.taskName;
         options.data.notes = $scope.taskNotes;
 
         console.log("Creating task with parameters: " + JSON.stringify(options));
         AsanaGateway.createTask(function (response) {
-            console.log("Success: creating task: " + response);
-            $scope.selectedWorkspace = {id: undefined};
+            console.log("Success: creating task: " + JSON.stringify(response));
+            //$scope.selectedWorkspace = {};
             $scope.clearFields();
 
             $scope.taskCreationStatus = {
@@ -101,21 +122,12 @@ asanaModule.controller("createTaskController", function ($scope, AsanaGateway, $
 
     AsanaGateway.getWorkspaces(function (response) {
         $scope.workspaces = response;
+        if($scope.isDefined(response) && response.length > 0){
+            $scope.selectedWorkspace = response[0];
+            $scope.selectedWorkspace.selected = response[0];
+            $scope.onWorkspaceSelect(response[0], response[0]);
+        }
     });
-
-    // date picker
-    $scope.dueDate = {
-        /*date: new Date()*/
-    };
-
-    $scope.clearFields = function () {
-        $scope.selectedProject = { list: [] };
-        $scope.selectedUser = {id: undefined};
-        $scope.selectedTags = {list: []};
-        $scope.taskName = undefined;
-        $scope.taskNotes = undefined;
-        $scope.dueDate = undefined;
-    };
 
     $scope.isDefined = function (param) {
         return typeof param != 'undefined';

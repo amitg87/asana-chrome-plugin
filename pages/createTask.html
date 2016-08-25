@@ -1,6 +1,6 @@
 <form>
     <div class="form-group">
-        <ui-select ng-model="selectedWorkspace.id" on-select="onWorkspaceSelect($item, $model)">
+        <ui-select ng-model="selectedWorkspace.selected" on-select="onWorkspaceSelect($item, $model)">
             <ui-select-match placeholder="Select Workspace">
                 <span ng-bind="$select.selected.name"></span>
             </ui-select-match>
@@ -13,8 +13,9 @@
     </div>
 
     <div class="form-group multi-select">
-        <ui-select multiple ng-model="selectedProject.list" ng-disabled="workspaceNotSelected">
-            <ui-select-match placeholder="Select Project" style="padding-left: 10px;">
+        <ui-select multiple ng-class="{requiredField:projectRequired}" ng-model="selectedProject.list"
+                   ng-disabled="workspaceNotSelected" on-select="onProjectSelected($item, $model)">
+            <ui-select-match placeholder="Select Project" style="padding-left: 5px;">
                 {{$item.name}}
             </ui-select-match>
             <ui-select-choices repeat="project in (projects | filter: $select.search)">
@@ -27,7 +28,7 @@
     </div>
 
     <div class="form-group">
-        <ui-select ng-model="selectedUser.id" ng-disabled="workspaceNotSelected">
+        <ui-select ng-model="selectedUser.selected" ng-disabled="workspaceNotSelected">
             <ui-select-match placeholder="Select User">
                 <span ng-bind="$select.selected.name"></span>
             </ui-select-match>
@@ -44,8 +45,8 @@
     </div>
 
     <div class="form-group multi-select">
-        <ui-select multiple tagging="tagTransform" ng-model="selectedTags.list" ng-disabled="workspaceNotSelected">
-            <ui-select-match placeholder="Select tag(s)" style="padding-left: 10px;">
+        <ui-select multiple ng-model="selectedTags.list" ng-disabled="workspaceNotSelected">
+            <ui-select-match placeholder="Select tag(s)" style="padding-left: 5px;">
                 {{$item.name}}
             </ui-select-match>
             <ui-select-choices repeat="tag in (tags | filter: $select.search) track by tag.id">
@@ -57,12 +58,11 @@
         </ui-select>
     </div>
 
-    <div class="form-group">
-        <input type="text" id="taskName" name="taskName" ng-model="taskName" placeholder="Task Name" required
-               style="width: 100%;padding-left: 10px" ng-disabled="workspaceNotSelected">
+    <div class="form-group form-group-box">
+        <textarea ng-class="{requiredField:taskNameRequired}" rows="1" id="taskName" name="taskName" ng-model="taskName" placeholder="Task Name" required
+               style="resize:none;width: 100%;padding: 6px;font-weight:600; border: 0;background-color: #ffffff;" ng-disabled="workspaceNotSelected"></textarea>
         <textarea id="taskDescription" name="taskNotes" ng-model="taskNotes" placeholder="Task Description"
-               style="resize: none;width: 100%;height: 62px; line-height: 14px; padding-left: 10px;" ng-disabled="workspaceNotSelected"></textarea>
-
+               style="resize: none;width: 100%;height: 62px;padding:6px;line-height: 14px; border:0;background-color: #ffffff;" ng-disabled="workspaceNotSelected"></textarea>
     </div>
 
     <div class="form-group">
