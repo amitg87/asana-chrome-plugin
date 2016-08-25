@@ -4,9 +4,7 @@ asanaModule.service("AsanaGateway", ["$http", function ($http) {
         options = options? options: {};
         options.method = "GET";
         options.path = "workspaces";
-        this.api(function (response) {
-            success(response);
-        }, failure, options);
+        this.api(success, failure, options);
     };
 
     this.getWorkspaceUsers = function (success, failure, options) {
@@ -44,7 +42,7 @@ asanaModule.service("AsanaGateway", ["$http", function ($http) {
         if(typeof options === "undefined")
             options = {};
         options.method = "GET";
-        options.path = "users/me";
+        options.path = "users/me?opt_fields=name,email,photo.image_128x128";
         this.api(function (response) {
             if (response.photo == null)
                 response.picture = chrome.extension.getURL("img/nopicture.png");
