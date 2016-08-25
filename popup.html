@@ -23,13 +23,13 @@
 </head>
 <body class="container" ng-app="asana" ng-controller="userController">
 <header ng-show="{{loggedIn}}">
-    <div class="row padding-bottom-xs" style="height: 45px;">
+    <div class="row padding-bottom-xs">
         <div class="col col-xs-2 padding-right-xs">
-            <img class="img-circle profile-img profile-img-lg" ng-src="{{user.picture}}">
+            <img class="img-circle profile-img profile-img-md" ng-src="{{user.picture}}">
         </div>
         <div class="col col-xs-10 padding-left-zero">
-            <div class="col col-xs-12 padding-left-zero"> <span class="text-primary">{{user.name}}</span></div>
-            <div class="col col-xs-12 padding-left-zero"><span class="text-gray">{{user.email}}</span></div>
+            <div class="col col-xs-12 padding-left-zero"><span class="text-primary font-size-12">{{user.name}}</span></div>
+            <div class="col col-xs-12 padding-left-zero"><span class="text-gray font-size-10">{{user.email}}</span></div>
         </div>
     </div>
     <ul class="nav nav-pills">

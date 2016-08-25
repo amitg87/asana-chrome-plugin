@@ -13,15 +13,15 @@ body{
     margin-bottom: 0;
 }
 
-.navbar-nav {
+.nav {
     margin: 0;
 }
 
-.navbar-nav>li>a{
+.nav>li>a{
     padding: 5px;
 }
 
-.navbar-nav>li {
+.nav>li {
     float: left;
 }
 
@@ -75,6 +75,7 @@ img.profile-img-sm{
 
 .padding-left-zero {
     padding-left: 0px;
+    line-height: 1;
 }
 
 /* asana buttons */
@@ -137,6 +138,11 @@ span.archived-project{
 
 .form-group-box textarea{
     outline: none;
+    padding: 2px;
+    resize:none;
+    width: 100%;
+    border:0;
+    background-color: #ffffff;
 }
 
 .requiredField{
@@ -166,4 +172,8 @@ https://github.com/angular-ui/ui-select/issues/379
 
 .ui-select-multiple .ui-select-search.ng-hide{
     width: 100%; display: inline-block !important; cursor: not-allowed;
+}
+
+.ui-select-multiple.ui-select-bootstrap .ui-select-match .close{
+    line-height: 1;
 }
