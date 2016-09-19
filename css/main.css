@@ -90,9 +90,17 @@ img.profile-img-sm{
     box-shadow: 0 0 0 3px #80E6FF;
 }
 
-span.archived-project{
-    border-left: 3px solid #62d26f;
-    padding-left: 5px;
+.project-status{
+    visibility: hidden;
+    color: #62d26f;
+}
+
+.project-status.archived-project{
+    visibility: visible;
+}
+
+.private-project{
+    color: #d2635b;
 }
 
 .overflow-ellipsis{
@@ -176,4 +184,20 @@ https://github.com/angular-ui/ui-select/issues/379
 
 .ui-select-multiple.ui-select-bootstrap .ui-select-match .close{
     line-height: 1;
+}
+
+/*multiselect span - showing default outline*/
+span:focus{
+    outline: none;
+}
+
+.asana-ng-container .btn-default:hover, .asana-ng-container .btn-default:focus{
+    color: #02CEFF;
+    background-color: #fff;
+    border-color: #02CEFF;
+}
+
+.asana-ng-container .btn-default:hover *, .asana-ng-container .btn-default:focus *,
+.asana-ng-container .close:focus, .close:hover {
+    color: #02CEFF;
 }

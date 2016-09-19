@@ -26,7 +26,7 @@ asanaModule.service("AsanaGateway", ["$http", function ($http) {
         if(typeof options === 'undefined' || typeof options.workspace_id === 'undefined')
             failure({"error": "Missing Parameter", message: "Fix this"});
         options.method = "GET";
-        options.path = "workspaces/" + options.workspace_id + "/projects?opt_fields=name,archived,notes";
+        options.path = "workspaces/" + options.workspace_id + "/projects?opt_fields=name,archived,notes,public";
         this.api(success, failure, options);
     };
 
