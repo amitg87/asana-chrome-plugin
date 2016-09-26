@@ -69,6 +69,22 @@ asanaModule.service("AsanaGateway", ["$http", function ($http) {
         this.api(success, failure, options);
     };
 
+    this.createNewTag = function (success, failure, options) {
+        if(typeof options == 'undefined')
+            options = {};
+        options.method = "POST";
+        options.path = "tags";
+        this.api(success, failure, options);
+    };
+
+    this.createNewProject = function (success, failure, options) {
+        if(typeof options == 'undefined')
+            options = {};
+        options.method = "POST";
+        options.path = "projects";
+        this.api(success, failure, options);
+    };
+
     //called by others
     this.api = function (success, failure, options) {
         options.headers = {"X-Requested-With": "XMLHttpRequest", "X-Allow-Asana-Client": "1"};
