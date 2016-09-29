@@ -5,6 +5,7 @@
   "short_name": "AsanaNG",
   "description": "Access Asana - quick and easy",
   "version": "0.3",
+  "default_locale": "fr",
 
   "icons": {
     "16": "img/icon16.png",
@@ -19,7 +20,7 @@
       "js/constants.js",
       "js/chrome/background.js"
     ],
-    "persistent": false
+    "persistent": true
   },
 
   "browser_action": {
@@ -30,7 +31,18 @@
     "default_popup": "popup.html"
   },
 
-  "permissions": ["cookies", "tabs", "*://*.asana.com/"],
+  "permissions": [
+    "cookies",
+    "tabs",
+    "webRequest",
+    "webRequestBlocking",
+    "*://*.asana.com/"
+  ],
+
+  "content_scripts": [{
+    "matches": ["*://*.asana.com/*"],
+    "js": ["js/lib/jquery-2.2.4.min.js", "js/contentscript/translate.js"]
+  }],
 
   "commands": {
     "_execute_browser_action": {

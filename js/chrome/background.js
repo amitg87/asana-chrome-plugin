@@ -19,3 +19,13 @@ chrome.cookies.onChanged.addListener(function (changeInfo) {
 chrome.commands.onCommand.addListener(function (command) {
     chrome.browserAction.enable();
 });
+
+// Add listener for all ajax request so we can localize the changed strings
+
+chrome.webRequest.onCompleted.addListener(function(details) {
+    chrome.tabs.getSelected(null, function(tab) {
+        chrome.tabs.sendRequest(tab.id, {}, function(){});
+    });
+}, {
+    urls: [ "*://app.asana.com/*" ]
+});
