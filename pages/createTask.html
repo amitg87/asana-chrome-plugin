@@ -1,4 +1,4 @@
-<form>
+<form ng-controller="createTaskController">
     <div class="form-group">
         <ui-select ng-model="selectedWorkspace.selected" on-select="onWorkspaceSelect($item, $model)">
             <ui-select-match placeholder="Select Workspace">
@@ -13,15 +13,16 @@
     </div>
 
     <div class="form-group multi-select">
-        <ui-select multiple ng-class="{requiredField:projectRequired}" ng-model="selectedProject.list"
+        <ui-select multiple tagging="projectTaggingHandler" ng-class="{requiredField:projectRequired}" ng-model="selectedProject.list"
                    ng-disabled="workspaceNotSelected" on-select="onProjectSelected($item, $model)">
             <ui-select-match placeholder="Select Project" style="padding-left: 5px;">
                 {{$item.name}}
             </ui-select-match>
             <ui-select-choices repeat="project in (projects | filter: $select.search)">
                 <div class="overflow-ellipsis">
-                    <span ng-class="{'archived-project': project.archived}" ng-bind="project.name" title="{{project.notes}}"></span>
-                    <i class="fa fa-lock" ng-hide="{{project.public}}" title="Private to me"></i>
+                    <span ng-class="{'archived-project':project.archived}" ng-bind="project.name" title="{{project.notes}}"></span>
+                    <span ng-bind="project.prompt"></span>
+                    <i class="fa fa-lock private-project" ng-hide="{{project.public}}" title="Private to me"></i>
                 </div>
             </ui-select-choices>
         </ui-select>
@@ -45,7 +46,8 @@
     </div>
 
     <div class="form-group multi-select">
-        <ui-select multiple ng-model="selectedTags.list" ng-disabled="workspaceNotSelected">
+        <ui-select multiple tagging="tagHandler"  ng-model="selectedTags.list" ng-disabled="workspaceNotSelected"
+                   on-select="createNewTag($item, $model)">
             <ui-select-match placeholder="Select tag(s)" style="padding-left: 5px;">
                 {{$item.name}}
             </ui-select-match>
@@ -53,6 +55,7 @@
                 <div class="overflow-ellipsis" title="{{tag.notes}}">
                     <i class="fa fa-tag"></i>
                     <span ng-bind="tag.name"></span>
+                    <span ng-bind="tag.prompt"></span>
                 </div>
             </ui-select-choices>
         </ui-select>

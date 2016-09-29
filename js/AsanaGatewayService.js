@@ -26,7 +26,7 @@ asanaModule.service("AsanaGateway", ["$http", function ($http) {
         if(typeof options === 'undefined' || typeof options.workspace_id === 'undefined')
             failure({"error": "Missing Parameter", message: "Fix this"});
         options.method = "GET";
-        options.path = "workspaces/" + options.workspace_id + "/projects?opt_fields=name,archived,notes";
+        options.path = "workspaces/" + options.workspace_id + "/projects?opt_fields=name,archived,notes,public";
         this.api(success, failure, options);
     };
 
@@ -69,6 +69,22 @@ asanaModule.service("AsanaGateway", ["$http", function ($http) {
         this.api(success, failure, options);
     };
 
+    this.createNewTag = function (success, failure, options) {
+        if(typeof options == 'undefined')
+            options = {};
+        options.method = "POST";
+        options.path = "tags";
+        this.api(success, failure, options);
+    };
+
+    this.createNewProject = function (success, failure, options) {
+        if(typeof options == 'undefined')
+            options = {};
+        options.method = "POST";
+        options.path = "projects";
+        this.api(success, failure, options);
+    };
+
     //called by others
     this.api = function (success, failure, options) {
         options.headers = {"X-Requested-With": "XMLHttpRequest", "X-Allow-Asana-Client": "1"};
@@ -105,10 +121,15 @@ asanaModule.service("AsanaGateway", ["$http", function ($http) {
                 success(result);
             }
         }, function (response) {
+            var message = "";
             if(response.status == 401){
                 Asana.setLoggedIn(false);
+                message = response.data.errors[0].message;
+            } else if(response.status == -1){
+                message = "ERR_INTERNET_DISCONNECTED";
             }
-            failure({"error": "SERVER_ERROR", message: response.data.errors[0].message})
+
+            failure({"error": "SERVER_ERROR", message: message})
         });
     }
 }]);
