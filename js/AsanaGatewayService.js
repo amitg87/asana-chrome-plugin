@@ -121,10 +121,15 @@ asanaModule.service("AsanaGateway", ["$http", function ($http) {
                 success(result);
             }
         }, function (response) {
+            var message = "";
             if(response.status == 401){
                 Asana.setLoggedIn(false);
+                message = response.data.errors[0].message;
+            } else if(response.status == -1){
+                message = "ERR_INTERNET_DISCONNECTED";
             }
-            failure({"error": "SERVER_ERROR", message: response.data.errors[0].message})
+
+            failure({"error": "SERVER_ERROR", message: message})
         });
     }
 }]);

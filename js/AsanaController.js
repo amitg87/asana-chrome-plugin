@@ -38,7 +38,20 @@ asanaModule.controller("createTaskController", function ($scope, AsanaGateway, $
 
     $scope.onProjectSelected = function (item, model) {
         $scope.projectRequired = false;
-        //call createProject @todo
+        if(item.isTag){
+            console.log("Creating new project: " + JSON.stringify(item));
+            var projRef = item;
+            var options = {data: {}};
+            options.data.workspace = $scope.selectedWorkspaceId;
+            options.data.name = item.name;
+
+            AsanaGateway.createNewProject(function (response) {
+                console.log("New project created: " + JSON.stringify(response));
+                projRef.id = response.id;
+            }, function (response) {
+                console.log("New project create failed: " + JSON.stringify(response));
+            }, options);
+        }
     };
 
     $scope.onWorkspaceSelect = function (item, model) {
@@ -134,8 +147,14 @@ asanaModule.controller("createTaskController", function ($scope, AsanaGateway, $
         return typeof param != 'undefined';
     };
 
-    $scope.tagHandler = function (tag){
-        return { id: 1, name: tag, notes: '', prompt: "(new tag)" }
+    $scope.tagHandler = function (input){
+        var lowInput = input.toLowerCase();
+        for(var i=0; i<$scope.tags.length; i++){
+            if($scope.tags[i].name.toLowerCase().indexOf(lowInput)>=0){
+                return $scope.tags[i];
+            }
+        }
+        return { id: 1, name: input, notes: '', prompt: "(new tag)" }
     };
 
     $scope.createNewTag = function (item, model) {
@@ -157,6 +176,13 @@ asanaModule.controller("createTaskController", function ($scope, AsanaGateway, $
     };
 
     $scope.projectTaggingHandler = function (input) {
+        //console.log($scope.projects);
+        var lowInput = input.toLowerCase();
+        for(var i=0; i<$scope.projects.length; i++){
+            if($scope.projects[i].name.toLowerCase().indexOf(lowInput)>=0){
+                return $scope.projects[i];
+            }
+        }
         return { id: 1, name: input, notes: '', prompt: "(new project)", public: true};
     };
 

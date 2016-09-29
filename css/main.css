@@ -186,6 +186,10 @@ https://github.com/angular-ui/ui-select/issues/379
     line-height: 1;
 }
 
+.ui-select-bootstrap .ui-select-choices-row>a{
+    padding: 2px 10px;
+}
+
 /*multiselect span - showing default outline*/
 span:focus{
     outline: none;
