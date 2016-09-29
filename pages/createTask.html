@@ -20,8 +20,7 @@
             </ui-select-match>
             <ui-select-choices repeat="project in (projects | filter: $select.search)">
                 <div class="overflow-ellipsis">
-                    <i ng-class="{'archived-project': project.archived}" class="fa fa-archive project-status" title="Archived Project"></i>
-                    <span ng-bind="project.name" title="{{project.notes}}"></span>
+                    <span ng-class="{'archived-project':project.archived}" ng-bind="project.name" title="{{project.notes}}"></span>
                     <span ng-bind="project.prompt"></span>
                     <i class="fa fa-lock private-project" ng-hide="{{project.public}}" title="Private to me"></i>
                 </div>

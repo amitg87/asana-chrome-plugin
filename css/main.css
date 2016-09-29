@@ -90,13 +90,9 @@ img.profile-img-sm{
     box-shadow: 0 0 0 3px #80E6FF;
 }
 
-.project-status{
-    visibility: hidden;
-    color: #62d26f;
-}
-
-.project-status.archived-project{
-    visibility: visible;
+span.archived-project{
+    border-left: 3px solid #62d26f;
+    padding-left: 5px;
 }
 
 .private-project{
@@ -187,7 +183,7 @@ https://github.com/angular-ui/ui-select/issues/379
 }
 
 .ui-select-bootstrap .ui-select-choices-row>a{
-    padding: 2px 10px;
+    padding: 3px 10px;
 }
 
 /*multiselect span - showing default outline*/
