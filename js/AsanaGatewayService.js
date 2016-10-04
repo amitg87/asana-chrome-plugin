@@ -11,7 +11,8 @@ asanaModule.service("AsanaGateway", ["$http", function ($http) {
         if(typeof options === 'undefined' || typeof options.workspace_id === 'undefined')
             failure({"error": "Missing Parameter", message: "Fix this"});
         options.method = "GET";
-        options.path = "workspaces/" + options.workspace_id + "/users?opt_fields=name,email,photo.image_128x128";
+        options.path = "workspaces/" + options.workspace_id + "/users";
+        options.query = {opt_fields: "name,email,photo.image_128x128"};
 
         this.api(function (response) {
             if(response.photo == null)
@@ -26,7 +27,9 @@ asanaModule.service("AsanaGateway", ["$http", function ($http) {
         if(typeof options === 'undefined' || typeof options.workspace_id === 'undefined')
             failure({"error": "Missing Parameter", message: "Fix this"});
         options.method = "GET";
-        options.path = "workspaces/" + options.workspace_id + "/projects?opt_fields=name,archived,notes,public";
+        options.path = "workspaces/" + options.workspace_id + "/projects";
+        options.query = {opt_fields: "name,archived,notes,public"};
+
         this.api(success, failure, options);
     };
 
@@ -34,7 +37,9 @@ asanaModule.service("AsanaGateway", ["$http", function ($http) {
         if(typeof options === 'undefined' || typeof options.workspace_id === 'undefined')
             failure({"error": "Missing Parameter", message: "Fix this"});
         options.method = "GET";
-        options.path = "workspaces/" + options.workspace_id + "/tags?opt_fields=name,notes";
+        options.path = "workspaces/" + options.workspace_id + "/tags";
+        options.query = {opt_fields: "name,notes"};
+
         this.api(success, failure, options);
     };
 
@@ -42,7 +47,9 @@ asanaModule.service("AsanaGateway", ["$http", function ($http) {
         if(typeof options === "undefined")
             options = {};
         options.method = "GET";
-        options.path = "users/me?opt_fields=name,email,photo.image_128x128";
+        options.path = "users/me";
+        options.query = {opt_fields: "name,email,photo.image_128x128"};
+
         this.api(function (response) {
             if (response.photo == null)
                 response.picture = chrome.extension.getURL("img/nopicture.png");
@@ -57,15 +64,6 @@ asanaModule.service("AsanaGateway", ["$http", function ($http) {
             options = {};
         options.method = "POST";
         options.path = "tasks";
-        this.api(success, failure, options);
-    };
-
-    this.getMyTasks = function (success, failure, options) {
-        //https://app.asana.com/api/1.0/tasks?assignee=me&workspace=42783899288073&completed_since=now&opt_fields=name,due_at,due_on,completed,tags,projects.name&limit=26
-        if(typeof  options === 'undefined')
-            options = {};
-        options.method = "GET";
-        options.path = "tasks?assignee=me&workspace=42783899288073&completed_since=now&opt_fields=name,due_at,due_on,completed,tags,projects.name";
         this.api(success, failure, options);
     };
 
@@ -88,29 +86,38 @@ asanaModule.service("AsanaGateway", ["$http", function ($http) {
     //called by others
     this.api = function (success, failure, options) {
         options.headers = {"X-Requested-With": "XMLHttpRequest", "X-Allow-Asana-Client": "1"};
-        var headers = options.headers || {};
-        var params = options.params || {};
+
+        // Be polite to Asana API and tell them who we are.
+        var manifest = chrome.runtime.getManifest();
+        var client_name = [
+            "chrome-extension",
+            chrome.i18n.getMessage("@@extension_id"),
+            manifest.version,
+            manifest.name
+        ].join(":");
 
         var asanaOptions = {};
+        var queryParams = "";
         if (options.method === "PUT" || options.method === "POST"){
-            // Be polite to Asana API and tell them who we are.
-            var manifest = chrome.runtime.getManifest();
-            var client_name = [
-                "chrome-extension",
-                chrome.i18n.getMessage("@@extension_id"),
-                manifest.version,
-                manifest.name
-            ].join(":");
             asanaOptions = {client_name: client_name};
+        } else {
+            options.query = options.query || {};
+            options.query["opt_client_name"] = client_name;
+            for (var key in options.query) {
+                if (options.query.hasOwnProperty(key)) {
+                    queryParams += (key + "=" + options.query[key] + "&");
+                }
+            }
+            queryParams = encodeURI(queryParams);
         }
 
-        var url = Asana.getBaseApiUrl() + options.path;
+        var url = Asana.getBaseApiUrl() + options.path + "?" + queryParams;
         $http({
             method: options.method,
             url: url,
             respondType: 'json',
-            headers: headers,
-            params: params,
+            headers: options.headers || {},
+            params: options.params || {},
             data: {data: options.data, options: asanaOptions}
         }).then(function (response) {
             if(response.data.data){
