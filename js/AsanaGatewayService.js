@@ -97,19 +97,19 @@ asanaModule.service("AsanaGateway", ["$http", function ($http) {
         ].join(":");
 
         var asanaOptions = {};
-        var queryParams = "";
         if (options.method === "PUT" || options.method === "POST"){
             asanaOptions = {client_name: client_name};
         } else {
             options.query = options.query || {};
             options.query["opt_client_name"] = client_name;
-            for (var key in options.query) {
-                if (options.query.hasOwnProperty(key)) {
-                    queryParams += (key + "=" + options.query[key] + "&");
-                }
-            }
-            queryParams = encodeURI(queryParams);
         }
+        var queryParams = "";
+        for (var key in options.query) {
+            if (options.query.hasOwnProperty(key)) {
+                queryParams += (key + "=" + options.query[key] + "&");
+            }
+        }
+        queryParams = encodeURI(queryParams.substr(0, queryParams.length-1));
 
         var url = Asana.getBaseApiUrl() + options.path + "?" + queryParams;
         $http({
