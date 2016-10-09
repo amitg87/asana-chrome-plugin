@@ -9,11 +9,14 @@ asanaModule.controller("userController", function ($scope, AsanaGateway) {
         chrome.tabs.create({url: url}, function () {
             window.close();
         });
-    }
+    };
+
+    $scope.isDefined = function (param) {
+        return typeof param != 'undefined';
+    };
 });
 
 asanaModule.controller("createTaskController", function ($scope, AsanaGateway, $timeout) {
-    $scope.loggedIn = Asana.isLoggedIn();
     $scope.workspaceNotSelected = true;
     $scope.projectRequired = false;
     $scope.taskNameRequired = false;
@@ -143,10 +146,6 @@ asanaModule.controller("createTaskController", function ($scope, AsanaGateway, $
         }
     });
 
-    $scope.isDefined = function (param) {
-        return typeof param != 'undefined';
-    };
-
     $scope.tagHandler = function (input){
         var lowInput = input.toLowerCase();
         for(var i=0; i<$scope.tags.length; i++){
@@ -203,6 +202,36 @@ asanaModule.controller("createTaskController", function ($scope, AsanaGateway, $
 });
 
 asanaModule.controller("todoController", function ($scope, AsanaGateway) {
-    $scope.loggedIn = Asana.isLoggedIn();
+    $scope.selectedView = "Task by Due Date";
+
+    $scope.switchView = function (choice) {
+        $scope.selectedView = choice;
+    };
+
+    AsanaGateway.getWorkspaces(function (response) {
+        $scope.workspaces = response;
+        if($scope.isDefined(response) && response.length > 0){
+            $scope.selectedWorkspace = response[0];
+            $scope.selectedWorkspace.selected = response[0];
+            $scope.onWorkspaceSelect(response[0], response[0]);
+        }
+    });
+
+    $scope.onWorkspaceSelect = function (item, model) {
+        $scope.selectedWorkspaceId = $scope.selectedWorkspace.selected.id;
+        //fetch tasks here
+        var options = {
+            workspace_id: $scope.selectedWorkspaceId
+        };
+        AsanaGateway.getTasks(function (response) {
+            $scope.tasks = response;
+        }, function () {
+
+        }, options);
+    };
+
+    $scope.taskdone = function (task_id) {
+        console.log("mark task done: " + task_id);
+    }
 });
 

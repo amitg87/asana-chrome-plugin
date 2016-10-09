@@ -83,6 +83,62 @@ asanaModule.service("AsanaGateway", ["$http", function ($http) {
         this.api(success, failure, options);
     };
 
+    this.getTasks = function (success, failure, options) {
+        if(typeof options == 'undefined')
+            options = {};
+        if(typeof options.workspace_id == 'undefined')
+            failure({"error": "Missing Parameter", message: "Fix this"});
+        options.method = "GET";
+        options.path = "tasks";
+        options.query = {
+            opt_fields: "name,due_at,due_on,completed,tags,projects",
+            assignee: "me",
+            workspace: options.workspace_id,
+            completed_since: "now"
+        };
+        this.api(success, failure, options);
+    };
+
+    this.getTask = function (success, failure, options) {
+        if(typeof options == 'undefined')
+            options = {};
+        if(typeof options.task_id == 'undefined')
+            failure({"error": "Missing Parameter", message: "Fix this"});
+        options.method = "GET";
+        options.path = "tasks/" + options.task_id;
+        this.api(success, failure, options);
+    };
+
+    this.taskDone = function (success, failure, options) {
+        if(typeof options == 'undefined')
+            options = {};
+        if(typeof options.task_id == 'undefined')
+            failure({"error": "Missing Parameter", message: "Fix this"});
+        options.method = "PUT";
+        options.path = "tasks/" + options.task_id;
+        this.api(success, failure, options);
+    };
+
+    this.getTaskStories = function (success, failure, options) {
+        if(typeof options == 'undefined')
+            options = {};
+        if(typeof options.task_id == 'undefined')
+            failure({"error": "Missing Parameter", message: "Fix this"});
+        options.method = "GET";
+        options.path = "tasks/" + options.task_id + "/stories";
+        this.api(success, failure, options);
+    };
+
+    this.addComment = function (success, failure, options) {
+        if(typeof options == 'undefined')
+            options = {};
+        if(typeof options.task_id == 'undefined')
+            failure({"error": "Missing Parameter", message: "Fix this"});
+        options.method = "POST";
+        options.path = "tasks/" + options.task_id + "/stories";
+        this.api(success, failure, options);
+    };
+
     //called by others
     this.api = function (success, failure, options) {
         options.headers = {"X-Requested-With": "XMLHttpRequest", "X-Allow-Asana-Client": "1"};

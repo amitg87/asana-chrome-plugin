@@ -5,8 +5,8 @@ asanaModule.config(function($routeProvider, $locationProvider) {
     $routeProvider
         .when('/', {
             // route for the create task page
-            templateUrl : 'pages/createTask.html',
-            controller  : 'createTaskController'
+            templateUrl : 'pages/todo.html',
+            controller  : 'todoController'
         })
        .when('/createTask', {
             // route for the create task page

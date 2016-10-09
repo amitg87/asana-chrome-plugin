@@ -162,7 +162,7 @@ Calendar popup above rather than below
 
 .dropdown-menu.datetime-picker-dropdown.ng-not-empty.ng-valid-time,
 .dropdown-menu.datetime-picker-dropdown.ng-empty{
-    top: calc( -15% - 159px);
+    top: calc(-15% - 159px);
 }
 
 /*
@@ -200,4 +200,50 @@ span:focus{
 .asana-ng-container .btn-default:hover *, .asana-ng-container .btn-default:focus *,
 .asana-ng-container .close:focus, .close:hover {
     color: #02CEFF;
+}
+
+.asana-ng-container .open>.dropdown-toggle.btn-default:hover {
+    color: #02CEFF;
+    background-color: #ffffff;
+    border-color: #02CEFF;
+}
+
+.asana-ng-container .task-criteria #selectedView{
+    width: 130px;
+}
+
+.asana-ng-container .task-criteria.open>.dropdown-toggle.btn-default{
+    background-color: #ffffff;
+    border-color: #02CEFF;
+}
+
+.asana-ng-container .task-criteria .dropdown-menu{
+    font-size: 12px;
+    min-width: 130px;
+}
+
+.asana-ng-container .task-criteria .dropdown-menu>li>a{
+    padding: 3px 5px;
+}
+
+.asana-ng-container .task-manager .list-group-item{
+    padding: 2px 2px;
+}
+
+.asana-ng-container .checkbox-asana{
+    margin-top: 2px;
+    margin-bottom: 2px;
+    padding-left: 22px;
+}
+
+.asana-ng-container .checkbox-asana input[type="checkbox"]{
+    cursor: pointer;
+}
+
+.asana-ng-container .checkbox-asana label {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    max-width: calc(100% - 28px);
+    font-size: 12px;
 }
