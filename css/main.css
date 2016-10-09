@@ -240,10 +240,22 @@ span:focus{
     cursor: pointer;
 }
 
-.asana-ng-container .checkbox-asana label {
+.asana-ng-container .checkbox-asana .task-name {
+    display: inline-block;
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
-    max-width: calc(100% - 28px);
+    max-width: calc(100% - 40px);
     font-size: 12px;
+    line-height: 23px;
+    vertical-align: bottom;
+}
+
+.asana-ng-container .task-list .task-details{
+    color: #bbbbbb;
+    cursor: pointer;
+}
+
+.asana-ng-container .task-list .task-details:hover{
+    color: #02CEFF;
 }
