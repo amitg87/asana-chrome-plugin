@@ -249,6 +249,7 @@ span:focus{
     font-size: 12px;
     line-height: 23px;
     vertical-align: bottom;
+    padding-left: 0;
 }
 
 .asana-ng-container .task-list .task-details{
@@ -258,4 +259,16 @@ span:focus{
 
 .asana-ng-container .task-list .task-details:hover{
     color: #02CEFF;
+}
+
+.asana-ng-container .task-list {
+    height: 256px;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    border: 1px solid rgba(0, 0, 0, 0.149);
+    border-radius: 5px;
+}
+
+.asana-ng-container .task-list .list-group{
+    margin-bottom: 0;
 }

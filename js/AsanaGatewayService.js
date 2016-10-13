@@ -116,6 +116,9 @@ asanaModule.service("AsanaGateway", ["$http", function ($http) {
             failure({"error": "Missing Parameter", message: "Fix this"});
         options.method = "PUT";
         options.path = "tasks/" + options.task_id;
+        options.query = {
+            completed: options.completed
+        };
         this.api(success, failure, options);
     };
 

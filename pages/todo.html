@@ -23,11 +23,11 @@
             </ui-select-choices>
         </ui-select>
     </div>
-    <div class="form-group">
-        <ul class="list-group task-list">
-            <li class="list-group-item" ng-repeat="task in tasks">
+    <div class="form-group task-list">
+        <ul class="list-group">
+            <li class="list-group-item" ng-repeat="task in tasks" ng-if='!task.name.endsWith(":")'>
                 <div class="checkbox checkbox-info checkbox-circle checkbox-asana" ng-model="task.id">
-                    <input id="task.id" class="styled" type="checkbox">
+                    <input id="task.id" class="styled" type="checkbox" ng-checked="task.completed" ng-click="markTaskDone(task)">
                     <label for="task.id">
                     </label>
                     <span class="task-name">

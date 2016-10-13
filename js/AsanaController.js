@@ -230,8 +230,16 @@ asanaModule.controller("todoController", function ($scope, AsanaGateway) {
         }, options);
     };
 
-    $scope.taskdone = function (task_id) {
-        console.log("mark task done: " + task_id);
+    $scope.markTaskDone = function (task) {
+        var taskNextStatus = !task.completed;
+        var option = {
+            task_id: task.id,
+            completed: taskNextStatus
+        };
+        AsanaGateway.taskDone(function (response) {
+            task.completed = taskNextStatus;
+        }, function () {
+        }, option);
     }
 });
 
