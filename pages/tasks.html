@@ -27,16 +27,17 @@
         <ul class="list-group">
             <li class="list-group-item" ng-repeat="task in tasks" ng-if='!task.name.endsWith(":")'>
                 <div class="checkbox checkbox-info checkbox-circle checkbox-asana" ng-model="task.id">
-                    <input id="task.id" class="styled" type="checkbox" ng-checked="task.completed" ng-click="markTaskDone(task)">
-                    <label for="task.id">
+                    <input id="{{task.id}}" class="styled" type="checkbox" ng-checked="task.completed"
+                           ng-click="markTaskDone(task.id, task.completed); task.completed = !task.completed;">
+                    <label for="{{task.id}}">
                     </label>
                     <span class="task-name">
                         {{task.name}}
                     </span>
-                    <span class="pull-right task-details">
+                    <a class="pull-right task-details" href="#tasks/{{task.id}}">
                         <i class="fa fa-comment-o"></i>
                         <i class="fa fa-chevron-right"></i>
-                    </span>
+                    </a>
                 </div>
             </li>
         </ul>

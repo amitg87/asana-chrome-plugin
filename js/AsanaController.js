@@ -14,6 +14,10 @@ asanaModule.controller("userController", function ($scope, AsanaGateway) {
     $scope.isDefined = function (param) {
         return typeof param != 'undefined';
     };
+
+    $scope.navigate = function (url) {
+
+    }
 });
 
 asanaModule.controller("createTaskController", function ($scope, AsanaGateway, $timeout) {
@@ -201,7 +205,7 @@ asanaModule.controller("createTaskController", function ($scope, AsanaGateway, $
     };
 });
 
-asanaModule.controller("todoController", function ($scope, AsanaGateway) {
+asanaModule.controller("tasksController", function ($scope, AsanaGateway) {
     $scope.selectedView = "Task by Due Date";
 
     $scope.switchView = function (choice) {
@@ -230,16 +234,39 @@ asanaModule.controller("todoController", function ($scope, AsanaGateway) {
         }, options);
     };
 
-    $scope.markTaskDone = function (task) {
-        var taskNextStatus = !task.completed;
+    $scope.markTaskDone = function (task_id, task_completed) {
+        var taskNextStatus = !task_completed;
         var option = {
-            task_id: task.id,
+            task_id: task_id,
             completed: taskNextStatus
         };
         AsanaGateway.taskDone(function (response) {
-            task.completed = taskNextStatus;
+
         }, function () {
         }, option);
-    }
+    };
+});
+
+asanaModule.controller("taskController", function ($scope, $routeParams, AsanaGateway) {
+    $scope.task_id = $routeParams.id;
+    $scope.assignee = {selected: undefined};
+
+    console.log("task_id : " + $scope.task_id);
+    var options = {
+        task_id: $scope.task_id
+    };
+    AsanaGateway.getTaskStories(function (response) {
+        $scope.stories = response;
+        console.dir("Stories: " + $scope.stories);
+    }, function () {
+
+    }, options);
+    AsanaGateway.getTask(function (response) {
+        $scope.taskDetails = response;
+        console.dir("Task details: " + $scope.taskDetails);
+        $scope.assignee.selected = response.assignee;
+    }, function () {
+
+    }, options);
 });
 
