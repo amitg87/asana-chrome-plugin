@@ -153,6 +153,18 @@ span.archived-project{
     border: 1px solid red !important;
 }
 
+.copy-page{
+    position: absolute;
+    right: 16px;
+    font-size: 16px;
+    color: #888;
+    cursor: pointer;
+}
+
+.copy-page:hover, .copy-page:focus{
+    color: #02CEFF
+}
+
 /*
 Calendar popup above rather than below
 */

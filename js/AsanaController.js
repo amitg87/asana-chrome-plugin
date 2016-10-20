@@ -203,6 +203,15 @@ asanaModule.controller("createTaskController", function ($scope, AsanaGateway, $
             }, options);
         }
     };
+
+    $scope.copyPage = function () {
+        chrome.tabs.query({ currentWindow: true, active: true }, function (tabArray) {
+            var tab = tabArray[0];
+            $scope.taskName = tab.title;
+            $scope.taskNotes = tab.url;
+            $scope.taskNameRequired = false;
+        });
+    }
 });
 
 asanaModule.controller("tasksController", function ($scope, AsanaGateway) {
