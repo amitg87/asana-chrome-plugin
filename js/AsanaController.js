@@ -14,10 +14,6 @@ asanaModule.controller("userController", function ($scope, AsanaGateway) {
     $scope.isDefined = function (param) {
         return typeof param != 'undefined';
     };
-
-    $scope.navigate = function (url) {
-
-    }
 });
 
 asanaModule.controller("createTaskController", function ($scope, AsanaGateway, $timeout) {
@@ -267,6 +263,12 @@ asanaModule.controller("taskController", function ($scope, $routeParams, AsanaGa
     AsanaGateway.getTaskStories(function (response) {
         $scope.stories = response;
         console.dir("Stories: " + $scope.stories);
+        $scope.activities = response.filter(function (activity) {
+            return activity.type === "system";
+        });
+        $scope.comments = response.filter(function (comment) {
+            return comment.type === "comment";
+        });
     }, function () {
 
     }, options);

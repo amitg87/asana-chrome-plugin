@@ -78,6 +78,18 @@ img.profile-img-sm{
     line-height: 1;
 }
 
+body section{
+    width: 360px;
+    height: 336px;
+    overflow-x: hidden;
+    overflow-y: scroll;
+}
+
+hr{
+    margin-bottom: 3px;
+    margin-top: 3px;
+}
+
 /* asana buttons */
 .btn-asana{
     color: #fff !important;
@@ -282,6 +294,7 @@ span:focus{
     overflow-y: scroll;
     border: 1px solid rgba(0, 0, 0, 0.149);
     border-radius: 5px;
+    margin-bottom: 0;
 }
 
 .asana-ng-container .task-list .list-group{
@@ -299,4 +312,40 @@ span:focus{
 
 .asana-ng-container .task-details .checkbox label{
     padding-left: 0;
+}
+
+.asana-ng-container .task-details .user-name,
+.asana-ng-container .task-details .activity-time{
+    cursor: pointer;
+    font-size: 10px;
+    font-weight: lighter;
+    color: #777;
+}
+
+.asana-ng-container .task-details .user-name:hover,
+.asana-ng-container .task-details .activity-time:hover,
+.asana-ng-container .task-details .user-name:focus,
+.asana-ng-container .task-details .activity-time:focus{
+    color: #02CEFF;
+}
+
+.asana-ng-container .task-details .list{
+    list-style: none;
+    padding-left: 0;
+}
+
+.asana-ng-container .task-details .activity-list .user-activity{
+    font-size: 10px;
+}
+
+.asana-ng-container .task-details .comment-list .user-comment{
+    border: 1px solid #bbbbbb;
+    border-radius: 5px;
+    font-size:12px;
+    padding: 2px;
+}
+
+.asana-ng-container .task-details .comment-list .activity-time{
+    float: right;
+    line-height: 26px;
 }

@@ -11,8 +11,25 @@
     <div class="form-group form-group-box">
         <textarea id="taskNotes" class="task-notes" ng-model="taskDetails.notes" placeholder="Task Description"> </textarea>
     </div>
+    <hr/>
     <div class="form-group">
-
+        <ul class="list activity-list">
+            <li ng-repeat="activity in activities">
+                <span class="user-name">{{activity.created_by.name}}</span>
+                <span class="user-activity">{{activity.text}}</span>
+                <span class="activity-time" title="{{activity.created_at|date:'medium'}}">{{activity.created_at|date:'d-MMM'}}</span>
+            </li>
+        </ul>
+    </div>
+    <hr/>
+    <div class="form-group">
+        <ul class="list comment-list">
+            <li class="comment" ng-repeat="comment in comments">
+                <span class="user-name">{{comment.created_by.name}}</span>
+                <span class="activity-time" title="{{comment.created_at|date:'medium'}}">{{comment.created_at|date:'d-MMM'}}</span>
+                <div class="user-comment">{{comment.text}}</div>
+            </li>
+        </ul>
     </div>
 </div>
 
