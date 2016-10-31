@@ -82,7 +82,7 @@ body section{
     width: 360px;
     height: 336px;
     overflow-x: hidden;
-    overflow-y: scroll;
+    overflow-y: auto;
 }
 
 hr{

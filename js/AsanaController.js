@@ -1,5 +1,8 @@
 asanaModule.controller("userController", function ($scope, AsanaGateway) {
     $scope.loggedIn = Asana.isLoggedIn();
+    $scope.workspaceNotSelected = true;
+    $scope.refreshProjectList = false;
+    $scope.refreshTagList = false;
 
     AsanaGateway.getUserData(function (response) {
         $scope.user = response;
@@ -10,10 +13,111 @@ asanaModule.controller("userController", function ($scope, AsanaGateway) {
             window.close();
         });
     };
+
+    AsanaGateway.getWorkspaces(function (response) {
+        $scope.workspaces = response;
+        if(angular.isDefined(response) && response.length > 0){
+            $scope.selectedWorkspace = response[0];
+            $scope.selectedWorkspace.selected = response[0];
+            $scope.onWorkspaceSelect(response[0], response[0]);
+        }
+    });
+
+    $scope.onWorkspaceSelect = function (item, model) {
+        $scope.selectedWorkspaceId = $scope.selectedWorkspace.selected.id;
+        $scope.workspaceNotSelected = false;
+
+        $scope.getWorkspaceTags();
+        $scope.getWorkspaceUsers();
+        $scope.getWorkspaceProjects();
+    };
+
+    $scope.getWorkspaceTags = function () {
+        AsanaGateway.getWorkspaceTags(function (response) {
+            $scope.tags = response;
+        }, null, {workspace_id: $scope.selectedWorkspaceId});
+    };
+
+    $scope.getWorkspaceUsers = function () {
+        AsanaGateway.getWorkspaceUsers(function (response) {
+            $scope.users = response;
+        }, null, {workspace_id: $scope.selectedWorkspaceId});
+    };
+
+    $scope.getWorkspaceProjects = function () {
+        AsanaGateway.getWorkspaceProjects(function (response) {
+            $scope.projects = response;
+        }, null, {workspace_id: $scope.selectedWorkspaceId});
+    };
+
+    $scope.refresh = function () {
+        if($scope.refreshProjectList){
+            $scope.refreshProjectList = false;
+            $scope.getWorkspaceProjects();
+        }
+        if($scope.refreshTagList){
+            $scope.refreshTagList = false;
+            $scope.getWorkspaceTags();
+        }
+    };
+
+    $scope.tagHandler = function (input){
+        var lowInput = input.toLowerCase();
+        for(var i=0; i<$scope.tags.length; i++){
+            if($scope.tags[i].name.toLowerCase().indexOf(lowInput)>=0){
+                return $scope.tags[i];
+            }
+        }
+        return { id: 1, name: input, notes: '', prompt: "(new tag)" }
+    };
+
+    $scope.createNewTag = function (item, model) {
+        if(item.isTag){
+            var tagRef = item;
+            console.log("Creating new tag: " + JSON.stringify(item));
+            var options = {data: {}};
+            options.data.workspace = $scope.selectedWorkspaceId;
+            options.data.name = item.name;
+            AsanaGateway.createNewTag(function (response) {
+                console.log("Create tag success: " + JSON.stringify(response));
+                tagRef.id = response.id; //update created tag with new id
+                $scope.refreshTagList = true;
+            }, function (response) {
+                console.log("Create tag failed: " + JSON.stringify(response));
+            }, options);
+        }
+    };
+
+    $scope.projectTaggingHandler = function (input) {
+        var lowInput = input.toLowerCase();
+        for(var i=0; i<$scope.projects.length; i++){
+            if($scope.projects[i].name.toLowerCase().indexOf(lowInput)>=0){
+                return $scope.projects[i];
+            }
+        }
+        return { id: 1, name: input, notes: '', prompt: "(new project)", public: true};
+    };
+
+    $scope.onProjectSelected = function (item, model) {
+        if(item.isTag){
+            console.log("Creating new project: " + JSON.stringify(item));
+            var projRef = item;
+            var options = {data: {}};
+            options.data.workspace = $scope.selectedWorkspaceId;
+            options.data.name = item.name;
+
+            AsanaGateway.createNewProject(function (response) {
+                console.log("New project created: " + JSON.stringify(response));
+                projRef.id = response.id;
+                $scope.refreshProjectList = true;
+            }, function (response) {
+                console.log("New project create failed: " + JSON.stringify(response));
+            }, options);
+        }
+    };
 });
 
 asanaModule.controller("createTaskController", function ($scope, AsanaGateway, $timeout) {
-    $scope.workspaceNotSelected = true;
     $scope.projectRequired = false;
     $scope.taskNameRequired = false;
 
@@ -35,40 +139,9 @@ asanaModule.controller("createTaskController", function ($scope, AsanaGateway, $
 
     $scope.clearFields();
 
-    $scope.onProjectSelected = function (item, model) {
-        $scope.projectRequired = false;
-        if(item.isTag){
-            console.log("Creating new project: " + JSON.stringify(item));
-            var projRef = item;
-            var options = {data: {}};
-            options.data.workspace = $scope.selectedWorkspaceId;
-            options.data.name = item.name;
-
-            AsanaGateway.createNewProject(function (response) {
-                console.log("New project created: " + JSON.stringify(response));
-                projRef.id = response.id;
-            }, function (response) {
-                console.log("New project create failed: " + JSON.stringify(response));
-            }, options);
-        }
-    };
-
-    $scope.onWorkspaceSelect = function (item, model) {
-        $scope.selectedWorkspaceId = $scope.selectedWorkspace.selected.id;
+    $scope.onWorkspaceSelect = function () {
+        $scope.$parent.onWorkspaceSelect();
         $scope.clearFields();
-        $scope.workspaceNotSelected = false;
-
-        AsanaGateway.getWorkspaceTags(function (response) {
-            $scope.tags = response;
-        }, null, {workspace_id: $scope.selectedWorkspaceId});
-
-        AsanaGateway.getWorkspaceUsers(function (response) {
-            $scope.users = response;
-        }, null, {workspace_id: $scope.selectedWorkspaceId});
-
-        AsanaGateway.getWorkspaceProjects(function (response) {
-            $scope.projects = response;
-        }, null, {workspace_id: $scope.selectedWorkspaceId});
     };
 
     $scope.createTask = function () {
@@ -111,7 +184,7 @@ asanaModule.controller("createTaskController", function ($scope, AsanaGateway, $
             console.log("Success: creating task: " + JSON.stringify(response));
             //$scope.selectedWorkspace = {};
             $scope.clearFields();
-
+            $scope.refresh();
             $scope.taskCreationStatus = {
                 success: true,
                 message: "Task created",
@@ -131,69 +204,6 @@ asanaModule.controller("createTaskController", function ($scope, AsanaGateway, $
                 $scope.taskCreationStatus.show = false;
             }, 5000);
         }, options);
-    };
-
-    AsanaGateway.getWorkspaces(function (response) {
-        $scope.workspaces = response;
-        if(angular.isDefined(response) && response.length > 0){
-            $scope.selectedWorkspace = response[0];
-            $scope.selectedWorkspace.selected = response[0];
-            $scope.onWorkspaceSelect(response[0], response[0]);
-        }
-    });
-
-    $scope.tagHandler = function (input){
-        var lowInput = input.toLowerCase();
-        for(var i=0; i<$scope.tags.length; i++){
-            if($scope.tags[i].name.toLowerCase().indexOf(lowInput)>=0){
-                return $scope.tags[i];
-            }
-        }
-        return { id: 1, name: input, notes: '', prompt: "(new tag)" }
-    };
-
-    $scope.createNewTag = function (item, model) {
-        if(item.isTag){
-            var tagRef = item;
-            //var tags = $scope.tags;
-            console.log("Creating new tag: " + JSON.stringify(item));
-            var options = {data: {}};
-            options.data.workspace = $scope.selectedWorkspaceId;
-            options.data.name = item.name;
-            AsanaGateway.createNewTag(function (response) {
-                console.log("Create tag success: " + JSON.stringify(response));
-                tagRef.id = response.id; //update created tag with new id
-                //tags.push({"id": response.id, "name": response.name, "notes": response.notes}); //update taglist
-            }, function (response) {
-                console.log("Create tag failed: " + JSON.stringify(response));
-            }, options);
-        }
-    };
-
-    $scope.projectTaggingHandler = function (input) {
-        //console.log($scope.projects);
-        var lowInput = input.toLowerCase();
-        for(var i=0; i<$scope.projects.length; i++){
-            if($scope.projects[i].name.toLowerCase().indexOf(lowInput)>=0){
-                return $scope.projects[i];
-            }
-        }
-        return { id: 1, name: input, notes: '', prompt: "(new project)", public: true};
-    };
-
-    $scope.createProject = function (item, model) {
-        if(item.isTag){
-            console.log("Creating new project: " + JSON.stringify(item));
-            var options = {data: {}};
-            options.data.workspace = $scope.selectedWorkspaceId;
-            options.data.name = item.name;
-
-            AsanaGateway.createNewProject(function (response) {
-                console.log("New project created: " + JSON.stringify(response));
-            }, function (response) {
-                console.log("New project failed: " + JSON.stringify(response));
-            }, options);
-        }
     };
 
     $scope.copyPage = function () {
