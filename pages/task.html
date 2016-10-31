@@ -11,6 +11,40 @@
     <div class="form-group form-group-box">
         <textarea id="taskNotes" class="task-notes" ng-model="taskDetails.notes" placeholder="Task Description"> </textarea>
     </div>
+
+    <div class="form-group">
+        <ui-select ng-model="assignee.selected">
+            <ui-select-match placeholder="Select User">
+                <span ng-bind="$select.selected.name"></span>
+            </ui-select-match>
+            <ui-select-choices repeat="user in (users | filter: $select.search)">
+                <div class="overflow-ellipsis">
+                    <img class="img-circle profile-img profile-img-md"
+                         ng-src="{{user.photo.image_128x128}}"
+                         src="../img/nopicture.png">
+                    <span ng-bind="user.name" class="font-size-12"></span>
+                    <span ng-bind="user.email" class="font-size-10"></span>
+                </div>
+            </ui-select-choices>
+        </ui-select>
+    </div>
+
+    <div class="form-group multi-select">
+        <ui-select multiple tagging="tagHandler"  ng-model="selectedTags.list" ng-disabled="workspaceNotSelected"
+                   on-select="createNewTag($item, $model)">
+            <ui-select-match placeholder="Select tag(s)" style="padding-left: 5px;">
+                {{$item.name}}
+            </ui-select-match>
+            <ui-select-choices repeat="tag in (tags | filter: $select.search) track by tag.id">
+                <div class="overflow-ellipsis" title="{{tag.notes}}">
+                    <i class="fa fa-tag"></i>
+                    <span ng-bind="tag.name"></span>
+                    <span ng-bind="tag.prompt"></span>
+                </div>
+            </ui-select-choices>
+        </ui-select>
+    </div>
+
     <hr/>
     <div class="form-group">
         <ul class="list activity-list">

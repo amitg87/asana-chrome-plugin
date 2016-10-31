@@ -10,10 +10,6 @@ asanaModule.controller("userController", function ($scope, AsanaGateway) {
             window.close();
         });
     };
-
-    $scope.isDefined = function (param) {
-        return typeof param != 'undefined';
-    };
 });
 
 asanaModule.controller("createTaskController", function ($scope, AsanaGateway, $timeout) {
@@ -78,9 +74,9 @@ asanaModule.controller("createTaskController", function ($scope, AsanaGateway, $
     $scope.createTask = function () {
         var options = {data: {}};
         options.data.workspace = $scope.selectedWorkspaceId;
-        if($scope.isDefined($scope.selectedUser.selected))
+        if(angular.isDefined($scope.selectedUser.selected))
             options.data.assignee = $scope.selectedUser.selected.id;
-        if($scope.isDefined($scope.dueDate))
+        if(angular.isDefined($scope.dueDate))
             options.data.due_at = $scope.dueDate.date;
 
         var projectList = $scope.selectedProject.list;
@@ -103,7 +99,7 @@ asanaModule.controller("createTaskController", function ($scope, AsanaGateway, $
             options.data.tags = tags;
         }
 
-        if(!$scope.isDefined($scope.taskName)){
+        if(!angular.isDefined($scope.taskName)){
             $scope.taskNameRequired = true;
             return;
         }
@@ -139,7 +135,7 @@ asanaModule.controller("createTaskController", function ($scope, AsanaGateway, $
 
     AsanaGateway.getWorkspaces(function (response) {
         $scope.workspaces = response;
-        if($scope.isDefined(response) && response.length > 0){
+        if(angular.isDefined(response) && response.length > 0){
             $scope.selectedWorkspace = response[0];
             $scope.selectedWorkspace.selected = response[0];
             $scope.onWorkspaceSelect(response[0], response[0]);
@@ -219,7 +215,7 @@ asanaModule.controller("tasksController", function ($scope, AsanaGateway) {
 
     AsanaGateway.getWorkspaces(function (response) {
         $scope.workspaces = response;
-        if($scope.isDefined(response) && response.length > 0){
+        if(angular.isDefined(response) && response.length > 0){
             $scope.selectedWorkspace = response[0];
             $scope.selectedWorkspace.selected = response[0];
             $scope.onWorkspaceSelect(response[0], response[0]);
@@ -256,6 +252,7 @@ asanaModule.controller("taskController", function ($scope, $routeParams, AsanaGa
     $scope.task_id = $routeParams.id;
     $scope.assignee = {selected: undefined};
 
+
     console.log("task_id : " + $scope.task_id);
     var options = {
         task_id: $scope.task_id
@@ -276,6 +273,23 @@ asanaModule.controller("taskController", function ($scope, $routeParams, AsanaGa
         $scope.taskDetails = response;
         console.dir("Task details: " + $scope.taskDetails);
         $scope.assignee.selected = response.assignee;
+        $scope.workspace_id = response.workspace.id;
+
+        AsanaGateway.getWorkspaceUsers(function (response) {
+            $scope.users = response;
+        }, function () {
+
+        }, {workspace_id: $scope.workspace_id});
+        AsanaGateway.getWorkspaceProjects(function (response) {
+            $scope.projects = response;
+        }, function () {
+
+        }, {workspace_id: $scope.workspace_id});
+        AsanaGateway.getWorkspaceTags(function (response) {
+            $scope.tags = response;
+        }, function () {
+
+        }, {workspace_id: $scope.workspace_id});
     }, function () {
 
     }, options);
