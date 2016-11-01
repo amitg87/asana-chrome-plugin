@@ -129,6 +129,8 @@ asanaModule.service("AsanaGateway", ["$http", function ($http) {
             failure({"error": "Missing Parameter", message: "Fix this"});
         options.method = "GET";
         options.path = "tasks/" + options.task_id + "/stories";
+        options.query = {opt_fields: "type,text,created_at,created_by.name,created_by.email,created_by.photo.image_128x128"};
+
         this.api(success, failure, options);
     };
 
@@ -139,6 +141,19 @@ asanaModule.service("AsanaGateway", ["$http", function ($http) {
             failure({"error": "Missing Parameter", message: "Fix this"});
         options.method = "POST";
         options.path = "tasks/" + options.task_id + "/stories";
+        options.data = {
+            text: options.commentText
+        };
+        this.api(success, failure, options);
+    };
+
+    this.updateTask = function (success, failure, options) {
+        if(typeof options == 'undefined')
+            options = {};
+        if(typeof options.task_id == 'undefined')
+            failure({"error": "Missing Parameter", message: "Fix this"});
+        options.method = "PUT";
+        options.path = "tasks/" + options.task_id;
         this.api(success, failure, options);
     };
 

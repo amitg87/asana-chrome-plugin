@@ -95,6 +95,8 @@ hr{
     color: #fff !important;
     background-color: #1AAFD0 !important;
     border: 1px solid #1AAFD0 !important;
+    padding: 2px 5px;
+    font-size: 12px;
 }
 
 .btn-asana:hover{
@@ -152,13 +154,14 @@ span.archived-project{
     padding: 5px;
 }
 
-.form-group-box textarea{
+.form-group textarea{
     outline: none;
     padding: 2px;
     resize:none;
     width: 100%;
     border:0;
     background-color: #ffffff;
+    font-size: 12px;
 }
 
 .requiredField{
@@ -310,6 +313,7 @@ span:focus{
     resize: none;
 }
 
+.asana-ng-container .task-list .checkbox label,
 .asana-ng-container .task-details .checkbox label{
     padding-left: 0;
 }
@@ -332,6 +336,7 @@ span:focus{
 .asana-ng-container .task-details .list{
     list-style: none;
     padding-left: 0;
+    margin-bottom: 0;
 }
 
 .asana-ng-container .task-details .activity-list .user-activity{
@@ -349,3 +354,12 @@ span:focus{
     float: right;
     line-height: 26px;
 }
+
+.asana-ng-container .task-details .list.activity-list {
+    line-height: 12px;
+}
+
+.asana-ng-container .task-details .comment-list img.profile-img-sm{
+    margin: 2px;
+}
+
