@@ -15,7 +15,7 @@
     <div class="form-group multi-select">
         <ui-select multiple tagging="projectTaggingHandler" ng-class="{requiredField:projectRequired}" ng-model="selectedProject.list"
                    ng-disabled="workspaceNotSelected" on-select="onProjectSelected($item, $model)">
-            <ui-select-match placeholder="Select Project" style="padding-left: 5px;">
+            <ui-select-match placeholder="Select Project(s)" style="padding-left: 5px;">
                 {{$item.name}}
             </ui-select-match>
             <ui-select-choices repeat="project in (projects | filter: $select.search)">

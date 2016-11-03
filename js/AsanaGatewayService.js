@@ -86,16 +86,10 @@ asanaModule.service("AsanaGateway", ["$http", function ($http) {
     this.getTasks = function (success, failure, options) {
         if(typeof options == 'undefined')
             options = {};
-        if(typeof options.workspace_id == 'undefined')
-            failure({"error": "Missing Parameter", message: "Fix this"});
         options.method = "GET";
         options.path = "tasks";
-        options.query = {
-            opt_fields: "name,due_at,due_on,completed,tags,projects",
-            assignee: "me",
-            workspace: options.workspace_id,
-            completed_since: "now"
-        };
+        options.query.opt_fields = "name,due_at,due_on,completed,tags,projects";
+        options.query.completed_since = "now";
         this.api(success, failure, options);
     };
 

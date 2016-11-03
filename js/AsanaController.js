@@ -217,17 +217,34 @@ asanaModule.controller("createTaskController", function ($scope, AsanaGateway, $
 });
 
 asanaModule.controller("tasksController", function ($scope, AsanaGateway) {
-    $scope.selectedView = "Task by Due Date";
+    $scope.selectedView = "Assigned to Me";
+    $scope.filterTask = 'filterMyTasks';
+    $scope.filterProject = {};
+    $scope.filterTag = {};
 
-    $scope.switchView = function (choice) {
-        $scope.selectedView = choice;
+    $scope.switchView = function (choice, filter) {
+        if($scope.selectedView != choice){
+            $scope.selectedView = choice;
+            $scope.filterTask = filter;
+        }
     };
 
     $scope.fetchTasks = function () {
         //fetch tasks here
-        var options = {
-            workspace_id: $scope.selectedWorkspace.selected.id
-        };
+        $scope.tasks = [];
+        var options = { query: {} };
+        switch ($scope.filterTask){
+            case "filterMyTasks":
+                options.query.workspace = $scope.selectedWorkspace.selected.id;
+                options.query.assignee = "me";
+                break;
+            case "filterProjectTasks":
+                options.query.project = $scope.filterProject.selected.id;
+                break;
+            case "filterTagsTasks":
+                options.query.tag = $scope.filterTag.selected.id;
+                break;
+        }
         AsanaGateway.getTasks(function (response) {
             $scope.tasks = response;
         }, function () {
@@ -236,6 +253,18 @@ asanaModule.controller("tasksController", function ($scope, AsanaGateway) {
     };
 
     $scope.fetchTasks();
+
+    $scope.onProjectSelected = function (item, model) {
+        $scope.$parent.onProjectSelected(item, model);
+        console.log("filter on project");
+        $scope.fetchTasks();
+    };
+
+    $scope.onTagSelected = function (item, model) {
+        $scope.$parent.createNewTag(item, model);
+        console.log("filter on tags");
+        $scope.fetchTasks();
+    };
 
     $scope.markTaskDone = function (task_id, task_completed) {
         var taskNextStatus = !task_completed;
