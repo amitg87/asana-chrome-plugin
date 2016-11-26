@@ -153,7 +153,11 @@ asanaModule.service("AsanaGateway", ["$http", function ($http) {
 
     //called by others
     this.api = function (success, failure, options) {
-        options.headers = {"X-Requested-With": "XMLHttpRequest", "X-Allow-Asana-Client": "1"};
+        options.headers = {
+            "X-Requested-With": "XMLHttpRequest",
+            "X-Allow-Asana-Client": "1",
+            "Asana-Fast-Api": true
+        };
 
         // Be polite to Asana API and tell them who we are.
         var manifest = chrome.runtime.getManifest();
