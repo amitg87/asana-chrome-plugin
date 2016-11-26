@@ -78,11 +78,25 @@ img.profile-img-sm{
     line-height: 1;
 }
 
+body section{
+    width: 360px;
+    height: 336px;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+hr{
+    margin-bottom: 3px;
+    margin-top: 3px;
+}
+
 /* asana buttons */
 .btn-asana{
     color: #fff !important;
     background-color: #1AAFD0 !important;
     border: 1px solid #1AAFD0 !important;
+    padding: 2px 5px;
+    font-size: 12px;
 }
 
 .btn-asana:hover{
@@ -136,17 +150,18 @@ span.archived-project{
 
 .form-group-box{
     border-radius: 4px;
-    border: 1px solid #cccccc;
+    border: 1px solid #efefef;
     padding: 5px;
 }
 
-.form-group-box textarea{
+.form-group textarea{
     outline: none;
     padding: 2px;
     resize:none;
     width: 100%;
     border:0;
     background-color: #ffffff;
+    font-size: 12px;
 }
 
 .requiredField{
@@ -174,7 +189,7 @@ Calendar popup above rather than below
 
 .dropdown-menu.datetime-picker-dropdown.ng-not-empty.ng-valid-time,
 .dropdown-menu.datetime-picker-dropdown.ng-empty{
-    top: calc( -15% - 159px);
+    top: calc(-15% - 159px);
 }
 
 /*
@@ -213,3 +228,134 @@ span:focus{
 .asana-ng-container .close:focus, .close:hover {
     color: #02CEFF;
 }
+
+.asana-ng-container .open>.dropdown-toggle.btn-default:hover {
+    color: #02CEFF;
+    background-color: #ffffff;
+    border-color: #02CEFF;
+}
+
+.asana-ng-container .task-criteria.open>.dropdown-toggle.btn-default{
+    background-color: #ffffff;
+    border-color: #02CEFF;
+}
+
+.asana-ng-container .task-criteria .dropdown-menu{
+    font-size: 12px;
+    min-width: 110px;
+}
+
+.asana-ng-container .task-criteria .dropdown-menu>li>a{
+    padding: 3px 5px;
+}
+
+.asana-ng-container .task-manager .list-group-item{
+    padding: 2px 2px;
+}
+
+.asana-ng-container .checkbox-asana{
+    margin-top: 2px;
+    margin-bottom: 2px;
+    padding-left: 22px;
+}
+
+.asana-ng-container .checkbox-asana input[type="checkbox"]{
+    cursor: pointer;
+}
+
+.asana-ng-container .checkbox-asana .task-name {
+    display: inline-block;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    font-size: 12px;
+    line-height: 23px;
+}
+
+.asana-ng-container .task-list .task-name {
+    padding-left: 0;
+    max-width: calc(100% - 40px);
+    vertical-align: bottom;
+}
+
+.asana-ng-container .task-list .task-details{
+    color: #bbbbbb;
+    cursor: pointer;
+}
+
+.asana-ng-container .task-list .task-details:hover{
+    color: #02CEFF;
+}
+
+.asana-ng-container .task-list {
+    height: 256px;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    border: 1px solid rgba(0, 0, 0, 0.149);
+    border-radius: 5px;
+    margin-bottom: 0;
+}
+
+.asana-ng-container .task-list .list-group{
+    margin-bottom: 0;
+}
+
+.asana-ng-container .task-details .task-name{
+    border: 1px solid #efefef;
+    border-radius: 5px;
+    width: calc(100% - 4px);
+    vertical-align: middle;
+    padding-left: 5px;
+    resize: none;
+}
+
+.asana-ng-container .task-list .checkbox label,
+.asana-ng-container .task-details .checkbox label{
+    padding-left: 0;
+}
+
+.asana-ng-container .task-details .user-name,
+.asana-ng-container .task-details .activity-time{
+    cursor: pointer;
+    font-size: 10px;
+    font-weight: lighter;
+    color: #777;
+}
+
+.asana-ng-container .task-details .user-name:hover,
+.asana-ng-container .task-details .activity-time:hover,
+.asana-ng-container .task-details .user-name:focus,
+.asana-ng-container .task-details .activity-time:focus{
+    color: #02CEFF;
+}
+
+.asana-ng-container .task-details .list{
+    list-style: none;
+    padding-left: 0;
+    margin-bottom: 0;
+}
+
+.asana-ng-container .task-details .activity-list .user-activity{
+    font-size: 10px;
+}
+
+.asana-ng-container .task-details .comment-list .user-comment{
+    border: 1px solid #bbbbbb;
+    border-radius: 5px;
+    font-size:12px;
+    padding: 2px;
+}
+
+.asana-ng-container .task-details .comment-list .activity-time{
+    float: right;
+    line-height: 26px;
+}
+
+.asana-ng-container .task-details .list.activity-list {
+    line-height: 12px;
+}
+
+.asana-ng-container .task-details .comment-list img.profile-img-sm{
+    margin: 2px;
+}
+

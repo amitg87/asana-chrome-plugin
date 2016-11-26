@@ -13,17 +13,20 @@ asanaModule.config(function($routeProvider, $locationProvider) {
             templateUrl : 'pages/createTask.html',
             controller  : 'createTaskController'
         })
-        .when('/todo', {
-            templateUrl : 'pages/todo.html',
-            controller  : 'todoController'
+        .when('/tasks', {
+            templateUrl : 'pages/tasks.html',
+            controller  : 'tasksController'
+        })
+        .when('/tasks/:id', {
+            templateUrl: 'pages/task.html',
+            controller: 'taskController'
         });
 });
 
 asanaModule.config([
     '$compileProvider',
     function ($compileProvider) {
-        //  Default imgSrcSanitizationWhitelist: /^\s*((https?|ftp|file|blob):|data:image\/)/
-        //  chrome-extension: will be added to the end of the expression
-        $compileProvider.imgSrcSanitizationWhitelist(/^\s*((https?|ftp|file|blob|chrome-extension):|data:image\/)/);
+        $compileProvider.imgSrcSanitizationWhitelist(/^\s*((https?|chrome-extension):|data:image\/)/);
+        $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|chrome-extension):/);
     }
 ]);

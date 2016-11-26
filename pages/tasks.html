@@ -1,0 +1,78 @@
+<form class="task-manager">
+    <div class="form-group dropdown task-criteria">
+        <button class="btn btn-default btn-xs dropdown-toggle" type="button" id="selectedView"
+                data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+            <span>{{selectedView}}</span>
+            <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+            <li><a data-ng-click="switchView('Assigned to Me', 'filterMyTasks')" href="">Assigned to Me</a></li>
+            <li><a data-ng-click="switchView('Tasks by Project', 'filterProjectTasks')" href="">Tasks by Project</a></li>
+            <li><a data-ng-click="switchView('Tasks by Tag', 'filterTagsTasks')" href="">Tasks by Tag</a></li>
+        </ul>
+    </div>
+    <div class="form-group">
+        <ui-select ng-model="selectedWorkspace.selected" on-select="onWorkspaceSelect($item, $model)">
+            <ui-select-match placeholder="Select Workspace">
+                <span data-ng-bind="$select.selected.name"></span>
+            </ui-select-match>
+            <ui-select-choices repeat="workspace in (workspaces | filter: $select.search)">
+                <div class="overflow-ellipsis">
+                    <span data-ng-bind="workspace.name"></span>
+                </div>
+            </ui-select-choices>
+        </ui-select>
+    </div>
+
+    <div class="form-group multi-select">
+        <ui-select tagging="projectTaggingHandler" ng-model="filterProject.selected" ng-show="filterTask==='filterProjectTasks'"
+                   on-select="onProjectSelected($item, $model)">
+            <ui-select-match placeholder="Select Project">
+                <span data-ng-bind="$select.selected.name"></span>
+            </ui-select-match>
+            <ui-select-choices repeat="project in (projects | filter: $select.search)">
+                <div class="overflow-ellipsis">
+                    <span data-ng-class="{'archived-project':project.archived}" data-ng-bind="project.name" title="{{project.notes}}"></span>
+                    <span data-ng-bind="project.prompt"></span>
+                    <i class="fa fa-lock private-project" data-ng-hide="{{project.public}}" title="Private to me"></i>
+                </div>
+            </ui-select-choices>
+        </ui-select>
+    </div>
+
+    <div class="form-group multi-select">
+        <ui-select tagging="tagHandler" ng-model="filterTag.selected" ng-show="filterTask==='filterTagsTasks'"
+                   on-select="onTagSelected($item, $model)">
+            <ui-select-match placeholder="Select tag">
+                <span data-ng-bind="$select.selected.name"></span>
+            </ui-select-match>
+            <ui-select-choices repeat="tag in (tags | filter: $select.search) track by tag.id">
+                <div class="overflow-ellipsis" title="{{tag.notes}}">
+                    <i class="fa fa-tag"></i>
+                    <span data-ng-bind="tag.name"></span>
+                    <span data-ng-bind="tag.prompt"></span>
+                </div>
+            </ui-select-choices>
+        </ui-select>
+    </div>
+
+    <div class="form-group task-list">
+        <ul class="list-group">
+            <li class="list-group-item" data-ng-repeat="task in tasks" data-ng-if='!task.name.endsWith(":")'>
+                <div class="checkbox checkbox-info checkbox-circle checkbox-asana" data-ng-model="task.id">
+                    <input id="{{task.id}}" class="styled" type="checkbox" data-ng-checked="task.completed"
+                           data-ng-click="markTaskDone(task.id, task.completed); task.completed = !task.completed;">
+                    <label for="{{task.id}}">
+                    </label>
+                    <span class="task-name">
+                        {{task.name}}
+                    </span>
+                    <a class="pull-right task-details" href="#tasks/{{task.id}}">
+                        <i class="fa fa-comment-o"></i>
+                        <i class="fa fa-chevron-right"></i>
+                    </a>
+                </div>
+            </li>
+        </ul>
+    </div>
+</form>
