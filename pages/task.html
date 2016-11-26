@@ -1,16 +1,16 @@
 <div class="task-details">
     <div class="form-group task-title">
-        <div class="checkbox checkbox-info checkbox-circle checkbox-asana" ng-model="task.id">
-            <input id="{{task_id}}" class="styled" type="checkbox" ng-checked="task.completed" ng-click="markTaskDone(task)"/>
+        <div class="checkbox checkbox-info checkbox-circle checkbox-asana" data-ng-model="task.id">
+            <input id="{{task_id}}" class="styled" type="checkbox" data-ng-checked="task.completed" data-ng-click="markTaskDone(task)"/>
             <label for="{{task_id}}"></label>
-            <textarea id="taskName" class="task-name" rows="1" ng-model="taskDetails.name" placeholder="Task Name"
-                    data-ng-change="updateName()"> </textarea>
+            <textarea id="taskName" class="task-name" rows="1" data-ng-model="taskDetails.name" placeholder="Task Name"
+                    data-ng-change="updateName()" data-ng-model-options='{ debounce: 1000 }'> </textarea>
         </div>
 
     </div>
     <div class="form-group form-group-box">
-        <textarea id="taskNotes" class="task-notes" ng-model="taskDetails.notes" placeholder="Task Description"
-                data-ng-change="updateNotes()"> </textarea>
+        <textarea id="taskNotes" class="task-notes" data-ng-model="taskDetails.notes" placeholder="Task Description"
+                data-ng-change="updateNotes()" data-ng-model-options='{ debounce: 1000 }'> </textarea>
     </div>
 
     <div class="form-group multi-select">
@@ -21,9 +21,9 @@
             </ui-select-match>
             <ui-select-choices repeat="project in (projects | filter: $select.search)">
                 <div class="overflow-ellipsis">
-                    <span ng-class="{'archived-project':project.archived}" ng-bind="project.name" title="{{project.notes}}"></span>
-                    <span ng-bind="project.prompt"></span>
-                    <i class="fa fa-lock private-project" ng-hide="{{project.public}}" title="Private to me"></i>
+                    <span data-ng-class="{'archived-project':project.archived}" data-ng-bind="project.name" title="{{project.notes}}"></span>
+                    <span data-ng-bind="project.prompt"></span>
+                    <i class="fa fa-lock private-project" data-ng-hide="{{project.public}}" title="Private to me"></i>
                 </div>
             </ui-select-choices>
         </ui-select>
@@ -37,10 +37,10 @@
             <ui-select-choices repeat="user in (users | filter: $select.search)">
                 <div class="overflow-ellipsis">
                     <img class="img-circle profile-img profile-img-md"
-                         ng-src="{{user.photo.image_128x128}}"
+                         data-ng-src="{{user.photo.image_128x128}}"
                          src="../img/nopicture.png">
-                    <span ng-bind="user.name" class="font-size-12"></span>
-                    <span ng-bind="user.email" class="font-size-10"></span>
+                    <span data-ng-bind="user.name" class="font-size-12"></span>
+                    <span data-ng-bind="user.email" class="font-size-10"></span>
                 </div>
             </ui-select-choices>
         </ui-select>
@@ -55,17 +55,30 @@
             <ui-select-choices repeat="tag in (tags | filter: $select.search) track by tag.id">
                 <div class="overflow-ellipsis" title="{{tag.notes}}">
                     <i class="fa fa-tag"></i>
-                    <span ng-bind="tag.name"></span>
-                    <span ng-bind="tag.prompt"></span>
+                    <span data-ng-bind="tag.name"></span>
+                    <span data-ng-bind="tag.prompt"></span>
                 </div>
             </ui-select-choices>
         </ui-select>
     </div>
 
+    <div class="form-group">
+        <p class="input-group">
+            <input type="text" class="form-control" data-datetime-picker="yyyy-MM-dd HH:mm:ss" data-ng-model="taskDetails.due.due_date"
+                   data-is-open="taskDetails.due.open" placeholder="Due Date" data-ng-click="taskDetails.due.open=!taskDetails.due.open"
+                   data-ng-change="updateDueDate()" data-ng-model-options='{ debounce: 1000 }'/>
+            <span class="input-group-btn">
+                <button type="button" class="btn btn-default selectDueDate" data-ng-click="taskDetails.due.open=!taskDetails.due.open">
+                    <i class="fa fa-calendar"></i>
+                </button>
+            </span>
+        </p>
+    </div>
+
     <hr/>
     <div class="form-group">
         <ul class="list activity-list">
-            <li ng-repeat="activity in activities">
+            <li data-ng-repeat="activity in activities">
                 <span class="user-name" title="{{activity.created_by.email}}">{{activity.created_by.name}}</span>
                 <span class="user-activity">{{activity.text}}</span>
                 <span class="activity-time" title="{{activity.created_at|date:'dd-MMM-yyyy hh:mm:ss a'}}">{{activity.created_at|date:'dd-MMM hh:mm a'}}</span>

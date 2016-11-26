@@ -299,7 +299,14 @@ asanaModule.controller("taskController", function ($scope, $routeParams, AsanaGa
 
     AsanaGateway.getTask(function (response) {
         $scope.taskDetails = response;
-        console.dir("Task details: " + $scope.taskDetails);
+        $scope.taskDetails.due = {
+            open: false
+        };
+        if(response.due_at !== null)
+            $scope.taskDetails.due.due_date = new Date(Date.parse(response.due_at));
+        else
+            $scope.taskDetails.due.due_date = new Date(Date.parse(response.due_on));
+        console.dir("Task details: " + JSON.stringify($scope.taskDetails));
     }, function () {
         console.log("Error fetching task details");
     }, {task_id: $scope.task_id});
@@ -321,6 +328,17 @@ asanaModule.controller("taskController", function ($scope, $routeParams, AsanaGa
             task_id: $scope.task_id,
             data: {
                 notes: $scope.taskDetails.notes
+            }
+        };
+        $scope.updateTask(options);
+    };
+
+    $scope.updateDueDate = function () {
+        console.log("updateing task due date" + $scope.task_id);
+        var options = {
+            task_id: $scope.task_id,
+            data: {
+                due_at: $scope.taskDetails.due.due_date
             }
         };
         $scope.updateTask(options);
