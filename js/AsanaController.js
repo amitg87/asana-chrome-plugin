@@ -68,7 +68,7 @@ asanaModule.controller("userController", function ($scope, AsanaGateway) {
                 return $scope.tags[i];
             }
         }
-        return { id: 1, name: input, notes: '', prompt: "(new tag)" }
+        return { id: 1, name: input, notes: '', prompt: "(new tag)" };
     };
 
     $scope.createNewTag = function (item, model) {
@@ -153,7 +153,7 @@ asanaModule.controller("createTaskController", function ($scope, AsanaGateway, $
             options.data.due_at = $scope.dueDate.date;
 
         var projectList = $scope.selectedProject.list;
-        if($scope.selectedProject.list.length == 0){
+        if($scope.selectedProject.list.length === 0){
             $scope.projectRequired = true;
             return;
         }
@@ -213,7 +213,7 @@ asanaModule.controller("createTaskController", function ($scope, AsanaGateway, $
             $scope.taskNotes = tab.url;
             $scope.taskNameRequired = false;
         });
-    }
+    };
 });
 
 asanaModule.controller("tasksController", function ($scope, AsanaGateway) {

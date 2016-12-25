@@ -1,15 +1,14 @@
-
 var Asana = {
-    API_VERSION          : "1.0",
-    ASANA_HOST           : "app.asana.com",
-    DEFAULT_WORKSPACE_ID : 0,
-    ASANA_LOGIN_COOKIE_NAME : "ticket",
+    API_VERSION: "1.0",
+    ASANA_HOST: "app.asana.com",
+    DEFAULT_WORKSPACE_ID: 0,
+    ASANA_LOGIN_COOKIE_NAME: "ticket",
 
-    getBaseApiUrl        : function () {
+    getBaseApiUrl: function () {
         return "https://" + this.ASANA_HOST + '/api/' + this.API_VERSION + "/";
     },
 
-    getAsanaDomain       : function() {
+    getAsanaDomain: function() {
         return "https://" + this.ASANA_HOST + "/";
     },
 

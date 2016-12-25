@@ -1,6 +1,6 @@
 # The Unofficial Asana Chrome Plugin
 
-This is a free, open-source Chrome extension to allow quick and easy access 
+This is a free, open-source Chrome extension to allow quick and easy access
 to Asana. This extension uses Asana API to communicate to Asana.
 
 This extension is based on Asana's - Official Chrome Extension available here:
@@ -13,7 +13,7 @@ MIT
 
 ## Motivation
 Asana's - Official Chrome Extension hasn't seen any new features in years.
-But they have kept their plugin under MIT license and Asana offers rich set 
+But they have kept their plugin under MIT license and Asana offers rich set
 of REST API. Onus is on us to develop something great out of it.
 
 
@@ -33,7 +33,7 @@ of REST API. Onus is on us to develop something great out of it.
     - view tasks in a workspace/project
     - view tasks assigned to another user
     - mark tasks as done
-    
+
 ## Usage
 1. Install as a User:
 Head to <todo link> and click "+ADD TO CHROME"
@@ -48,5 +48,5 @@ Head to <todo link> and click "+ADD TO CHROME"
 ## User Guide
 Long Way - Look for Asana in Chrome Browser Action (top-right corner),
  when clicked, pops up a window.
- 
+
 Short-cut key - press 'Alt + A' keyboard shortcut
