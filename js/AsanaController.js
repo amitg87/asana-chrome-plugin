@@ -118,7 +118,6 @@ asanaModule.controller("userController", function ($scope, AsanaGateway) {
 });
 
 asanaModule.controller("createTaskController", function ($scope, AsanaGateway, $timeout) {
-    $scope.projectRequired = false;
     $scope.taskNameRequired = false;
 
     $scope.taskCreationStatus = {
@@ -153,10 +152,6 @@ asanaModule.controller("createTaskController", function ($scope, AsanaGateway, $
             options.data.due_at = $scope.dueDate.date;
 
         var projectList = $scope.selectedProject.list;
-        if($scope.selectedProject.list.length === 0){
-            $scope.projectRequired = true;
-            return;
-        }
         var projectIds = projectList.map(function (element) {
             return element.id;
         });
@@ -282,7 +277,6 @@ asanaModule.controller("tasksController", function ($scope, AsanaGateway) {
 
 asanaModule.controller("taskController", function ($scope, $routeParams, AsanaGateway) {
     $scope.task_id = $routeParams.id;
-    $scope.projectRequired = false;
 
     console.log("fetching task details: " + $scope.task_id);
     AsanaGateway.getTaskStories(function (response) {
