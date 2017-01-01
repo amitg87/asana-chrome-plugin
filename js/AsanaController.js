@@ -123,7 +123,9 @@ asanaModule.controller("createTaskController", function ($scope, AsanaGateway, $
     $scope.taskCreationStatus = {
         success: false,
         message: "",
-        show: false
+        show: false,
+        container_id: null,
+        task_id: null
     };
 
     $scope.clearFields = function () {
@@ -183,7 +185,9 @@ asanaModule.controller("createTaskController", function ($scope, AsanaGateway, $
             $scope.taskCreationStatus = {
                 success: true,
                 message: "Task created",
-                show: true
+                show: true,
+                container_id: (response.projects[0])? response.projects[0].id: (response.tags[0])? response.tags[0].id: (response.assignee)? response.assignee.id: 0,
+                task_id: response.id
             };
             $timeout(function () {
                 $scope.taskCreationStatus.show = false;
@@ -193,12 +197,20 @@ asanaModule.controller("createTaskController", function ($scope, AsanaGateway, $
             $scope.taskCreationStatus = {
                 success: false,
                 message: "Failed to create task", //@todo error message
-                show: true
+                show: true,
+                container_id: 0,
+                task_id: null
             };
             $timeout(function () {
                 $scope.taskCreationStatus.show = false;
             }, 5000);
         }, options);
+    };
+
+    $scope.openTask = function () {
+        if (typeof $scope.taskCreationStatus.task_id === 'number') {
+            chrome.tabs.create({url: ["https://app.asana.com/0/", $scope.taskCreationStatus.container_id, "/",$scope.taskCreationStatus.task_id].join("")}, function (tab) {});
+        }
     };
 
     $scope.copyPage = function () {

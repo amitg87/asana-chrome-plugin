@@ -82,10 +82,12 @@
         </p>
     </div>
 
-    <div class="form-group" ng-click="createTask()">
-        <button type="button" class="btn btn-asana">Create Task</button>
+    <div class="form-group">
+        <button type="button" class="btn btn-asana"
+            ng-click="createTask()">Create Task</button>
         <span class="status label" ng-show="taskCreationStatus.show"
-              ng-class="{'label-success': taskCreationStatus.success, 'label-danger': !taskCreationStatus.success}">
+            ng-class="{'label-success': taskCreationStatus.success, 'label-danger': !taskCreationStatus.success}"
+            ng-click="openTask()">
             {{taskCreationStatus.message}}
         </span>
     </div>
