@@ -176,6 +176,10 @@ asanaModule.controller("createTaskController", function ($scope, AsanaGateway, $
         options.data.name = $scope.taskName;
         options.data.notes = $scope.taskNotes;
 
+        if(!options.data.assignee && !projectIds.length) {
+            options.data.assignee = $scope.user.id;
+        }
+
         console.log("Creating task with parameters: " + JSON.stringify(options));
         AsanaGateway.createTask(function (response) {
             console.log("Success: creating task: " + JSON.stringify(response));
