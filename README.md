@@ -36,7 +36,7 @@ of REST API. Onus is on us to develop something great out of it.
 
 ## Usage
 1. Install as a User:
-Head to <todo link> and click "+ADD TO CHROME"
+Head to [Chrome Web Store](https://chrome.google.com/webstore/detail/asanang-asana-extension-f/mcfgjehdbegcfjeecdgdpjlmfbeamgdd) and click "+ADD TO CHROME"
 
 2. Install as a developer:
   1. Download the code, e.g. `git clone git@github.com:amitg87/asana-chrome-plugin.git`
