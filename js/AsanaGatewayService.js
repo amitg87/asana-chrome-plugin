@@ -1,31 +1,23 @@
 asanaModule.service("AsanaGateway", ["$http", function ($http) {
 
     this.getWorkspaces = function (success, failure, options) {
-        options = options? options: {};
+        options = options || {};
         options.method = "GET";
         options.path = "workspaces";
         this.api(success, failure, options);
     };
 
     this.getWorkspaceUsers = function (success, failure, options) {
-        if(typeof options === 'undefined' || typeof options.workspace_id === 'undefined')
-            failure({"error": "Missing Parameter", message: "Fix this"});
+        options = options || {};
         options.method = "GET";
         options.path = "workspaces/" + options.workspace_id + "/users";
-        options.query = {opt_fields: "name,email,photo.image_128x128"};
+        options.query = {opt_fields: "name,email,photo"};
 
-        this.api(function (response) {
-            if(response.photo == null)
-                response.picture = chrome.extension.getURL("img/nopicture.png");
-            else
-                response.picture = response.photo.image_128x128;
-            success(response);
-        }, failure, options);
+        this.api(success, failure, options);
     };
 
     this.getWorkspaceProjects = function (success, failure, options) {
-        if(typeof options === 'undefined' || typeof options.workspace_id === 'undefined')
-            failure({"error": "Missing Parameter", message: "Fix this"});
+        options = options || {};
         options.method = "GET";
         options.path = "workspaces/" + options.workspace_id + "/projects";
         options.query = {opt_fields: "name,archived,notes,public"};
@@ -34,8 +26,7 @@ asanaModule.service("AsanaGateway", ["$http", function ($http) {
     };
 
     this.getWorkspaceTags = function (success, failure, options) {
-        if(typeof options === 'undefined' || typeof options.workspace_id === 'undefined')
-            failure({"error": "Missing Parameter", message: "Fix this"});
+        options = options || {};
         options.method = "GET";
         options.path = "workspaces/" + options.workspace_id + "/tags";
         options.query = {opt_fields: "name,notes"};
@@ -44,40 +35,30 @@ asanaModule.service("AsanaGateway", ["$http", function ($http) {
     };
 
     this.getUserData = function (success, failure, options) {
-        if(typeof options === "undefined")
-            options = {};
+        options = options || {};
         options.method = "GET";
         options.path = "users/me";
-        options.query = {opt_fields: "name,email,photo.image_128x128"};
+        options.query = {opt_fields: "name,email,photo"};
 
-        this.api(function (response) {
-            if (response.photo == null)
-                response.picture = chrome.extension.getURL("img/nopicture.png");
-            else
-                response.picture = response.photo.image_128x128;
-            success(response);
-        }, failure, options);
+        this.api(success, failure, options);
     };
 
     this.createTask = function (success, failure, options) {
-        if(typeof  options === 'undefined')
-            options = {};
+        options = options || {};
         options.method = "POST";
         options.path = "tasks";
         this.api(success, failure, options);
     };
 
     this.createNewTag = function (success, failure, options) {
-        if(typeof options == 'undefined')
-            options = {};
+        options = options || {};
         options.method = "POST";
         options.path = "tags";
         this.api(success, failure, options);
     };
 
     this.createNewProject = function (success, failure, options) {
-        if(typeof options == 'undefined')
-            options = {};
+        options = options || {};
         options.method = "POST";
         options.path = "projects";
         this.api(success, failure, options);

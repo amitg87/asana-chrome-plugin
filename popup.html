@@ -25,7 +25,8 @@
 <header ng-show="{{loggedIn}}">
     <div class="row padding-bottom-xs">
         <div class="col col-xs-2 padding-right-xs">
-            <img class="img-circle profile-img profile-img-md" ng-src="{{user.picture}}">
+            <img class="img-circle profile-img profile-img-md" ng-src="{{user.photo.image_128x128}}"
+                 src="img/nopicture.png">
         </div>
         <div class="col col-xs-10 padding-left-zero">
             <div class="col col-xs-12 padding-left-zero"><span class="text-primary font-size-12">{{user.name}}</span></div>
