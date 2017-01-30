@@ -46,11 +46,12 @@
 
 <div class="row padding-bottom-xs text-center" ng-hide="{{loggedIn}}" style="height: 250px; line-height: 50px;">
         <div class="row">
-            Welcome to Asana Chrome Plugin.
+            <h4>Welcome to Asana Chrome Plugin.</h4>
+            <span>You are currently not signed in.</span>
         </div>
         <div class="row">
-            <button type="button" class="btn btn-default btn-lg btn-asana" ng-click="createTab('https://app.asana.com')" style="vertical-align: middle;">
-                Log In
+            <button type="button" class="btn btn-asana" ng-click="createTab('https://app.asana.com')" style="vertical-align: middle;">
+                Sign In
             </button>
         </div>
 </div>

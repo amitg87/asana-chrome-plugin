@@ -3,6 +3,8 @@ asanaModule.controller("userController", function ($scope, AsanaGateway) {
 
     AsanaGateway.getUserData(function (response) {
         $scope.user = response;
+    }, function (response) {
+        console.log("AsanaNG Error: "+JSON.stringify(response));
     });
 
     $scope.createTab = function (url) {
@@ -141,6 +143,8 @@ asanaModule.controller("createTaskController", function ($scope, AsanaGateway, $
             $scope.selectedWorkspace.selected = response[0];
             $scope.onWorkspaceSelect(response[0], response[0]);
         }
+    }, function (response) {
+        console.log("AsanaNG Error: "+JSON.stringify(response));
     });
 
     $scope.isDefined = function (param) {
