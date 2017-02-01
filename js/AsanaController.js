@@ -68,7 +68,7 @@ asanaModule.controller("userController", function ($scope, AsanaGateway) {
                 return $scope.tags[i];
             }
         }
-        return { id: 1, name: input, notes: '', prompt: "(new tag)" }
+        return { id: 1, name: input, notes: '', prompt: "(new tag)" };
     };
 
     $scope.createNewTag = function (item, model) {
@@ -118,13 +118,14 @@ asanaModule.controller("userController", function ($scope, AsanaGateway) {
 });
 
 asanaModule.controller("createTaskController", function ($scope, AsanaGateway, $timeout) {
-    $scope.projectRequired = false;
     $scope.taskNameRequired = false;
 
     $scope.taskCreationStatus = {
         success: false,
         message: "",
-        show: false
+        show: false,
+        container_id: null,
+        task_id: null
     };
 
     $scope.clearFields = function () {
@@ -153,10 +154,6 @@ asanaModule.controller("createTaskController", function ($scope, AsanaGateway, $
             options.data.due_at = $scope.dueDate.date;
 
         var projectList = $scope.selectedProject.list;
-        if($scope.selectedProject.list.length == 0){
-            $scope.projectRequired = true;
-            return;
-        }
         var projectIds = projectList.map(function (element) {
             return element.id;
         });
@@ -179,6 +176,10 @@ asanaModule.controller("createTaskController", function ($scope, AsanaGateway, $
         options.data.name = $scope.taskName;
         options.data.notes = $scope.taskNotes;
 
+        if(!options.data.assignee && !projectIds.length) {
+            options.data.assignee = $scope.user.id;
+        }
+
         console.log("Creating task with parameters: " + JSON.stringify(options));
         AsanaGateway.createTask(function (response) {
             console.log("Success: creating task: " + JSON.stringify(response));
@@ -188,7 +189,9 @@ asanaModule.controller("createTaskController", function ($scope, AsanaGateway, $
             $scope.taskCreationStatus = {
                 success: true,
                 message: "Task created",
-                show: true
+                show: true,
+                container_id: (response.projects[0])? response.projects[0].id: (response.tags[0])? response.tags[0].id: (response.assignee)? response.assignee.id: 0,
+                task_id: response.id
             };
             $timeout(function () {
                 $scope.taskCreationStatus.show = false;
@@ -198,12 +201,20 @@ asanaModule.controller("createTaskController", function ($scope, AsanaGateway, $
             $scope.taskCreationStatus = {
                 success: false,
                 message: "Failed to create task", //@todo error message
-                show: true
+                show: true,
+                container_id: 0,
+                task_id: null
             };
             $timeout(function () {
                 $scope.taskCreationStatus.show = false;
             }, 5000);
         }, options);
+    };
+
+    $scope.openTask = function () {
+        if (typeof $scope.taskCreationStatus.task_id === 'number') {
+            chrome.tabs.create({url: ["https://app.asana.com/0/", $scope.taskCreationStatus.container_id, "/",$scope.taskCreationStatus.task_id].join("")}, function (tab) {});
+        }
     };
 
     $scope.copyPage = function () {
@@ -213,7 +224,7 @@ asanaModule.controller("createTaskController", function ($scope, AsanaGateway, $
             $scope.taskNotes = tab.url;
             $scope.taskNameRequired = false;
         });
-    }
+    };
 });
 
 asanaModule.controller("tasksController", function ($scope, AsanaGateway) {
@@ -282,7 +293,6 @@ asanaModule.controller("tasksController", function ($scope, AsanaGateway) {
 
 asanaModule.controller("taskController", function ($scope, $routeParams, AsanaGateway) {
     $scope.task_id = $routeParams.id;
-    $scope.projectRequired = false;
 
     console.log("fetching task details: " + $scope.task_id);
     AsanaGateway.getTaskStories(function (response) {

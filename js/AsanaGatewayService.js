@@ -15,7 +15,7 @@ asanaModule.service("AsanaGateway", ["$http", function ($http) {
         options.query = {opt_fields: "name,email,photo.image_128x128"};
 
         this.api(function (response) {
-            if(response.photo == null)
+            if(typeof response.photo === 'undefined')
                 response.picture = chrome.extension.getURL("img/nopicture.png");
             else
                 response.picture = response.photo.image_128x128;
@@ -51,7 +51,7 @@ asanaModule.service("AsanaGateway", ["$http", function ($http) {
         options.query = {opt_fields: "name,email,photo.image_128x128"};
 
         this.api(function (response) {
-            if (response.photo == null)
+            if (typeof response.photo === 'undefined')
                 response.picture = chrome.extension.getURL("img/nopicture.png");
             else
                 response.picture = response.photo.image_128x128;
@@ -60,7 +60,7 @@ asanaModule.service("AsanaGateway", ["$http", function ($http) {
     };
 
     this.createTask = function (success, failure, options) {
-        if(typeof  options === 'undefined')
+        if(typeof options === 'undefined')
             options = {};
         options.method = "POST";
         options.path = "tasks";
@@ -110,9 +110,7 @@ asanaModule.service("AsanaGateway", ["$http", function ($http) {
             failure({"error": "Missing Parameter", message: "Fix this"});
         options.method = "PUT";
         options.path = "tasks/" + options.task_id;
-        options.query = {
-            completed: options.completed
-        };
+        options.query = {completed: options.completed};
         this.api(success, failure, options);
     };
 
@@ -173,7 +171,7 @@ asanaModule.service("AsanaGateway", ["$http", function ($http) {
             asanaOptions = {client_name: client_name};
         } else {
             options.query = options.query || {};
-            options.query["opt_client_name"] = client_name;
+            options.query.opt_client_name = client_name;
         }
         var queryParams = "";
         for (var key in options.query) {
@@ -200,15 +198,17 @@ asanaModule.service("AsanaGateway", ["$http", function ($http) {
                 success(result);
             }
         }, function (response) {
+            if (!failure) {failure = console.log;}
             var message = "";
             if(response.status == 401){
                 Asana.setLoggedIn(false);
                 message = response.data.errors[0].message;
-            } else if(response.status == -1){
+            } else if(response.status == -1 && response.data){
+                message = response.data.errors[0].message;
+            } else{
                 message = "ERR_INTERNET_DISCONNECTED";
             }
-
-            failure({"error": "SERVER_ERROR", message: message})
+            failure({"error": "SERVER_ERROR", message: message});
         });
-    }
+    };
 }]);
