@@ -22,7 +22,15 @@ asanaModule.service("AsanaGateway", ["$http", function ($http) {
         options.path = "workspaces/" + options.workspace_id + "/projects";
         options.query = {opt_fields: "name,archived,notes,public"};
 
-        this.api(success, failure, options);
+        this.api(function (response) {
+            //filter - archived projects
+            console.log("Workspace project: " + Asana.getHideArchivedProjects());
+            var hideArchivedProjects = Asana.getHideArchivedProjects();
+            var filtered = response.filter(function (project) {
+                return hideArchivedProjects && !project.archived;
+            });
+            success(filtered);
+        }, failure, options);
     };
 
     this.getWorkspaceTags = function (success, failure, options) {

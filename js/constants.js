@@ -29,5 +29,14 @@ var Asana = {
 
     setLoggedIn: function (loggedIn) {
         localStorage[this.LOGIN_PROPERTY] = loggedIn;
+    },
+
+    HIDE_ARCHIVED_PROJECTS: "hideArchivedProjects",
+    getHideArchivedProjects: function () {
+        return localStorage[this.HIDE_ARCHIVED_PROJECTS] === 'true';
+    },
+
+    setHideArchivedProjects: function (hide) {
+        localStorage[this.HIDE_ARCHIVED_PROJECTS] = hide;
     }
 };

@@ -215,3 +215,10 @@ asanaModule.controller("todoController", function ($scope, AsanaGateway) {
     $scope.loggedIn = Asana.isLoggedIn();
 });
 
+asanaModule.controller("settingsController", function ($scope) {
+    $scope.hideArchivedProjects = Asana.getHideArchivedProjects();
+
+    $scope.changeHideArchivedProjects = function () {
+        Asana.setHideArchivedProjects($scope.hideArchivedProjects);
+    }
+});

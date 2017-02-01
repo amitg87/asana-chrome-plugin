@@ -52,7 +52,7 @@ img.profile-img-sm{
     font-size: 10px;
 }
 
-/* padding zero */
+/* padding control */
 .padding-right-xs{
     padding-right: 5px !important;
 }
@@ -74,7 +74,14 @@ img.profile-img-sm{
 }
 
 .padding-left-zero {
-    padding-left: 0px;
+    padding-left: 0;
+}
+
+.padding-right-zero {
+    padding-right: 0;
+}
+
+.line-height-one{
     line-height: 1;
 }
 
