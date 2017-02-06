@@ -21,7 +21,9 @@ asanaModule.controller("createTaskController", function ($scope, AsanaGateway, $
     $scope.taskCreationStatus = {
         success: false,
         message: "",
-        show: false
+        show: false,
+        container_id: null,
+        task_id: null
     };
 
     $scope.clearFields = function () {
@@ -75,9 +77,9 @@ asanaModule.controller("createTaskController", function ($scope, AsanaGateway, $
     $scope.createTask = function () {
         var options = {data: {}};
         options.data.workspace = $scope.selectedWorkspaceId;
-        if($scope.isDefined($scope.selectedUser.selected))
+        if(angular.isDefined($scope.selectedUser.selected))
             options.data.assignee = $scope.selectedUser.selected.id;
-        if($scope.isDefined($scope.dueDate))
+        if(angular.isDefined($scope.dueDate))
             options.data.due_at = $scope.dueDate.date;
 
         var projectList = $scope.selectedProject.list;
@@ -100,7 +102,7 @@ asanaModule.controller("createTaskController", function ($scope, AsanaGateway, $
             options.data.tags = tags;
         }
 
-        if(!$scope.isDefined($scope.taskName)){
+        if(!angular.isDefined($scope.taskName)){
             $scope.taskNameRequired = true;
             return;
         }
@@ -113,24 +115,23 @@ asanaModule.controller("createTaskController", function ($scope, AsanaGateway, $
             //$scope.selectedWorkspace = {};
             $scope.clearFields();
 
-            $scope.taskCreationStatus = {
-                success: true,
-                message: "Task created",
-                show: true
-            };
+            var containerId = (response.projects[0])? response.projects[0].id: (response.tags[0])? response.tags[0].id: (response.assignee)? response.assignee.id: 0;
+            var taskId = response.id;
+            $scope.taskCreationStatus.success = true;
+            $scope.taskCreationStatus.message = "Task created";
+            $scope.taskCreationStatus.show = true;
+            $scope.taskCreationStatus.link = "https://app.asana.com/0/" + containerId + "/" + taskId;
             $timeout(function () {
                 $scope.taskCreationStatus.show = false;
-            }, 5000);
+            }, 20000);
         }, function (response) {
             console.log("Error: creating task: " + JSON.stringify(response));
-            $scope.taskCreationStatus = {
-                success: false,
-                message: "Failed to create task", //@todo error message
-                show: true
-            };
+            $scope.taskCreationStatus.success = false;
+            $scope.taskCreationStatus.message = "Failed to create task";
+            $scope.taskCreationStatus.show = true;
             $timeout(function () {
                 $scope.taskCreationStatus.show = false;
-            }, 5000);
+            }, 20000);
         }, options);
     };
 

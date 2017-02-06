@@ -74,7 +74,11 @@ asanaModule.service("AsanaGateway", ["$http", function ($http) {
 
     //called by others
     this.api = function (success, failure, options) {
-        options.headers = {"X-Requested-With": "XMLHttpRequest", "X-Allow-Asana-Client": "1"};
+        options.headers = {
+            "X-Requested-With": "XMLHttpRequest",
+            "X-Allow-Asana-Client": "1",
+            "Asana-Fast-Api": true
+        };
 
         // Be polite to Asana API and tell them who we are.
         var manifest = chrome.runtime.getManifest();
@@ -121,11 +125,12 @@ asanaModule.service("AsanaGateway", ["$http", function ($http) {
             if(response.status == 401){
                 Asana.setLoggedIn(false);
                 message = response.data.errors[0].message;
-            } else if(response.status == -1){
+            } else if(response.status == -1 && response.data){
+                message = response.data.errors[0].message;
+            } else {
                 message = "ERR_INTERNET_DISCONNECTED";
             }
-
-            failure({"error": "SERVER_ERROR", message: message})
+            failure({"error": "SERVER_ERROR", message: message});
         });
-    }
+    };
 }]);
