@@ -1,52 +1,52 @@
 <form>
     <div class="form-group">
-        <ui-select ng-model="selectedWorkspace.selected" on-select="onWorkspaceSelect($item, $model)">
+        <ui-select data-ng-model="selectedWorkspace.selected" on-select="onWorkspaceSelect($item, $model)">
             <ui-select-match placeholder="Select Workspace">
-                <span ng-bind="$select.selected.name"></span>
+                <span data-ng-bind="$select.selected.name"></span>
             </ui-select-match>
             <ui-select-choices repeat="workspace in (workspaces | filter: $select.search)">
                 <div class="overflow-ellipsis">
-                    <span ng-bind="workspace.name"></span>
+                    <span data-ng-bind="workspace.name"></span>
                 </div>
             </ui-select-choices>
         </ui-select>
     </div>
 
     <div class="form-group multi-select">
-        <ui-select multiple tagging="projectTaggingHandler" ng-class="{requiredField:projectRequired}" ng-model="selectedProject.list"
-                   ng-disabled="workspaceNotSelected" on-select="onProjectSelected($item, $model)">
-            <ui-select-match placeholder="Select Project" style="padding-left: 5px;">
+        <ui-select multiple tagging="projectTaggingHandler" data-ng-class="{requiredField:projectRequired}" data-ng-model="selectedProject.list"
+                   data-ng-disabled="workspaceNotSelected" on-select="onProjectSelected($item, $model)">
+            <ui-select-match placeholder="Select Project(s)" style="padding-left: 5px;">
                 {{$item.name}}
             </ui-select-match>
             <ui-select-choices repeat="project in (projects | filter: $select.search)">
                 <div class="overflow-ellipsis">
-                    <span ng-class="{'archived-project':project.archived}" ng-bind="project.name" title="{{project.notes}}"></span>
-                    <span ng-bind="project.prompt"></span>
-                    <i class="fa fa-lock private-project" ng-hide="{{project.public}}" title="Private to me"></i>
+                    <span data-ng-class="{'archived-project':project.archived}" data-ng-bind="project.name" title="{{project.notes}}"></span>
+                    <span data-ng-bind="project.prompt"></span>
+                    <i class="fa fa-lock private-project" data-ng-hide="{{project.public}}" title="Private to me"></i>
                 </div>
             </ui-select-choices>
         </ui-select>
     </div>
 
     <div class="form-group">
-        <ui-select ng-model="selectedUser.selected" ng-disabled="workspaceNotSelected">
+        <ui-select data-ng-model="selectedUser.selected" data-ng-disabled="workspaceNotSelected">
             <ui-select-match placeholder="Select User">
-                <span ng-bind="$select.selected.name"></span>
+                <span data-ng-bind="$select.selected.name"></span>
             </ui-select-match>
             <ui-select-choices repeat="user in (users | filter: $select.search)">
                 <div class="overflow-ellipsis">
                     <img class="img-circle profile-img profile-img-md"
-                         ng-src="{{user.photo.image_128x128}}"
+                         data-ng-src="{{user.photo.image_128x128}}"
                             src="../img/nopicture.png">
-                    <span ng-bind="user.name" class="font-size-12"></span>
-                    <span ng-bind="user.email" class="font-size-10"></span>
+                    <span data-ng-bind="user.name" class="font-size-12"></span>
+                    <span data-ng-bind="user.email" class="font-size-10"></span>
                 </div>
             </ui-select-choices>
         </ui-select>
     </div>
 
     <div class="form-group multi-select">
-        <ui-select multiple tagging="tagHandler"  ng-model="selectedTags.list" ng-disabled="workspaceNotSelected"
+        <ui-select multiple tagging="tagHandler"  data-ng-model="selectedTags.list" data-ng-disabled="workspaceNotSelected"
                    on-select="createNewTag($item, $model)">
             <ui-select-match placeholder="Select tag(s)" style="padding-left: 5px;">
                 {{$item.name}}
@@ -54,39 +54,44 @@
             <ui-select-choices repeat="tag in (tags | filter: $select.search) track by tag.id">
                 <div class="overflow-ellipsis" title="{{tag.notes}}">
                     <i class="fa fa-tag"></i>
-                    <span ng-bind="tag.name"></span>
-                    <span ng-bind="tag.prompt"></span>
+                    <span data-ng-bind="tag.name"></span>
+                    <span data-ng-bind="tag.prompt"></span>
                 </div>
             </ui-select-choices>
         </ui-select>
     </div>
 
     <div class="form-group form-group-box">
-        <a class="copy-page" title="Insert Page title and URL" ng-click="copyPage()"><i class="fa fa-copy"></i></a>
-        <textarea ng-class="{requiredField:taskNameRequired}" rows="1" id="taskName" name="taskName" ng-model="taskName" placeholder="Task Name" required
-               style="font-weight:600;" ng-disabled="workspaceNotSelected"></textarea>
-        <textarea id="taskDescription" name="taskNotes" ng-model="taskNotes" placeholder="Task Description"
-               ng-disabled="workspaceNotSelected"></textarea>
+        <a class="copy-page" title="Insert Page title and URL" data-ng-click="copyPage()"><i class="fa fa-copy"></i></a>
+        <textarea data-ng-class="{requiredField:taskNameRequired}" rows="1" id="taskName" name="taskName" data-ng-model="taskName" placeholder="Task Name" required
+               style="font-weight:600;" data-ng-disabled="workspaceNotSelected"></textarea>
+        <textarea id="taskDescription" name="taskNotes" data-ng-model="taskNotes" placeholder="Task Description"
+               data-ng-disabled="workspaceNotSelected"></textarea>
     </div>
 
     <div class="form-group">
         <p class="input-group">
-            <input type="text" class="form-control" datetime-picker="yyyy-MM-dd HH:mm:ss" ng-model="dueDate.date"
-                   is-open="dueDate.open" placeholder="Due Date" ng-disabled="workspaceNotSelected"
-                   ng-click="dueDate.open=!dueDate.open"/>
+            <input type="text" class="form-control" datetime-picker="yyyy-MM-dd HH:mm:ss" data-ng-model="dueDate.date"
+                   is-open="dueDate.open" placeholder="Due Date" data-ng-disabled="workspaceNotSelected"
+                   data-ng-click="dueDate.open=!dueDate.open"/>
               <span class="input-group-btn">
-                  <button type="button" class="btn btn-default selectDueDate" ng-click="dueDate.open=!dueDate.open">
+                  <button type="button" class="btn btn-default selectDueDate" data-ng-click="dueDate.open=!dueDate.open">
                       <i class="fa fa-calendar"></i>
                   </button>
               </span>
         </p>
     </div>
 
-    <div class="form-group" ng-click="createTask()">
-        <button type="button" class="btn btn-asana">Create Task</button>
-        <span class="status label" ng-show="taskCreationStatus.show"
-              ng-class="{'label-success': taskCreationStatus.success, 'label-danger': !taskCreationStatus.success}">
+    <div class="form-group">
+        <button type="button" class="btn btn-asana"
+            data-ng-click="createTask()">Create Task</button>
+        <span class="status label" data-ng-show="taskCreationStatus.show"
+            data-ng-class="taskCreationStatus.success?'label-success':'label-danger'">
             {{taskCreationStatus.message}}
         </span>
+        <a class="label asana-link" data-ng-href="{{taskCreationStatus.link}}"
+           data-ng-show="taskCreationStatus.show && taskCreationStatus.success">
+            View Task <i class="fa fa-external-link"></i>
+        </a>
     </div>
 </form>

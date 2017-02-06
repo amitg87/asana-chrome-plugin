@@ -92,6 +92,11 @@ img.profile-img-sm{
     border: 1px solid #1AAFD0 !important;
 }
 
+.asana-link{
+    color: #fff !important;
+    background-color: #1AAFD0 !important;
+}
+
 .btn-asana:hover{
     background-color: #02CEFF;
     box-shadow: 0 0 0 3px #80E6FF;
