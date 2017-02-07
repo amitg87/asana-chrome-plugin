@@ -31,6 +31,9 @@
     <div class="form-group">
         <ui-select data-ng-model="selectedUser.selected" data-ng-disabled="workspaceNotSelected">
             <ui-select-match placeholder="Select User">
+                <img class="img-circle profile-img profile-img-sm"
+                     data-ng-src="{{$select.selected.photo.image_21x21}}"
+                     src="../img/nopicture.png">
                 <span data-ng-bind="$select.selected.name"></span>
             </ui-select-match>
             <ui-select-choices repeat="user in (users | filter: $select.search)">
@@ -89,7 +92,7 @@
             data-ng-class="taskCreationStatus.success?'label-success':'label-danger'">
             {{taskCreationStatus.message}}
         </span>
-        <a class="label asana-link" data-ng-href="{{taskCreationStatus.link}}"
+        <a target="_blank" class="label asana-link" data-ng-href="{{taskCreationStatus.link}}"
            data-ng-show="taskCreationStatus.show && taskCreationStatus.success">
             View Task <i class="fa fa-external-link"></i>
         </a>

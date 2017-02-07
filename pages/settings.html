@@ -11,4 +11,24 @@
             <input type="text" class="form-control" value="Hide Archived Projects">
         </div>
     </div>
+
+    <div class="form-group">
+        <div class="input-group input-group-sm">
+            <span class="input-group-addon">
+                <input type="checkbox" data-ng-model="defaultAssigneeMe" data-ng-change="changeDefaultAssigneeMe()"
+                       style="display: table-cell;vertical-align: middle;">
+            </span>
+            <input type="text" class="form-control" value="Default Assignee - Me for created task">
+        </div>
+    </div>
+
+    <div class="form-group">
+        <div class="input-group input-group-sm">
+            <span class="input-group-addon">
+                <input type="checkbox" data-ng-model="projectOptional" data-ng-change="changeProjectOptional()"
+                       style="display: table-cell;vertical-align: middle;">
+            </span>
+            <input type="text" class="form-control" value="Project Optional">
+        </div>
+    </div>
 </form>

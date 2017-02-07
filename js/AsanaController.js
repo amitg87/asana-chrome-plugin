@@ -26,9 +26,20 @@ asanaModule.controller("createTaskController", function ($scope, AsanaGateway, $
         task_id: null
     };
 
+    $scope.setDefaultAssignee = function () {
+        if(Asana.getDefaultAssigneeMe() && angular.isDefined($scope.users)){
+            var currentUser = $scope.users.filter(function (user) {
+                return user.id == $scope.user.id;
+            });
+            if(currentUser.length == 1)
+                $scope.selectedUser.selected = currentUser[0];
+        }
+    };
+
     $scope.clearFields = function () {
         $scope.selectedProject = { list: [] };
         $scope.selectedUser = { selected : undefined};
+        $scope.setDefaultAssignee();
         $scope.selectedTags = {list: []};
         $scope.taskName = undefined;
         $scope.taskNotes = undefined;
@@ -67,6 +78,7 @@ asanaModule.controller("createTaskController", function ($scope, AsanaGateway, $
 
         AsanaGateway.getWorkspaceUsers(function (response) {
             $scope.users = response;
+            $scope.setDefaultAssignee();
         }, null, {workspace_id: $scope.selectedWorkspaceId});
 
         AsanaGateway.getWorkspaceProjects(function (response) {
@@ -83,7 +95,13 @@ asanaModule.controller("createTaskController", function ($scope, AsanaGateway, $
             options.data.due_at = $scope.dueDate.date;
 
         var projectList = $scope.selectedProject.list;
-        if($scope.selectedProject.list.length == 0){
+        if($scope.selectedProject.list.length == 0 && !Asana.getProjectOptional()){
+            $scope.taskCreationStatus.success = false;
+            $scope.taskCreationStatus.message = "Missing Project";
+            $scope.taskCreationStatus.show = true;
+            $timeout(function () {
+                $scope.taskCreationStatus.show = false;
+            }, 5000);
             $scope.projectRequired = true;
             return;
         }
@@ -103,13 +121,18 @@ asanaModule.controller("createTaskController", function ($scope, AsanaGateway, $
         }
 
         if(!angular.isDefined($scope.taskName)){
+            $scope.taskCreationStatus.success = false;
+            $scope.taskCreationStatus.message = "Task name required";
+            $scope.taskCreationStatus.show = true;
+            $timeout(function () {
+                $scope.taskCreationStatus.show = false;
+            }, 5000);
             $scope.taskNameRequired = true;
             return;
         }
         options.data.name = $scope.taskName;
         options.data.notes = $scope.taskNotes;
 
-        console.log("Creating task with parameters: " + JSON.stringify(options));
         AsanaGateway.createTask(function (response) {
             console.log("Success: creating task: " + JSON.stringify(response));
             //$scope.selectedWorkspace = {};
@@ -123,7 +146,7 @@ asanaModule.controller("createTaskController", function ($scope, AsanaGateway, $
             $scope.taskCreationStatus.link = "https://app.asana.com/0/" + containerId + "/" + taskId;
             $timeout(function () {
                 $scope.taskCreationStatus.show = false;
-            }, 20000);
+            }, 5000);
         }, function (response) {
             console.log("Error: creating task: " + JSON.stringify(response));
             $scope.taskCreationStatus.success = false;
@@ -131,7 +154,7 @@ asanaModule.controller("createTaskController", function ($scope, AsanaGateway, $
             $scope.taskCreationStatus.show = true;
             $timeout(function () {
                 $scope.taskCreationStatus.show = false;
-            }, 20000);
+            }, 5000);
         }, options);
     };
 
@@ -218,8 +241,17 @@ asanaModule.controller("todoController", function ($scope, AsanaGateway) {
 
 asanaModule.controller("settingsController", function ($scope) {
     $scope.hideArchivedProjects = Asana.getHideArchivedProjects();
-
     $scope.changeHideArchivedProjects = function () {
         Asana.setHideArchivedProjects($scope.hideArchivedProjects);
+    };
+
+    $scope.defaultAssigneeMe = Asana.getDefaultAssigneeMe();
+    $scope.changeDefaultAssigneeMe = function () {
+        Asana.setDefaultAssigneeMe($scope.defaultAssigneeMe);
+    };
+
+    $scope.projectOptional = Asana.getProjectOptional();
+    $scope.changeProjectOptional = function () {
+        Asana.setProjectOptional($scope.projectOptional);
     }
 });
