@@ -2,7 +2,6 @@
 var Asana = {
     API_VERSION          : "1.0",
     ASANA_HOST           : "app.asana.com",
-    DEFAULT_WORKSPACE_ID : 0,
     ASANA_LOGIN_COOKIE_NAME : "ticket",
 
     getBaseApiUrl        : function () {
@@ -26,7 +25,6 @@ var Asana = {
     isLoggedIn: function() {
         return localStorage[this.LOGIN_PROPERTY] === 'true';
     },
-
     setLoggedIn: function (loggedIn) {
         localStorage[this.LOGIN_PROPERTY] = loggedIn;
     },
@@ -35,8 +33,23 @@ var Asana = {
     getHideArchivedProjects: function () {
         return localStorage[this.HIDE_ARCHIVED_PROJECTS] === 'true';
     },
-
     setHideArchivedProjects: function (hide) {
         localStorage[this.HIDE_ARCHIVED_PROJECTS] = hide;
+    },
+
+    DEFAULT_ASSIGNEE_ME: "defaultAssigneeMe",
+    getDefaultAssigneeMe: function () {
+        return localStorage[this.DEFAULT_ASSIGNEE_ME] === 'true';
+    },
+    setDefaultAssigneeMe: function (defaultMe) {
+        localStorage[this.DEFAULT_ASSIGNEE_ME] = defaultMe;
+    },
+
+    PROJECT_OPTIONAL: "projectOptional",
+    getProjectOptional: function () {
+        return localStorage[this.PROJECT_OPTIONAL] === 'true';
+    },
+    setProjectOptional: function (value) {
+        localStorage[this.PROJECT_OPTIONAL] = value;
     }
 };
