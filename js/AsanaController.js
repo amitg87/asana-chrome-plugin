@@ -1,5 +1,5 @@
-asanaModule.controller("userController", function ($scope, AsanaGateway) {
-    $scope.loggedIn = Asana.isLoggedIn();
+asanaModule.controller("userController", ['$scope', 'AsanaGateway', 'AsanaConstants', function ($scope, AsanaGateway, AsanaConstants) {
+    $scope.loggedIn = AsanaConstants.isLoggedIn();
 
     AsanaGateway.getUserData(function (response) {
         $scope.user = response;
@@ -10,10 +10,10 @@ asanaModule.controller("userController", function ($scope, AsanaGateway) {
             window.close();
         });
     }
-});
+}]);
 
-asanaModule.controller("createTaskController", function ($scope, AsanaGateway, $timeout) {
-    $scope.loggedIn = Asana.isLoggedIn();
+asanaModule.controller("createTaskController", ['$scope', 'AsanaGateway', '$timeout', 'AsanaConstants', function ($scope, AsanaGateway, $timeout, AsanaConstants) {
+    $scope.loggedIn = AsanaConstants.isLoggedIn();
     $scope.workspaceNotSelected = true;
     $scope.projectRequired = false;
     $scope.taskNameRequired = false;
@@ -27,7 +27,7 @@ asanaModule.controller("createTaskController", function ($scope, AsanaGateway, $
     };
 
     $scope.setDefaultAssignee = function () {
-        if(Asana.getDefaultAssigneeMe() && angular.isDefined($scope.users)){
+        if(AsanaConstants.getDefaultAssigneeMe() && angular.isDefined($scope.users)){
             var currentUser = $scope.users.filter(function (user) {
                 return user.id == $scope.user.id;
             });
@@ -95,7 +95,7 @@ asanaModule.controller("createTaskController", function ($scope, AsanaGateway, $
             options.data.due_at = $scope.dueDate.date;
 
         var projectList = $scope.selectedProject.list;
-        if($scope.selectedProject.list.length == 0 && !Asana.getProjectOptional()){
+        if($scope.selectedProject.list.length == 0 && !AsanaConstants.getProjectOptional()){
             $scope.taskCreationStatus.success = false;
             $scope.taskCreationStatus.message = "Missing Project";
             $scope.taskCreationStatus.show = true;
@@ -233,25 +233,25 @@ asanaModule.controller("createTaskController", function ($scope, AsanaGateway, $
             $scope.taskNameRequired = false;
         });
     }
-});
+}]);
 
-asanaModule.controller("todoController", function ($scope, AsanaGateway) {
-    $scope.loggedIn = Asana.isLoggedIn();
-});
+asanaModule.controller("todoController", ['$scope', 'AsanaGateway', 'AsanaConstants', function ($scope, AsanaGateway, AsanaConstants) {
+    $scope.loggedIn = AsanaConstants.isLoggedIn();
+}]);
 
-asanaModule.controller("settingsController", function ($scope) {
-    $scope.hideArchivedProjects = Asana.getHideArchivedProjects();
+asanaModule.controller("settingsController", ['$scope', 'AsanaConstants', function ($scope, AsanaConstants) {
+    $scope.hideArchivedProjects = AsanaConstants.getHideArchivedProjects();
     $scope.changeHideArchivedProjects = function () {
         Asana.setHideArchivedProjects($scope.hideArchivedProjects);
     };
 
-    $scope.defaultAssigneeMe = Asana.getDefaultAssigneeMe();
+    $scope.defaultAssigneeMe = AsanaConstants.getDefaultAssigneeMe();
     $scope.changeDefaultAssigneeMe = function () {
         Asana.setDefaultAssigneeMe($scope.defaultAssigneeMe);
     };
 
-    $scope.projectOptional = Asana.getProjectOptional();
+    $scope.projectOptional = AsanaConstants.getProjectOptional();
     $scope.changeProjectOptional = function () {
         Asana.setProjectOptional($scope.projectOptional);
     }
-});
+}]);
