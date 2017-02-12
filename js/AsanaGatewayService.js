@@ -24,12 +24,14 @@ asanaModule.service("AsanaGateway", ["$http", "AsanaConstants", function ($http,
 
         this.api(function (response) {
             //filter - archived projects
-            console.log("Workspace project: " + AsanaConstants.getHideArchivedProjects());
             var hideArchivedProjects = AsanaConstants.getHideArchivedProjects();
-            var filtered = response.filter(function (project) {
-                return hideArchivedProjects && !project.archived;
-            });
-            success(filtered);
+            if(hideArchivedProjects){
+                success(response.filter(function (project) {
+                    return !project.archived;
+                }));
+            } else {
+                success(response);
+            }
         }, failure, options);
     };
 

@@ -242,16 +242,19 @@ asanaModule.controller("todoController", ['$scope', 'AsanaGateway', 'AsanaConsta
 asanaModule.controller("settingsController", ['$scope', 'AsanaConstants', function ($scope, AsanaConstants) {
     $scope.hideArchivedProjects = AsanaConstants.getHideArchivedProjects();
     $scope.changeHideArchivedProjects = function () {
-        Asana.setHideArchivedProjects($scope.hideArchivedProjects);
+        $scope.hideArchivedProjects = !$scope.hideArchivedProjects;
+        AsanaConstants.setHideArchivedProjects($scope.hideArchivedProjects);
     };
 
     $scope.defaultAssigneeMe = AsanaConstants.getDefaultAssigneeMe();
     $scope.changeDefaultAssigneeMe = function () {
-        Asana.setDefaultAssigneeMe($scope.defaultAssigneeMe);
+        $scope.defaultAssigneeMe = !$scope.defaultAssigneeMe;
+        AsanaConstants.setDefaultAssigneeMe($scope.defaultAssigneeMe);
     };
 
     $scope.projectOptional = AsanaConstants.getProjectOptional();
     $scope.changeProjectOptional = function () {
-        Asana.setProjectOptional($scope.projectOptional);
+        $scope.projectOptional = !$scope.projectOptional;
+        AsanaConstants.setProjectOptional($scope.projectOptional);
     }
 }]);
