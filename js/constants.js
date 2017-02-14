@@ -13,11 +13,11 @@ asanaModule.constant("AsanaConstants", (function () {
         },
 
         isAsanaLoginCookie: function (cookieName) {
-            return cookieName === Asana.ASANA_LOGIN_COOKIE_NAME;
+            return cookieName === this.ASANA_LOGIN_COOKIE_NAME;
         },
 
         isAsanaDomain: function (domain) {
-            return domain.endsWith(Asana.ASANA_HOST);
+            return domain.endsWith(this.ASANA_HOST);
         },
 
         // plugin specific
