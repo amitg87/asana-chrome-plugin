@@ -1,4 +1,4 @@
-asanaModule.service("AsanaGateway", ["$http", function ($http) {
+asanaModule.service("AsanaGateway", ["$http", "AsanaConstants", function ($http, AsanaConstants) {
 
     this.getWorkspaces = function (success, failure, options) {
         options = options || {};
@@ -24,12 +24,14 @@ asanaModule.service("AsanaGateway", ["$http", function ($http) {
 
         this.api(function (response) {
             //filter - archived projects
-            console.log("Workspace project: " + Asana.getHideArchivedProjects());
-            var hideArchivedProjects = Asana.getHideArchivedProjects();
-            var filtered = response.filter(function (project) {
-                return hideArchivedProjects && !project.archived;
-            });
-            success(filtered);
+            var hideArchivedProjects = AsanaConstants.getHideArchivedProjects();
+            if(hideArchivedProjects){
+                success(response.filter(function (project) {
+                    return !project.archived;
+                }));
+            } else {
+                success(response);
+            }
         }, failure, options);
     };
 
@@ -104,7 +106,7 @@ asanaModule.service("AsanaGateway", ["$http", function ($http) {
         }
         queryParams = encodeURI(queryParams.substr(0, queryParams.length-1));
 
-        var url = Asana.getBaseApiUrl() + options.path + "?" + queryParams;
+        var url = AsanaConstants.getBaseApiUrl() + options.path + "?" + queryParams;
         $http({
             method: options.method,
             url: url,
@@ -123,7 +125,7 @@ asanaModule.service("AsanaGateway", ["$http", function ($http) {
         }, function (response) {
             var message = "";
             if(response.status == 401){
-                Asana.setLoggedIn(false);
+                AsanaConstants.setLoggedIn(false);
                 message = response.data.errors[0].message;
             } else if(response.status == -1 && response.data){
                 message = response.data.errors[0].message;

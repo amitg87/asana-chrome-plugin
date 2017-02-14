@@ -1,8 +1,10 @@
-asanaModule.controller("userController", function ($scope, AsanaGateway) {
-    $scope.loggedIn = Asana.isLoggedIn();
+asanaModule.controller("userController", ['$scope', 'AsanaGateway', 'AsanaConstants', function ($scope, AsanaGateway, AsanaConstants) {
+    $scope.loggedIn = AsanaConstants.isLoggedIn();
 
     AsanaGateway.getUserData(function (response) {
         $scope.user = response;
+    }, function (response) {
+        console.log("AsanaNG Error: "+JSON.stringify(response));
     });
 
     $scope.createTab = function (url) {
@@ -10,13 +12,70 @@ asanaModule.controller("userController", function ($scope, AsanaGateway) {
             window.close();
         });
     }
-});
+}]);
 
-asanaModule.controller("createTaskController", function ($scope, AsanaGateway, $timeout) {
-    $scope.loggedIn = Asana.isLoggedIn();
+asanaModule.controller("createTaskController", ['$scope', 'AsanaGateway', '$timeout', 'AsanaConstants', '$filter', function ($scope, AsanaGateway, $timeout, AsanaConstants, $filter) {
+    $scope.loggedIn = AsanaConstants.isLoggedIn();
     $scope.workspaceNotSelected = true;
     $scope.projectRequired = false;
     $scope.taskNameRequired = false;
+    $scope.deadlineType = "due_on";
+    //"dd MMM yyyy HH:mm"
+    //"dd MMM yyyy"
+    //-d "due_on=2016-06-25" - yyyy-dd-MM
+    //-d "due_at=2016-06-25T13:01:00.000Z"
+
+    $scope.dateSet = function () {
+        if($scope.dueDate.date === null){
+            $scope.deadline = undefined;
+            $scope.deadlinevalue = undefined;
+            return;
+        }
+        console.log("date set");
+        $timeout(function () {
+            $scope.$apply(function () {
+                $scope.deadline = new Date();
+                $scope.deadline.setDate($scope.dueDate.date.getDate());
+                $scope.deadline.setMonth($scope.dueDate.date.getMonth());
+                $scope.deadline.setYear($scope.dueDate.date.getFullYear());
+                $scope.deadlineType = "due_on";
+                $scope.deadlinevalue = $filter('date')($scope.deadline, "dd MMM yyyy");
+                $scope.dueTime = {
+                    date: $scope.deadline,
+                    open: false
+                };
+            })
+        }, 0);
+    };
+
+    $scope.timeSet = function () {
+        console.log("time set");
+        console.log("New date: " + $scope.dueTime.date);
+        $timeout(function () {
+            $scope.$apply(function () {
+                if($scope.dueTime.date === null){
+                    $scope.dueTime.date = new Date();
+                    $scope.deadlineType = "due_on";
+                    $scope.deadlinevalue = $filter('date')($scope.deadline, "dd MMM yyyy");
+                } else {
+                    $scope.deadlineType = "due_at";
+                    $scope.deadline = $scope.dueTime.date;
+                    $scope.deadlinevalue = $filter('date')($scope.deadline, "dd MMM yyyy hh:mm a");
+                }
+            });
+        }, 0);
+    };
+
+    $scope.timeClick = function () {
+        console.log("time click");
+        if(angular.isDefined($scope.deadline)){
+            //if date set - open time calendar
+            $scope.dueTime.open=!$scope.dueTime.open;
+        } else {
+            //if date not set open date calendar
+            $scope.dueDate.open = !$scope.dueDate.open;
+        }
+    };
 
     $scope.taskCreationStatus = {
         success: false,
@@ -27,7 +86,7 @@ asanaModule.controller("createTaskController", function ($scope, AsanaGateway, $
     };
 
     $scope.setDefaultAssignee = function () {
-        if(Asana.getDefaultAssigneeMe() && angular.isDefined($scope.users)){
+        if(AsanaConstants.getDefaultAssigneeMe() && angular.isDefined($scope.users)){
             var currentUser = $scope.users.filter(function (user) {
                 return user.id == $scope.user.id;
             });
@@ -43,7 +102,8 @@ asanaModule.controller("createTaskController", function ($scope, AsanaGateway, $
         $scope.selectedTags = {list: []};
         $scope.taskName = undefined;
         $scope.taskNotes = undefined;
-        $scope.dueDate = undefined;
+        $scope.deadline = undefined;
+        $scope.deadlinevalue = "";
         $scope.taskNameRequired = false;
     };
 
@@ -91,11 +151,15 @@ asanaModule.controller("createTaskController", function ($scope, AsanaGateway, $
         options.data.workspace = $scope.selectedWorkspaceId;
         if(angular.isDefined($scope.selectedUser.selected))
             options.data.assignee = $scope.selectedUser.selected.id;
-        if(angular.isDefined($scope.dueDate))
-            options.data.due_at = $scope.dueDate.date;
+        if(angular.isDefined($scope.deadline)){
+            if($scope.deadlineType === 'due_at')
+                options.data.due_at = $scope.deadline;
+            else
+                options.data.due_on = $filter('date')($scope.deadline, 'yyyy-MM-dd');
+        }
 
         var projectList = $scope.selectedProject.list;
-        if($scope.selectedProject.list.length == 0 && !Asana.getProjectOptional()){
+        if($scope.selectedProject.list.length == 0 && !AsanaConstants.getProjectOptional()){
             $scope.taskCreationStatus.success = false;
             $scope.taskCreationStatus.message = "Missing Project";
             $scope.taskCreationStatus.show = true;
@@ -160,16 +224,14 @@ asanaModule.controller("createTaskController", function ($scope, AsanaGateway, $
 
     AsanaGateway.getWorkspaces(function (response) {
         $scope.workspaces = response;
-        if($scope.isDefined(response) && response.length > 0){
+        if(angular.isDefined(response) && response.length > 0){
             $scope.selectedWorkspace = response[0];
             $scope.selectedWorkspace.selected = response[0];
             $scope.onWorkspaceSelect(response[0], response[0]);
         }
+    }, function (response) {
+        console.log("AsanaNG Error: "+JSON.stringify(response));
     });
-
-    $scope.isDefined = function (param) {
-        return typeof param != 'undefined';
-    };
 
     $scope.tagHandler = function (input){
         var lowInput = input.toLowerCase();
@@ -233,25 +295,28 @@ asanaModule.controller("createTaskController", function ($scope, AsanaGateway, $
             $scope.taskNameRequired = false;
         });
     }
-});
+}]);
 
-asanaModule.controller("todoController", function ($scope, AsanaGateway) {
-    $scope.loggedIn = Asana.isLoggedIn();
-});
+asanaModule.controller("todoController", ['$scope', 'AsanaGateway', 'AsanaConstants', function ($scope, AsanaGateway, AsanaConstants) {
+    $scope.loggedIn = AsanaConstants.isLoggedIn();
+}]);
 
-asanaModule.controller("settingsController", function ($scope) {
-    $scope.hideArchivedProjects = Asana.getHideArchivedProjects();
+asanaModule.controller("settingsController", ['$scope', 'AsanaConstants', function ($scope, AsanaConstants) {
+    $scope.hideArchivedProjects = AsanaConstants.getHideArchivedProjects();
     $scope.changeHideArchivedProjects = function () {
-        Asana.setHideArchivedProjects($scope.hideArchivedProjects);
+        $scope.hideArchivedProjects = !$scope.hideArchivedProjects;
+        AsanaConstants.setHideArchivedProjects($scope.hideArchivedProjects);
     };
 
-    $scope.defaultAssigneeMe = Asana.getDefaultAssigneeMe();
+    $scope.defaultAssigneeMe = AsanaConstants.getDefaultAssigneeMe();
     $scope.changeDefaultAssigneeMe = function () {
-        Asana.setDefaultAssigneeMe($scope.defaultAssigneeMe);
+        $scope.defaultAssigneeMe = !$scope.defaultAssigneeMe;
+        AsanaConstants.setDefaultAssigneeMe($scope.defaultAssigneeMe);
     };
 
-    $scope.projectOptional = Asana.getProjectOptional();
+    $scope.projectOptional = AsanaConstants.getProjectOptional();
     $scope.changeProjectOptional = function () {
-        Asana.setProjectOptional($scope.projectOptional);
+        $scope.projectOptional = !$scope.projectOptional;
+        AsanaConstants.setProjectOptional($scope.projectOptional);
     }
-});
+}]);

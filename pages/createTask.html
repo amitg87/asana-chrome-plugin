@@ -74,14 +74,23 @@
 
     <div class="form-group">
         <p class="input-group">
-            <input type="text" class="form-control" datetime-picker="yyyy-MM-dd HH:mm:ss" data-ng-model="dueDate.date"
-                   is-open="dueDate.open" placeholder="Due Date" data-ng-disabled="workspaceNotSelected"
-                   data-ng-click="dueDate.open=!dueDate.open"/>
-              <span class="input-group-btn">
-                  <button type="button" class="btn btn-default selectDueDate" data-ng-click="dueDate.open=!dueDate.open">
-                      <i class="fa fa-calendar"></i>
-                  </button>
-              </span>
+            <input type="text" class="form-control" placeholder="Due date and time"
+                   data-ng-click="dueDate.open=!dueDate.open"
+                   data-ng-model="deadlinevalue"/>
+            <input type="text" class="form-control"
+                   datetime-picker enable-time="false" data-ng-model="dueDate.date" data-ng-change="dateSet()"
+                   is-open="dueDate.open" data-ng-click="dueDate.open=!dueDate.open" style="display: none;"/>
+            <input type="text" class="form-control"
+                   datetime-picker enable-date="false" data-ng-model="dueTime.date" data-ng-change="timeSet()"
+                   is-open="dueTime.open" data-ng-click="dueTime.open=!dueTime.open" style="display: none;"/>
+            <span class="input-group-btn">
+                <button type="button" class="btn btn-default selectDueDate" data-ng-click="dueDate.open=!dueDate.open">
+                    <i class="fa fa-calendar"></i>
+                </button>
+                <button type="button" class="btn btn-default" data-ng-click="timeClick()">
+                    <i class="fa fa-clock-o"></i>
+                </button>
+            </span>
         </p>
     </div>
 

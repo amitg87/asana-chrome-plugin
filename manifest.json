@@ -4,7 +4,7 @@
   "name": "AsanaNG - Asana Extension for Chrome",
   "short_name": "AsanaNG",
   "description": "Access Asana - quick and easy",
-  "version": "0.4.1",
+  "version": "0.5",
 
   "icons": {
     "16": "img/icon16.png",
@@ -15,10 +15,7 @@
   "author": "Amit Gangrade - amitgangrade04@gmail.com",
 
   "background": {
-    "scripts": [
-      "js/constants.js",
-      "js/chrome/background.js"
-    ],
+    "page": "background.html",
     "persistent": false
   },
 

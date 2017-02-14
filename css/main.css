@@ -225,3 +225,22 @@ span:focus{
 .asana-ng-container .close:focus, .close:hover {
     color: #02CEFF;
 }
+
+.asana-ng-container .checkbox-asana{
+    margin-top: 2px;
+    margin-bottom: 2px;
+    padding-left: 22px;
+}
+
+.asana-ng-container .checkbox-asana input[type="checkbox"]{
+    cursor: pointer;
+}
+
+.asana-ng-container .checkbox-asana .task-name {
+    display: inline-block;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    font-size: 12px;
+    line-height: 23px;
+}
