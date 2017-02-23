@@ -19,4 +19,8 @@ asanaModule.run(['AsanaConstants', function (AsanaConstants) {
     chrome.commands.onCommand.addListener(function (command) {
         chrome.browserAction.enable();
     });
+
+    chrome.runtime.onInstalled.addListener(function(details){
+        chrome.tabs.create({url: "info.html"});
+    });
 }]);
