@@ -21,6 +21,6 @@ asanaModule.run(['AsanaConstants', function (AsanaConstants) {
     });
 
     chrome.runtime.onInstalled.addListener(function(details){
-        chrome.tabs.create({url: "info.html"});
+        //chrome.tabs.create({url: "info.html"});
     });
 }]);

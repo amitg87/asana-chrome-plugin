@@ -74,6 +74,58 @@ asanaModule.service("AsanaGateway", ["$http", "AsanaConstants", function ($http,
         this.api(success, failure, options);
     };
 
+    this.getTasks = function (success, failure, options) {
+        options = options || {};
+        options.method = "GET";
+        options.path = "tasks";
+        options.query.opt_fields = "name,due_at,due_on,completed,tags,projects";
+        options.query.completed_since = "now";
+        this.api(success, failure, options);
+    };
+
+    this.getTask = function (success, failure, options) {
+        options = options || {};
+        options.method = "GET";
+        options.path = "tasks/" + options.task_id;
+        this.api(success, failure, options);
+    };
+
+    this.taskDone = function (success, failure, options) {
+        options = options || {};
+        options.method = "PUT";
+        options.path = "tasks/" + options.task_id;
+        options.query = {completed: options.completed};
+        this.api(success, failure, options);
+    };
+
+    this.getTaskStories = function (success, failure, options) {
+        options = options || {};
+        options.method = "GET";
+        options.path = "tasks/" + options.task_id + "/stories";
+        options.query = {
+            opt_fields: "type,text,created_at,created_by.name,created_by.email,created_by.photo.image_128x128"
+        };
+
+        this.api(success, failure, options);
+    };
+
+    this.addComment = function (success, failure, options) {
+        options = options || {};
+        options.method = "POST";
+        options.path = "tasks/" + options.task_id + "/stories";
+        options.data = {
+            text: options.commentText
+        };
+        this.api(success, failure, options);
+    };
+
+    this.updateTask = function (success, failure, options) {
+        options = options || {};
+        options.method = "PUT";
+        options.path = "tasks/" + options.task_id;
+        this.api(success, failure, options);
+    };
+
     //called by others
     this.api = function (success, failure, options) {
         options.headers = {

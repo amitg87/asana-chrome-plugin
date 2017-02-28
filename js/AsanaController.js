@@ -297,9 +297,251 @@ asanaModule.controller("createTaskController", ['$scope', 'AsanaGateway', '$time
     }
 }]);
 
-asanaModule.controller("todoController", ['$scope', 'AsanaGateway', 'AsanaConstants', function ($scope, AsanaGateway, AsanaConstants) {
-    $scope.loggedIn = AsanaConstants.isLoggedIn();
+asanaModule.controller("tasksController", ['$scope', 'AsanaGateway', function ($scope, AsanaGateway) {
+    $scope.selectedView = "Assigned to Me";
+    $scope.filterTask = 'filterMyTasks';
+    $scope.filterProject = {};
+    $scope.filterTag = {};
+
+    AsanaGateway.getWorkspaces(function (response) {
+        $scope.workspaces = response;
+        if(angular.isDefined(response) && response.length > 0){
+            $scope.selectedWorkspace = response[0];
+            $scope.selectedWorkspace.selected = response[0];
+            $scope.onWorkspaceSelect(response[0], response[0]);
+        }
+    }, function (response) {
+        console.log("AsanaNG Error: "+JSON.stringify(response));
+    });
+
+    $scope.onWorkspaceSelect = function (item, model) {
+        $scope.selectedWorkspaceId = $scope.selectedWorkspace.selected.id;
+        $scope.workspaceNotSelected = false;
+
+        $scope.fetchTasks();
+
+        AsanaGateway.getWorkspaceTags(function (response) {
+            $scope.tags = response;
+        }, null, {workspace_id: $scope.selectedWorkspaceId});
+
+        AsanaGateway.getWorkspaceUsers(function (response) {
+            $scope.users = response;
+        }, null, {workspace_id: $scope.selectedWorkspaceId});
+
+        AsanaGateway.getWorkspaceProjects(function (response) {
+            $scope.projects = response;
+        }, null, {workspace_id: $scope.selectedWorkspaceId});
+    };
+
+    $scope.tagHandler = function (input){
+        var lowInput = input.toLowerCase();
+        for(var i=0; i<$scope.tags.length; i++){
+            if($scope.tags[i].name.toLowerCase().indexOf(lowInput)>=0){
+                return $scope.tags[i];
+            }
+        }
+        return { id: 1, name: input, notes: '', prompt: "(new tag)" }
+    };
+
+    $scope.createNewTag = function (item, model) {
+        if(item.isTag){
+            var tagRef = item;
+            //var tags = $scope.tags;
+            console.log("Creating new tag: " + JSON.stringify(item));
+            var options = {data: {}};
+            options.data.workspace = $scope.selectedWorkspaceId;
+            options.data.name = item.name;
+            AsanaGateway.createNewTag(function (response) {
+                console.log("Create tag success: " + JSON.stringify(response));
+                tagRef.id = response.id; //update created tag with new id
+                //tags.push({"id": response.id, "name": response.name, "notes": response.notes}); //update taglist
+            }, function (response) {
+                console.log("Create tag failed: " + JSON.stringify(response));
+            }, options);
+        }
+    };
+
+    $scope.projectTaggingHandler = function (input) {
+        //console.log($scope.projects);
+        var lowInput = input.toLowerCase();
+        for(var i=0; i<$scope.projects.length; i++){
+            if($scope.projects[i].name.toLowerCase().indexOf(lowInput)>=0){
+                return $scope.projects[i];
+            }
+        }
+        return { id: 1, name: input, notes: '', prompt: "(new project)", public: true};
+    };
+
+    $scope.createProject = function (item, model) {
+        if(item.isTag){
+            console.log("Creating new project: " + JSON.stringify(item));
+            var options = {data: {}};
+            options.data.workspace = $scope.selectedWorkspaceId;
+            options.data.name = item.name;
+
+            AsanaGateway.createNewProject(function (response) {
+                console.log("New project created: " + JSON.stringify(response));
+            }, function (response) {
+                console.log("New project failed: " + JSON.stringify(response));
+            }, options);
+        }
+    };
+
+    $scope.switchView = function (choice, filter) {
+        if($scope.selectedView != choice){
+            $scope.selectedView = choice;
+            $scope.filterTask = filter;
+        }
+    };
+
+    $scope.fetchTasks = function () {
+        //fetch tasks here
+        $scope.tasks = [];
+        var options = { query: {} };
+        switch ($scope.filterTask){
+            case "filterMyTasks":
+                options.query.workspace = $scope.selectedWorkspace.selected.id;
+                options.query.assignee = "me";
+                break;
+            case "filterProjectTasks":
+                options.query.project = $scope.filterProject.selected.id;
+                break;
+            case "filterTagsTasks":
+                options.query.tag = $scope.filterTag.selected.id;
+                break;
+        }
+        AsanaGateway.getTasks(function (response) {
+            $scope.tasks = response;
+        }, function () {
+            console.log("Error getting tasks");
+        }, options);
+    };
+
+    $scope.onProjectSelected = function (item, model) {
+        //$scope.onProjectSelected(item, model);
+        console.log("filter on project");
+        $scope.fetchTasks();
+    };
+
+    $scope.onTagSelected = function (item, model) {
+        $scope.createNewTag(item, model);
+        console.log("filter on tags");
+        $scope.fetchTasks();
+    };
+
+    $scope.markTaskDone = function (task_id, task_completed) {
+        var taskNextStatus = !task_completed;
+        var option = {
+            task_id: task_id,
+            completed: taskNextStatus
+        };
+        AsanaGateway.taskDone(function (response) {
+            console.log("marked task: " + taskNextStatus);
+        }, function () {
+            console.log("error");
+        }, option);
+    };
+
+    $scope.isTask = function (taskName) {
+        return !taskName.endsWith(":");
+    }
 }]);
+
+asanaModule.controller("taskController", function ($scope, $routeParams, AsanaGateway) {
+    $scope.task_id = $routeParams.id;
+
+    console.log("fetching task details: " + $scope.task_id);
+    AsanaGateway.getTaskStories(function (response) {
+        console.dir("Stories: " + $scope.stories);
+        $scope.activities = response.filter(function (activity) {
+            return activity.type === "system";
+        });
+        $scope.comments = response.filter(function (comment) {
+            return comment.type === "comment";
+        });
+    }, function () {
+        console.log("Error fetching task stories");
+    }, {task_id: $scope.task_id});
+
+    AsanaGateway.getTask(function (response) {
+        $scope.taskDetails = response;
+        $scope.taskDetails.due = {
+            open: false
+        };
+        if(response.due_at !== null)
+            $scope.taskDetails.due.due_date = new Date(Date.parse(response.due_at));
+        else
+            $scope.taskDetails.due.due_date = new Date(Date.parse(response.due_on));
+        console.dir("Task details: " + JSON.stringify($scope.taskDetails));
+    }, function () {
+        console.log("Error fetching task details");
+    }, {task_id: $scope.task_id});
+
+    $scope.updateName = function () {
+        console.log("Updating task name: " + $scope.task_id);
+        var options = {
+            task_id: $scope.task_id,
+            data: {
+                name: $scope.taskDetails.name
+            }
+        };
+        $scope.updateTask(options);
+    };
+
+    $scope.updateNotes = function () {
+        console.log("Updating task name: " + $scope.task_id);
+        var options = {
+            task_id: $scope.task_id,
+            data: {
+                notes: $scope.taskDetails.notes
+            }
+        };
+        $scope.updateTask(options);
+    };
+
+    $scope.updateDueDate = function () {
+        console.log("updateing task due date" + $scope.task_id);
+        var options = {
+            task_id: $scope.task_id,
+            data: {
+                due_at: $scope.taskDetails.due.due_date
+            }
+        };
+        $scope.updateTask(options);
+    };
+
+    $scope.updateTask = function (options) {
+        AsanaGateway.updateTask(function (response) {
+            console.log("updated task: " + JSON.stringify(response));
+        }, function () {
+            console.log("Error occurred updating task");
+        }, options);
+    };
+
+    $scope.addComment = function () {
+        console.log("Adding comment: " + $scope.commentText + " to task_id: " + $scope.task_id);
+        AsanaGateway.addComment(function (response) {
+            console.log("Added comment: " + JSON.stringify(response));
+            $scope.comments.push({
+                id: response.id,
+                created_at: response.created_at,
+                created_by: {
+                    "id": $scope.user.id,
+                    "name": $scope.user.name,
+                    "email": $scope.user.email,
+                    "photo": {
+                        image_128x128: $scope.user.picture
+                    }
+                },
+                text: $scope.commentText,
+                type: "comment"
+            });
+            $scope.commentText = "";
+        }, function () {
+
+        }, {task_id: $scope.task_id, commentText: $scope.commentText});
+    };
+});
 
 asanaModule.controller("settingsController", ['$scope', 'AsanaConstants', function ($scope, AsanaConstants) {
     $scope.hideArchivedProjects = AsanaConstants.getHideArchivedProjects();
