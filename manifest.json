@@ -5,7 +5,6 @@
   "short_name": "AsanaNG",
   "description": "Access Asana - quick and easy",
   "version": "0.5",
-  "default_locale": "fr",
 
   "icons": {
     "16": "img/icon16.png",
