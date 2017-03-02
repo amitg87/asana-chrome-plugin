@@ -1,0 +1,86 @@
+{
+  "manifest_name":{
+    "message": "Asana Traduire - Asana Translation Extension pour Chrome",
+    "description": "Asana Translate - Asana Translation Extension for Chrome"
+  },
+  "manifest_short_name":{
+    "message": "Asana Traduire",
+    "description": "Asana Translate"
+  },
+  "manifest_description":{
+    "message": "Accédez à Asana dans notre propre langue",
+    "description": "Access Asana in our own language"
+  },
+  "manifest_browser_action_title":{
+    "message": "Asana Traduire",
+    "description": "Asana Translate"
+  },
+  "add_task": {
+    "message": "Ajouter Tâche",
+    "description": "Add Task"
+  },
+  "add_section": {
+    "message": "Ajouter Section",
+    "description": "Add Section"
+  },
+  "followers": {
+    "message": "Suiveurs",
+    "description": "followers"
+  },
+  "following": {
+    "message": "Suivant",
+    "description": "following"
+  },
+  "write_comment": {
+    "message": "Écrire un commentaire",
+    "description": "Write a comment"
+  },
+  "navigation_team_conversation": {
+    "message": "Conversation en équipe",
+    "description": "Team Conversations"
+  },
+  "navigation_team_calendar": {
+    "message": "Calendrier des équipes",
+    "description": "Team Calendar"
+  },
+  "navigation_projects": {
+    "message": "Projets",
+    "description": "Projects"
+  },
+  "my_tasks": {
+    "message": "Mes Tâches",
+    "description": "My Tasks"
+  },
+  "inbox": {
+    "message": "Boîte de réception",
+    "description": "Inbox"
+  },
+  "dashboard": {
+    "message": "Tableau de bord",
+    "description": "Dashboard"
+  },
+  "search": {
+    "message": "Recherche",
+    "description": "Search"
+  },
+  "list": {
+    "message": "Liste",
+    "description": "List"
+  },
+  "calendar": {
+    "message": "Calendrier",
+    "description": "Calendar"
+  },
+  "files": {
+    "message": "Dossier",
+    "description": "Files"
+  },
+  "view_task_by_due_date": {
+    "message": "Vue: tâches par date d'échéance",
+    "description": "View: Tasks by Due Date"
+  },
+  "navigation_show_recent": {
+    "message": "Afficher Récents et plus ...",
+    "description": "Show Recents and more…"
+  }
+}

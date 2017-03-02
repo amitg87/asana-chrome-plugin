@@ -20,7 +20,17 @@ asanaModule.run(['AsanaConstants', function (AsanaConstants) {
         chrome.browserAction.enable();
     });
 
+    this.refreshTabs = function () {
+        chrome.tabs.query({url: "*://*.asana.com/*"}, function (tabArray) {
+            for (var index in tabArray) {
+                var tab = tabArray[index];
+                chrome.tabs.reload(tab.id);
+            }
+        });
+    };
+
     chrome.runtime.onInstalled.addListener(function(details){
-        chrome.tabs.create({url: "info.html"});
+        //chrome.tabs.create({url: "info.html"});
+        refreshTabs();
     });
 }]);

@@ -1,0 +1,87 @@
+{
+  "manifest_name":{
+    "message": "Asana Traducir - Asana Extensión de Traducción para Chrome",
+    "description": "Asana Translate - Asana Translation Extension for Chrome"
+  },
+  "manifest_short_name":{
+    "message": "Asana Traducir",
+    "description": "Asana Translate"
+  },
+  "manifest_description":{
+    "message": "El acceso Asana en nuestro propio idioma",
+    "description": "Access Asana in our own language"
+  },
+  "manifest_browser_action_title":{
+    "message": "Asana Traducir",
+    "description": "Asana Translate"
+  },
+
+  "add_task": {
+    "message": "Añadir Tarea",
+    "description": "Add Task"
+  },
+  "add_section": {
+    "message": "Añadir sección",
+    "description": "Add Section"
+  },
+  "followers": {
+    "message": "Seguidores",
+    "description": "followers"
+  },
+  "following": {
+    "message": "Siguiendo",
+    "description": "following"
+  },
+  "write_comment": {
+    "message": "Escribir un comentario",
+    "description": "Write a comment"
+  },
+  "navigation_team_conversation": {
+    "message": "Conversación en equipo",
+    "description": "Team Conversations"
+  },
+  "navigation_team_calendar": {
+    "message": "Calendario de equipo",
+    "description": "Team Calendar"
+  },
+  "navigation_projects": {
+    "message": "Proyectos",
+    "description": "Projects"
+  },
+  "my_tasks": {
+    "message": "Mis Tareas",
+    "description": "My Tasks"
+  },
+  "inbox": {
+    "message": "Bandeja de entrada",
+    "description": "Inbox"
+  },
+  "dashboard": {
+    "message": "Tablero",
+    "description": "Dashboard"
+  },
+  "search": {
+    "message": "Búsqueda",
+    "description": "Search"
+  },
+  "list": {
+    "message": "Lista",
+    "description": "List"
+  },
+  "calendar": {
+    "message": "Calendario",
+    "description": "Calendar"
+  },
+  "files": {
+    "message": "Expediente",
+    "description": "Files"
+  },
+  "view_task_by_due_date": {
+    "message": "Ver: Tareas por fecha de vencimiento",
+    "description": "View: Tasks by Due Date"
+  },
+  "navigation_show_recent": {
+    "message": "Mostrar Recents y más ...",
+    "description": "Show Recents and more…"
+  }
+}

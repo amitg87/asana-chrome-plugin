@@ -1,0 +1,10 @@
+
+.GridHeader-buttons, .gridToolbar-buttons {
+    width: auto !important;
+}
+
+.react-mount-node .topbar-myTasksButton,
+.react-mount-node .topbar-notificationsButton,
+.react-mount-node .topbar-myDashboardButton {
+    margin: 0 5px !important;
+}

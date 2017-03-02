@@ -1,10 +1,11 @@
 {
   "manifest_version" : 2,
 
-  "name": "AsanaNG - Asana Extension for Chrome",
-  "short_name": "AsanaNG",
-  "description": "Access Asana - quick and easy",
+  "name": "__MSG_manifest_name__",
+  "short_name": "__MSG_manifest_short_name__",
+  "description": "__MSG_manifest_description__",
   "version": "0.5",
+  "default_locale": "en",
 
   "icons": {
     "16": "img/icon16.png",
@@ -23,9 +24,23 @@
     "default_icon": {
       "19": "img/icon16.png"
     },
-    "default_title": "AsanaNG",
+    "default_title": "__MSG_manifest_browser_action_title__",
     "default_popup": "popup.html"
   },
+
+  "content_scripts":[
+    {
+      "matches": ["*://*.asana.com/*"],
+      "css": [
+        "css/content.css"
+      ],
+      "js": [
+        "js/lib/jquery.js",
+        "js/contentscript.js"
+      ],
+      "run_at": "document_end"
+    }
+  ],
 
   "permissions": ["cookies", "tabs", "*://*.asana.com/"],
 
