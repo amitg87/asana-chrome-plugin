@@ -6,7 +6,7 @@
             <span class="caret"></span>
         </button>
         <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
-            <li><a data-ng-click="switchView('Assigned to Me', 'filterMyTasks')" href="">Assigned to Me</a></li>
+            <li><a data-ng-click="switchView('My Tasks', 'filterMyTasks')" href="">My Tasks</a></li>
             <li><a data-ng-click="switchView('Tasks by Project', 'filterProjectTasks')" href="">Tasks by Project</a></li>
             <li><a data-ng-click="switchView('Tasks by Tag', 'filterTagsTasks')" href="">Tasks by Tag</a></li>
         </ul>
@@ -64,13 +64,15 @@
                            data-ng-click="markTaskDone(task.id, task.completed); task.completed = !task.completed;">
                     <label for="{{task.id}}">
                     </label>
-                    <span class="task-name">
+                    <span class="task-name" title="{{task.name}}">
                         {{task.name}}
                     </span>
-                    <a class="pull-right task-details" href="#tasks/{{task.id}}">
+                    <a class="pull-right task-details" href="#tasks/{{task.id}}" title="Show Details">
                         <i class="fa fa-comment-o"></i>
                         <i class="fa fa-chevron-right"></i>
                     </a>
+                    <img class="pull-right img-circle profile-img profile-img-md" src="../img/nopicture.png"
+                            data-ng-src="{{task.assignee.photo.image_21x21}}" title="{{task.assignee.name}}">
                 </div>
             </li>
         </ul>

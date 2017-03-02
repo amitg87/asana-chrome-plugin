@@ -298,7 +298,7 @@ asanaModule.controller("createTaskController", ['$scope', 'AsanaGateway', '$time
 }]);
 
 asanaModule.controller("tasksController", ['$scope', 'AsanaGateway', function ($scope, AsanaGateway) {
-    $scope.selectedView = "Assigned to Me";
+    $scope.selectedView = "My Tasks";
     $scope.filterTask = 'filterMyTasks';
     $scope.filterProject = {};
     $scope.filterTag = {};
@@ -318,18 +318,17 @@ asanaModule.controller("tasksController", ['$scope', 'AsanaGateway', function ($
         $scope.selectedWorkspaceId = $scope.selectedWorkspace.selected.id;
         $scope.workspaceNotSelected = false;
 
-        $scope.fetchTasks();
-
         AsanaGateway.getWorkspaceTags(function (response) {
             $scope.tags = response;
         }, null, {workspace_id: $scope.selectedWorkspaceId});
 
-        AsanaGateway.getWorkspaceUsers(function (response) {
-            $scope.users = response;
-        }, null, {workspace_id: $scope.selectedWorkspaceId});
-
         AsanaGateway.getWorkspaceProjects(function (response) {
             $scope.projects = response;
+        }, null, {workspace_id: $scope.selectedWorkspaceId});
+
+        AsanaGateway.getWorkspaceUsers(function (response) {
+            $scope.users = response;
+            $scope.fetchTasks();
         }, null, {workspace_id: $scope.selectedWorkspaceId});
     };
 
@@ -389,6 +388,7 @@ asanaModule.controller("tasksController", ['$scope', 'AsanaGateway', function ($
 
     $scope.switchView = function (choice, filter) {
         if($scope.selectedView != choice){
+            $scope.tasks = [];
             $scope.selectedView = choice;
             $scope.filterTask = filter;
         }
@@ -411,7 +411,16 @@ asanaModule.controller("tasksController", ['$scope', 'AsanaGateway', function ($
                 break;
         }
         AsanaGateway.getTasks(function (response) {
-            $scope.tasks = response;
+            response.forEach(function (element, index) {
+                $scope.users.forEach(function (element1, index1) {
+                    if(element.assignee.id == element1.id){
+                        element.assignee.name = element1.name;
+                        element.assignee.photo = element1.photo;
+                    }
+                })
+            });
+
+            $scope.tasks = response; //response[0].assignee.id -> $scope.users
         }, function () {
             console.log("Error getting tasks");
         }, options);
@@ -538,7 +547,7 @@ asanaModule.controller("taskController", function ($scope, $routeParams, AsanaGa
             });
             $scope.commentText = "";
         }, function () {
-
+            console.log("Failed to add comment.")
         }, {task_id: $scope.task_id, commentText: $scope.commentText});
     };
 });

@@ -284,7 +284,7 @@ span:focus{
 
 .asana-ng-container .task-list .task-name {
     padding-left: 0;
-    max-width: calc(100% - 40px);
+    max-width: calc(100% - 75px);
     vertical-align: bottom;
 }
 
