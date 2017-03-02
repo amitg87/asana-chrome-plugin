@@ -4,7 +4,7 @@
   "name": "AsanaNG - Asana Extension for Chrome",
   "short_name": "AsanaNG",
   "description": "Access Asana - quick and easy",
-  "version": "0.3",
+  "version": "0.5",
   "default_locale": "fr",
 
   "icons": {
@@ -16,11 +16,8 @@
   "author": "Amit Gangrade - amitgangrade04@gmail.com",
 
   "background": {
-    "scripts": [
-      "js/constants.js",
-      "js/chrome/background.js"
-    ],
-    "persistent": true
+    "page": "background.html",
+    "persistent": false
   },
 
   "browser_action": {
@@ -31,18 +28,7 @@
     "default_popup": "popup.html"
   },
 
-  "permissions": [
-    "cookies",
-    "tabs",
-    "webRequest",
-    "webRequestBlocking",
-    "*://*.asana.com/"
-  ],
-
-  "content_scripts": [{
-    "matches": ["*://*.asana.com/*"],
-    "js": ["js/lib/jquery-2.2.4.min.js", "js/contentscript/translate.js"]
-  }],
+  "permissions": ["cookies", "tabs", "*://*.asana.com/"],
 
   "commands": {
     "_execute_browser_action": {

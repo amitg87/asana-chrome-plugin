@@ -52,7 +52,7 @@ img.profile-img-sm{
     font-size: 10px;
 }
 
-/* padding zero */
+/* padding control */
 .padding-right-xs{
     padding-right: 5px !important;
 }
@@ -74,7 +74,14 @@ img.profile-img-sm{
 }
 
 .padding-left-zero {
-    padding-left: 0px;
+    padding-left: 0;
+}
+
+.padding-right-zero {
+    padding-right: 0;
+}
+
+.line-height-one{
     line-height: 1;
 }
 
@@ -85,6 +92,11 @@ img.profile-img-sm{
     border: 1px solid #1AAFD0 !important;
 }
 
+.asana-link{
+    color: #fff !important;
+    background-color: #1AAFD0 !important;
+}
+
 .btn-asana:hover{
     background-color: #02CEFF;
     box-shadow: 0 0 0 3px #80E6FF;
@@ -93,6 +105,10 @@ img.profile-img-sm{
 span.archived-project{
     border-left: 3px solid #62d26f;
     padding-left: 5px;
+}
+
+.private-project{
+    color: #d2635b;
 }
 
 .overflow-ellipsis{
@@ -149,6 +165,18 @@ span.archived-project{
     border: 1px solid red !important;
 }
 
+.copy-page{
+    position: absolute;
+    right: 16px;
+    font-size: 16px;
+    color: #888;
+    cursor: pointer;
+}
+
+.copy-page:hover, .copy-page:focus{
+    color: #02CEFF
+}
+
 /*
 Calendar popup above rather than below
 */
@@ -176,4 +204,43 @@ https://github.com/angular-ui/ui-select/issues/379
 
 .ui-select-multiple.ui-select-bootstrap .ui-select-match .close{
     line-height: 1;
+}
+
+.ui-select-bootstrap .ui-select-choices-row>a{
+    padding: 3px 10px;
+}
+
+/*multiselect span - showing default outline*/
+span:focus{
+    outline: none;
+}
+
+.asana-ng-container .btn-default:hover, .asana-ng-container .btn-default:focus{
+    color: #02CEFF;
+    background-color: #fff;
+    border-color: #02CEFF;
+}
+
+.asana-ng-container .btn-default:hover *, .asana-ng-container .btn-default:focus *,
+.asana-ng-container .close:focus, .close:hover {
+    color: #02CEFF;
+}
+
+.asana-ng-container .checkbox-asana{
+    margin-top: 2px;
+    margin-bottom: 2px;
+    padding-left: 22px;
+}
+
+.asana-ng-container .checkbox-asana input[type="checkbox"]{
+    cursor: pointer;
+}
+
+.asana-ng-container .checkbox-asana .task-name {
+    display: inline-block;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    font-size: 12px;
+    line-height: 23px;
 }

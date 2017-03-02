@@ -1,100 +1,118 @@
-asanaModule.service("AsanaGateway", ["$http", function ($http) {
+asanaModule.service("AsanaGateway", ["$http", "AsanaConstants", function ($http, AsanaConstants) {
 
     this.getWorkspaces = function (success, failure, options) {
-        options = options? options: {};
+        options = options || {};
         options.method = "GET";
         options.path = "workspaces";
         this.api(success, failure, options);
     };
 
     this.getWorkspaceUsers = function (success, failure, options) {
-        if(typeof options === 'undefined' || typeof options.workspace_id === 'undefined')
-            failure({"error": "Missing Parameter", message: "Fix this"});
+        options = options || {};
         options.method = "GET";
-        options.path = "workspaces/" + options.workspace_id + "/users?opt_fields=name,email,photo.image_128x128";
+        options.path = "workspaces/" + options.workspace_id + "/users";
+        options.query = {opt_fields: "name,email,photo"};
 
-        this.api(function (response) {
-            if(response.photo == null)
-                response.picture = chrome.extension.getURL("img/nopicture.png");
-            else
-                response.picture = response.photo.image_128x128;
-            success(response);
-        }, failure, options);
-    };
-
-    this.getWorkspaceProjects = function (success, failure, options) {
-        if(typeof options === 'undefined' || typeof options.workspace_id === 'undefined')
-            failure({"error": "Missing Parameter", message: "Fix this"});
-        options.method = "GET";
-        options.path = "workspaces/" + options.workspace_id + "/projects?opt_fields=name,archived,notes";
         this.api(success, failure, options);
     };
 
-    this.getWorkspaceTags = function (success, failure, options) {
-        if(typeof options === 'undefined' || typeof options.workspace_id === 'undefined')
-            failure({"error": "Missing Parameter", message: "Fix this"});
+    this.getWorkspaceProjects = function (success, failure, options) {
+        options = options || {};
         options.method = "GET";
-        options.path = "workspaces/" + options.workspace_id + "/tags?opt_fields=name,notes";
+        options.path = "workspaces/" + options.workspace_id + "/projects";
+        options.query = {opt_fields: "name,archived,notes,public"};
+
+        this.api(function (response) {
+            //filter - archived projects
+            var hideArchivedProjects = AsanaConstants.getHideArchivedProjects();
+            if(hideArchivedProjects){
+                success(response.filter(function (project) {
+                    return !project.archived;
+                }));
+            } else {
+                success(response);
+            }
+        }, failure, options);
+    };
+
+    this.getWorkspaceTags = function (success, failure, options) {
+        options = options || {};
+        options.method = "GET";
+        options.path = "workspaces/" + options.workspace_id + "/tags";
+        options.query = {opt_fields: "name,notes"};
+
         this.api(success, failure, options);
     };
 
     this.getUserData = function (success, failure, options) {
-        if(typeof options === "undefined")
-            options = {};
+        options = options || {};
         options.method = "GET";
-        options.path = "users/me?opt_fields=name,email,photo.image_128x128";
-        this.api(function (response) {
-            if (response.photo == null)
-                response.picture = chrome.extension.getURL("img/nopicture.png");
-            else
-                response.picture = response.photo.image_128x128;
-            success(response);
-        }, failure, options);
+        options.path = "users/me";
+        options.query = {opt_fields: "name,email,photo"};
+
+        this.api(success, failure, options);
     };
 
     this.createTask = function (success, failure, options) {
-        if(typeof  options === 'undefined')
-            options = {};
+        options = options || {};
         options.method = "POST";
         options.path = "tasks";
         this.api(success, failure, options);
     };
 
-    this.getMyTasks = function (success, failure, options) {
-        //https://app.asana.com/api/1.0/tasks?assignee=me&workspace=42783899288073&completed_since=now&opt_fields=name,due_at,due_on,completed,tags,projects.name&limit=26
-        if(typeof  options === 'undefined')
-            options = {};
-        options.method = "GET";
-        options.path = "tasks?assignee=me&workspace=42783899288073&completed_since=now&opt_fields=name,due_at,due_on,completed,tags,projects.name";
+    this.createNewTag = function (success, failure, options) {
+        options = options || {};
+        options.method = "POST";
+        options.path = "tags";
+        this.api(success, failure, options);
+    };
+
+    this.createNewProject = function (success, failure, options) {
+        options = options || {};
+        options.method = "POST";
+        options.path = "projects";
         this.api(success, failure, options);
     };
 
     //called by others
     this.api = function (success, failure, options) {
-        options.headers = {"X-Requested-With": "XMLHttpRequest", "X-Allow-Asana-Client": "1"};
-        var headers = options.headers || {};
-        var params = options.params || {};
+        options.headers = {
+            "X-Requested-With": "XMLHttpRequest",
+            "X-Allow-Asana-Client": "1",
+            "Asana-Fast-Api": true
+        };
+
+        // Be polite to Asana API and tell them who we are.
+        var manifest = chrome.runtime.getManifest();
+        var client_name = [
+            "chrome-extension",
+            chrome.i18n.getMessage("@@extension_id"),
+            manifest.version,
+            manifest.name
+        ].join(":");
 
         var asanaOptions = {};
         if (options.method === "PUT" || options.method === "POST"){
-            // Be polite to Asana API and tell them who we are.
-            var manifest = chrome.runtime.getManifest();
-            var client_name = [
-                "chrome-extension",
-                chrome.i18n.getMessage("@@extension_id"),
-                manifest.version,
-                manifest.name
-            ].join(":");
             asanaOptions = {client_name: client_name};
+        } else {
+            options.query = options.query || {};
+            options.query["opt_client_name"] = client_name;
         }
+        var queryParams = "";
+        for (var key in options.query) {
+            if (options.query.hasOwnProperty(key)) {
+                queryParams += (key + "=" + options.query[key] + "&");
+            }
+        }
+        queryParams = encodeURI(queryParams.substr(0, queryParams.length-1));
 
-        var url = Asana.getBaseApiUrl() + options.path;
+        var url = AsanaConstants.getBaseApiUrl() + options.path + "?" + queryParams;
         $http({
             method: options.method,
             url: url,
             respondType: 'json',
-            headers: headers,
-            params: params,
+            headers: options.headers || {},
+            params: options.params || {},
             data: {data: options.data, options: asanaOptions}
         }).then(function (response) {
             if(response.data.data){
@@ -105,10 +123,16 @@ asanaModule.service("AsanaGateway", ["$http", function ($http) {
                 success(result);
             }
         }, function (response) {
+            var message = "";
             if(response.status == 401){
-                Asana.setLoggedIn(false);
+                AsanaConstants.setLoggedIn(false);
+                message = response.data.errors[0].message;
+            } else if(response.status == -1 && response.data){
+                message = response.data.errors[0].message;
+            } else {
+                message = "ERR_INTERNET_DISCONNECTED";
             }
-            failure({"error": "SERVER_ERROR", message: response.data.errors[0].message})
+            failure({"error": "SERVER_ERROR", message: message});
         });
-    }
+    };
 }]);

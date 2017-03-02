@@ -12,7 +12,7 @@ and [Github source](https://github.com/Asana/Chrome-Extension-Example)
 MIT
 
 ## Motivation
-Asana's - Official Chrome Extension hasn't seen any new features in years.
+Asana's Official Chrome Extension hasn't seen any new features in years.
 But they have kept their plugin under MIT license and Asana offers rich set 
 of REST API. Onus is on us to develop something great out of it.
 
@@ -35,10 +35,10 @@ of REST API. Onus is on us to develop something great out of it.
     - mark tasks as done
     
 ## Usage
-1. Install as a User:
-Head to <todo link> and click "+ADD TO CHROME"
+### Install as a User:
+Head to [Chrome Web Store](https://chrome.google.com/webstore/detail/asanang-asana-extension-f/mcfgjehdbegcfjeecdgdpjlmfbeamgdd) and click "+ADD TO CHROME"
 
-2. Install as a developer:
+### Install as a developer:
   1. Download the code, e.g. `git clone git@github.com:amitg87/asana-chrome-plugin.git`
   2. Navigate chrome to `chrome://extensions`
   3. Check the `Developer mode` toggle

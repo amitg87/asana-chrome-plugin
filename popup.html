@@ -2,7 +2,6 @@
 <html lang="en">
 <head>
     <title></title>
-    <script src="js/constants.js"></script>
     <script src="js/lib/angular.min.js"></script>
     <script src="js/lib/angular-sanitize.min.js"></script>
     <script src="js/lib/angular-route.min.js"></script>
@@ -11,47 +10,49 @@
     <script src="js/lib/datetime-picker.min.js"></script>
 
     <script src="js/app.js"></script>
+    <script src="js/constants.js"></script>
     <script src="js/AsanaGatewayService.js"></script>
     <script src="js/AsanaController.js"></script>
 
-    <link href='https://fonts.googleapis.com/css?family=Montserrat' rel='stylesheet'>
-    <link href="css/lib/select.min.css" rel="stylesheet">
-    <link href="css/lib/bootstrap.min.css" rel="stylesheet">
-    <link href="css/lib/select2.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" />
-    <link href="css/main.css" rel="stylesheet">
+    <link href='https://fonts.googleapis.com/css?family=Montserrat' rel='stylesheet' />
+    <link href="css/lib/select.min.css" rel="stylesheet" />
+    <link href="css/lib/bootstrap.min.css" rel="stylesheet" />
+    <link href="css/lib/select2.min.css" rel="stylesheet" />
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" />
+    <link href="css/lib/awesome-bootstrap-checkbox.css" rel="stylesheet" />
+    <link href="css/main.css" rel="stylesheet" />
 </head>
-<body class="container" ng-app="asana" ng-controller="userController">
-<header ng-show="{{loggedIn}}">
+<body class="container asana-ng-container" data-ng-app="asana" data-ng-controller="userController">
+<header data-ng-show="{{loggedIn}}">
     <div class="row padding-bottom-xs">
-        <div class="col col-xs-2 padding-right-xs">
-            <img class="img-circle profile-img profile-img-md" ng-src="{{user.picture}}">
+        <div class="col col-xs-2 padding-right-xs center-block">
+            <img class="img-circle profile-img profile-img-md" data-ng-src="{{user.photo.image_128x128}}"
+                 src="img/nopicture.png">
         </div>
-        <div class="col col-xs-10 padding-left-zero">
-            <div class="col col-xs-12 padding-left-zero"><span class="text-primary font-size-12">{{user.name}}</span></div>
-            <div class="col col-xs-12 padding-left-zero"><span class="text-gray font-size-10">{{user.email}}</span></div>
+        <div class="col col-xs-10 padding-left-zero padding-right-zero">
+            <div class="col col-xs-12 padding-left-zero line-height-one"><span class="text-primary font-size-12">{{user.name}}</span></div>
+            <div class="col col-xs-12 padding-left-zero line-height-one"><span class="text-gray font-size-10">{{user.email}}</span></div>
         </div>
     </div>
     <ul class="nav nav-pills">
         <li role="presentation"><a href="#createTask"><i class="fa fa-plus-circle"></i> Create Task</a></li>
         <li role="presentation"><a href="#todo"><i class="fa fa-check-circle"></i> Todo</a></li>
+        <li role="presentation"><a href="#settings"><i class="fa fa-gear"></i> Settings</a></li>
     </ul>
 </header>
-<section class="padding-all-xs" ng-show="{{loggedIn}}">
-    <!-- angular templating -->
-    <!-- this is where content will be injected -->
-    <div ng-view></div>
+<section class="padding-all-xs" data-ng-show="{{loggedIn}}">
+    <div data-ng-view></div>
 </section>
 
-<div class="row padding-bottom-xs text-center" ng-hide="{{loggedIn}}" style="height: 250px; line-height: 50px;">
-        <div class="row">
-            Welcome to Asana Chrome Plugin.
-        </div>
-        <div class="row">
-            <button type="button" class="btn btn-default btn-lg btn-asana" ng-click="createTab('https://app.asana.com')" style="vertical-align: middle;">
-                Log In
-            </button>
-        </div>
+<div class="row padding-bottom-xs text-center" data-ng-hide="{{loggedIn}}" style="height: 250px; line-height: 50px;">
+    <div class="row">
+        Welcome to Asana Chrome Plugin.
+    </div>
+    <div class="row">
+        <button type="button" class="btn btn-default btn-lg btn-asana" data-ng-click="createTab('https://app.asana.com')" style="vertical-align: middle;">
+            Log In
+        </button>
+    </div>
 </div>
 </body>
 </html>
