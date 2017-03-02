@@ -318,5 +318,15 @@ asanaModule.controller("settingsController", ['$scope', 'AsanaConstants', functi
     $scope.changeProjectOptional = function () {
         $scope.projectOptional = !$scope.projectOptional;
         AsanaConstants.setProjectOptional($scope.projectOptional);
-    }
+    };
+
+    $scope.enableNotifications = AsanaConstants.getNotificationsEnabled();
+    $scope.changeEnableNotifications = function () {
+        $scope.enableNotifications = !$scope.enableNotifications;
+        AsanaConstants.setNotificationsEnabled($scope.enableNotifications);
+    };
+}]);
+
+asanaModule.controller("notificationsController", ['$scope', 'AsanaConstants', function ($scope, AsanaConstants) {
+
 }]);

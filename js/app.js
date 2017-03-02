@@ -19,6 +19,9 @@ asanaModule.config(function($routeProvider, $locationProvider) {
         .when("/settings", {
             templateUrl : "pages/settings.html",
             controller  : "settingsController"
+        }).when("/notifications", {
+            templateUrl : "pages/notifications.html",
+            controller  : "notificationsController"
         });
 });
 

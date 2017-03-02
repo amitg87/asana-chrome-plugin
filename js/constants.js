@@ -51,6 +51,14 @@ asanaModule.constant("AsanaConstants", (function () {
         },
         setProjectOptional: function (value) {
             localStorage[this.PROJECT_OPTIONAL] = value;
+        },
+
+        NOTIFICATIONS_ENABLED: "enableNotifications",
+        getNotificationsEnabled: function () {
+            return localStorage[this.NOTIFICATIONS_ENABLED] === 'true';
+        },
+        setNotificationsEnabled: function (value) {
+            localStorage[this.NOTIFICATIONS_ENABLED] = value;
         }
     };
 })());

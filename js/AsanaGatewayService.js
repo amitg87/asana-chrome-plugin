@@ -74,6 +74,14 @@ asanaModule.service("AsanaGateway", ["$http", "AsanaConstants", function ($http,
         this.api(success, failure, options);
     };
 
+    this.getEvents = function (success, failure, options) {
+        options = options || {};
+        options.method = "GET";
+        options.path = "events";
+        options.query = {"resource": options.resource, "sync": options.sync};
+        this.api(success, failure, options);
+    };
+
     //called by others
     this.api = function (success, failure, options) {
         options.headers = {
@@ -116,11 +124,7 @@ asanaModule.service("AsanaGateway", ["$http", "AsanaConstants", function ($http,
             data: {data: options.data, options: asanaOptions}
         }).then(function (response) {
             if(response.data.data){
-                var result = response.data.data;
-                if(response.next_page){
-                    result.offset = response.next_page.offset;
-                }
-                success(result);
+                success(response.data);
             }
         }, function (response) {
             var message = "";
@@ -129,6 +133,8 @@ asanaModule.service("AsanaGateway", ["$http", "AsanaConstants", function ($http,
                 message = response.data.errors[0].message;
             } else if(response.status == -1 && response.data){
                 message = response.data.errors[0].message;
+            } else if(response.status == 412){
+                message = response.data;
             } else {
                 message = "ERR_INTERNET_DISCONNECTED";
             }
