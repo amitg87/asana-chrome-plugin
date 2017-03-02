@@ -302,6 +302,7 @@ asanaModule.controller("tasksController", ['$scope', 'AsanaGateway', function ($
     $scope.filterTask = 'filterMyTasks';
     $scope.filterProject = {};
     $scope.filterTag = {};
+    $scope.showTaskManager = true;
 
     AsanaGateway.getWorkspaces(function (response) {
         $scope.workspaces = response;
@@ -453,38 +454,45 @@ asanaModule.controller("tasksController", ['$scope', 'AsanaGateway', function ($
 
     $scope.isTask = function (taskName) {
         return !taskName.endsWith(":");
-    }
-}]);
+    };
 
-asanaModule.controller("taskController", function ($scope, $routeParams, AsanaGateway) {
-    $scope.task_id = $routeParams.id;
+    $scope.showTaskList = function () {
+        $scope.showTaskManager = true;
+    };
 
-    console.log("fetching task details: " + $scope.task_id);
-    AsanaGateway.getTaskStories(function (response) {
-        console.dir("Stories: " + $scope.stories);
-        $scope.activities = response.filter(function (activity) {
-            return activity.type === "system";
-        });
-        $scope.comments = response.filter(function (comment) {
-            return comment.type === "comment";
-        });
-    }, function () {
-        console.log("Error fetching task stories");
-    }, {task_id: $scope.task_id});
+    $scope.showTask = function (taskId) {
+        console.log("Fetch details of task id: " + taskId);
+        $scope.showTaskManager = false;
+        $scope.selectedTaskId = taskId;
+        $scope.task_id = taskId;
 
-    AsanaGateway.getTask(function (response) {
-        $scope.taskDetails = response;
-        $scope.taskDetails.due = {
-            open: false
-        };
-        if(response.due_at !== null)
-            $scope.taskDetails.due.due_date = new Date(Date.parse(response.due_at));
-        else
-            $scope.taskDetails.due.due_date = new Date(Date.parse(response.due_on));
-        console.dir("Task details: " + JSON.stringify($scope.taskDetails));
-    }, function () {
-        console.log("Error fetching task details");
-    }, {task_id: $scope.task_id});
+        console.log("fetching task details: " + $scope.task_id);
+        AsanaGateway.getTaskStories(function (response) {
+            console.dir("Stories: " + $scope.stories);
+            $scope.activities = response.filter(function (activity) {
+                return activity.type === "system";
+            });
+            $scope.comments = response.filter(function (comment) {
+                return comment.type === "comment";
+            });
+        }, function () {
+            console.log("Error fetching task stories");
+        }, {task_id: $scope.task_id});
+
+        AsanaGateway.getTask(function (response) {
+            $scope.taskDetails = response;
+            $scope.taskDetails.due = {
+                open: false
+            };
+            if(response.due_at !== null)
+                $scope.taskDetails.due.due_date = new Date(Date.parse(response.due_at));
+            else
+                $scope.taskDetails.due.due_date = new Date(Date.parse(response.due_on));
+            console.dir("Task details: " + JSON.stringify($scope.taskDetails));
+        }, function () {
+            console.log("Error fetching task details");
+        }, {task_id: $scope.task_id});
+    };
 
     $scope.updateName = function () {
         console.log("Updating task name: " + $scope.task_id);
@@ -550,7 +558,7 @@ asanaModule.controller("taskController", function ($scope, $routeParams, AsanaGa
             console.log("Failed to add comment.")
         }, {task_id: $scope.task_id, commentText: $scope.commentText});
     };
-});
+}]);
 
 asanaModule.controller("settingsController", ['$scope', 'AsanaConstants', function ($scope, AsanaConstants) {
     $scope.hideArchivedProjects = AsanaConstants.getHideArchivedProjects();

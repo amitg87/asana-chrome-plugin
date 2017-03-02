@@ -16,10 +16,6 @@ asanaModule.config(function($routeProvider, $locationProvider) {
             templateUrl : "pages/tasks.html",
             controller  : "tasksController"
         })
-        .when("/tasks/:id", {
-            templateUrl: "pages/task.html",
-            controller: "taskController"
-        })
         .when("/settings", {
             templateUrl : "pages/settings.html",
             controller  : "settingsController"

@@ -365,7 +365,8 @@ span:focus{
     line-height: 12px;
 }
 
-.asana-ng-container .task-details .comment-list img.profile-img-sm{
+.asana-ng-container .task-details .comment-list img.profile-img-sm,
+.asana-ng-container .task-manager .task-list img.profile-img-sm {
     margin: 2px;
 }
 
