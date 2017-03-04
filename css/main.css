@@ -30,17 +30,13 @@ img.profile-img{
     height: auto;
     width: auto;
 }
-img.profile-img-lg {
-    max-width: 40px;
-    max-height: 40px;
+img.profile-img-md {
+    max-width: 36px;
+    max-height: 36px;
 }
-img.profile-img-md{
-    max-width: 32px;
-    max-height: 32px;
-}
-img.profile-img-sm{
-    max-width: 18px;
-    max-height: 18px;
+img.profile-img-sm {
+    max-width: 24px;
+    max-height: 24px;
 }
 
 /* fonts */
@@ -87,7 +83,6 @@ img.profile-img-sm{
 
 body section{
     width: 360px;
-    height: 336px;
     overflow-x: hidden;
     overflow-y: auto;
 }
@@ -194,12 +189,21 @@ span.archived-project{
 Calendar popup above rather than below
 */
 .dropdown-menu.datetime-picker-dropdown.ng-valid-date-disabled {
-    top: calc(-50% - 275px) !important;
+    top: calc(-50% - 223px) !important;
 }
 
 .dropdown-menu.datetime-picker-dropdown.ng-not-empty.ng-valid-time,
 .dropdown-menu.datetime-picker-dropdown.ng-empty{
-    top: calc(-15% - 159px);
+    top: calc(-15% - 127px);
+}
+
+.dropdown-menu.datetime-picker-dropdown a.btn {
+    padding: 0;
+    font-size: 10px;
+}
+
+.dropdown-menu.datetime-picker-dropdown .btn-group-sm>.btn, .btn-sm {
+    padding: 2px 4px;
 }
 
 /*
@@ -219,8 +223,17 @@ https://github.com/angular-ui/ui-select/issues/379
     line-height: 1;
 }
 
-.ui-select-bootstrap .ui-select-choices-row>a{
+.ui-select-multiple.ui-select-bootstrap .ui-select-match {
+    padding-left: 0 !important;
+}
+
+.ui-select-choices .ui-select-choices-row > a{
     padding: 3px 10px;
+}
+
+.ui-select-bootstrap .ui-select-choices,
+.ui-select-bootstrap .ui-select-no-choice{
+    max-height: 150px;
 }
 
 /*multiselect span - showing default outline*/
