@@ -80,7 +80,7 @@
 </form>
 <div class="task-details" data-ng-if="!showTaskManager">
     <div class="form-group">
-        <button type="button" class="btn-xs btn-asana" data-ng-click="showTaskList()">
+        <button type="button" class="btn btn-sm btn-asana" data-ng-click="showTaskList()">
             <i class="fa fa-backward"></i> Back
         </button>
     </div>
@@ -154,7 +154,7 @@
                    data-ng-disabled="workspaceNotSelected" on-select="onFollowerAdd($item, $model)"
                    on-remove="onFollowerRemove($item, $model)">
             <ui-select-match placeholder="Select Follower(s)" style="padding-left: 5px;">
-                {{$item.name}}
+                <span data-ng-bind="$item.name | nameInitials" title="{{$item.name}}"></span>
             </ui-select-match>
             <ui-select-choices repeat="follower in (users | filter: $select.search) track by follower.id">
                 <div class="overflow-ellipsis">
@@ -215,7 +215,7 @@
                 </div>
             </li>
         </ul>
-        <input type="button" class="btn btn-asana" value="Add Comment" data-ng-click="addComment()">
+        <input type="button" class="btn btn-sm btn-asana" value="Add Comment" data-ng-click="addComment()">
     </div>
 </div>
 
