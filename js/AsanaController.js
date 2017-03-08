@@ -98,6 +98,7 @@ asanaModule.controller("createTaskController", ['$scope', 'AsanaGateway', '$time
     $scope.clearFields = function () {
         $scope.selectedProject = { list: [] };
         $scope.selectedUser = { selected : undefined};
+        $scope.selectedFollowers = { list : [] };
         $scope.setDefaultAssignee();
         $scope.selectedTags = {list: []};
         $scope.taskName = undefined;
@@ -182,6 +183,14 @@ asanaModule.controller("createTaskController", ['$scope', 'AsanaGateway', '$time
         });
         if(tags.length > 0){
             options.data.tags = tags;
+        }
+
+        var followersList = $scope.selectedFollowers.list;
+        var followers = followersList.map(function (element) {
+            return element.id;
+        });
+        if(followers.length > 0){
+            options.data.followers = followers;
         }
 
         if(!angular.isDefined($scope.taskName)){
@@ -414,7 +423,7 @@ asanaModule.controller("tasksController", ['$scope', 'AsanaGateway', function ($
         AsanaGateway.getTasks(function (response) {
             response.forEach(function (element, index) {
                 $scope.users.forEach(function (element1, index1) {
-                    if(element.assignee.id == element1.id){
+                    if(element.assignee !== null && element.assignee.id == element1.id){
                         element.assignee.name = element1.name;
                         element.assignee.photo = element1.photo;
                     }
@@ -427,16 +436,85 @@ asanaModule.controller("tasksController", ['$scope', 'AsanaGateway', function ($
         }, options);
     };
 
-    $scope.onProjectSelected = function (item, model) {
-        //$scope.onProjectSelected(item, model);
-        console.log("filter on project");
-        $scope.fetchTasks();
+    $scope.onProjectAdd = function (item, model) {
+        $scope.createProject(item, model);
+        console.log("Adding project");
+        var options = {
+            task_id: $scope.selectedTaskId,
+            project_id: item.id
+        };
+        AsanaGateway.addProjectToTask(function () {
+            console.log("add project to task");
+        }, function () {
+            console.log("could not add project to task");
+        }, options);
     };
 
-    $scope.onTagSelected = function (item, model) {
+    $scope.onProjectRemove = function (item, model) {
+        console.log("Removing project");
+        var options = {
+            task_id: $scope.selectedTaskId,
+            project_id: item.id
+        };
+        AsanaGateway.removeProjectFromTask(function () {
+            console.log("project removed from task");
+        }, function () {
+            console.log("project could not be removed from task");
+        }, options);
+    };
+
+    $scope.onTagAdd = function (item, model) {
         $scope.createNewTag(item, model);
-        console.log("filter on tags");
-        $scope.fetchTasks();
+        console.log("tag adding: ");
+        var options = {
+            task_id: $scope.selectedTaskId,
+            tag_id: item.id
+        };
+        AsanaGateway.addTag(function () {
+            console.log("Tag added");
+        }, function () {
+            console.log("Tag add failed");
+        }, options);
+    };
+
+    $scope.onTagRemove = function (item, model) {
+        console.log("tag removed");
+        var options = {
+            task_id: $scope.selectedTaskId,
+            tag_id : item.id
+        };
+
+        AsanaGateway.removeTag(function () {
+            console.log("Tag removed");
+        }, function () {
+            console.log("Tag could not be removed");
+        }, options);
+    };
+
+    $scope.onFollowerAdd = function (item, model) {
+        console.log("adding follower:");
+        var options = {
+            task_id: $scope.selectedTaskId,
+            follower_id: item.id
+        };
+        AsanaGateway.addFollowerToTask(function () {
+            console.log("follower added");
+        }, function () {
+            console.log("follower added");
+        }, options);
+    };
+
+    $scope.onFollowerRemove = function (item, model) {
+        console.log("removing follower:");
+        var options = {
+            task_id: $scope.selectedTaskId,
+            follower_id: item.id
+        };
+        AsanaGateway.removeFollowersFromTask(function () {
+            console.log("follower removed");
+        }, function () {
+            console.log("follower removed");
+        }, options);
     };
 
     $scope.markTaskDone = function (task_id, task_completed) {
@@ -517,7 +595,7 @@ asanaModule.controller("tasksController", ['$scope', 'AsanaGateway', function ($
     };
 
     $scope.updateDueDate = function () {
-        console.log("updateing task due date" + $scope.task_id);
+        console.log("updating task due date" + $scope.task_id);
         var options = {
             task_id: $scope.task_id,
             data: {

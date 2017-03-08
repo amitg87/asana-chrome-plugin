@@ -100,7 +100,8 @@
 
     <div class="form-group multi-select">
         <ui-select multiple tagging="projectTaggingHandler" data-ng-model="taskDetails.projects"
-                   data-ng-disabled="workspaceNotSelected" on-select="onProjectSelected($item, $model)">
+                   data-ng-disabled="workspaceNotSelected" on-select="onProjectAdd($item, $model)"
+                   on-remove="onProjectRemove($item, $model)">
             <ui-select-match placeholder="Select Project" style="padding-left: 5px;">
                 {{$item.name}}
             </ui-select-match>
@@ -133,7 +134,8 @@
 
     <div class="form-group multi-select">
         <ui-select multiple tagging="tagHandler" data-ng-model="taskDetails.tags"
-                   data-ng-disabled="workspaceNotSelected" on-select="createNewTag($item, $model)">
+                   data-ng-disabled="workspaceNotSelected" on-select="onTagAdd($item, $model)"
+                   on-remove="onTagRemove($item, $model)">
             <ui-select-match placeholder="Select tag(s)" style="padding-left: 5px;">
                 {{$item.name}}
             </ui-select-match>
@@ -142,6 +144,25 @@
                     <i class="fa fa-tag"></i>
                     <span data-ng-bind="tag.name"></span>
                     <span data-ng-bind="tag.prompt"></span>
+                </div>
+            </ui-select-choices>
+        </ui-select>
+    </div>
+
+    <div class="form-group multi-select">
+        <ui-select multiple tagging="tagHandler"  data-ng-model="taskDetails.followers"
+                   data-ng-disabled="workspaceNotSelected" on-select="onFollowerAdd($item, $model)"
+                   on-remove="onFollowerRemove($item, $model)">
+            <ui-select-match placeholder="Select Follower(s)" style="padding-left: 5px;">
+                {{$item.name}}
+            </ui-select-match>
+            <ui-select-choices repeat="follower in (users | filter: $select.search) track by follower.id">
+                <div class="overflow-ellipsis">
+                    <img class="img-circle profile-img profile-img-sm"
+                         data-ng-src="{{follower.photo.image_128x128}}"
+                         src="../img/nopicture.png">
+                    <span data-ng-bind="follower.name" class="font-size-12"></span>
+                    <span data-ng-bind="follower.email" class="font-size-10"></span>
                 </div>
             </ui-select-choices>
         </ui-select>

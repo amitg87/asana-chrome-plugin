@@ -126,6 +126,66 @@ asanaModule.service("AsanaGateway", ["$http", "AsanaConstants", function ($http,
         this.api(success, failure, options);
     };
 
+    this.addTag = function (success, failure, options) {
+        options = options || {};
+        options.method = "POST";
+        options.path = "tasks/" + options.task_id + "/addTag";
+        options.data =  {
+            tag: options.tag_id
+        };
+        this.api(success, failure, options);
+    };
+
+    this.removeTag = function (success, failure, options) {
+        options = options || {};
+        options.method = "POST";
+        options.path = "tasks/" + options.task_id + "/removeTag";
+        options.data = {
+            tag: options.tag_id
+        };
+        this.api(success, failure, options);
+    };
+
+    this.addProjectToTask = function (success, failure, options) {
+        options = options || {};
+        options.method = "POST";
+        options.path = "tasks/" + options.task_id + "/addProject";
+        options.data = {
+            project: options.project_id
+        };
+        this.api(success, failure, options);
+    };
+
+    this.removeProjectFromTask = function (success, failure, options) {
+        options = options || {};
+        options.method = "POST";
+        options.path = "tasks/" + options.task_id + "/removeProject";
+        options.data = {
+            project: options.project_id
+        };
+        this.api(success, failure, options);
+    };
+
+    this.addFollowerToTask = function (success, failure, options) {
+        options = options || {};
+        options.method = "POST";
+        options.path = "tasks/" + options.task_id + "/addFollowers";
+        options.data = {
+            followers: [options.follower_id]
+        };
+        this.api(success, failure, options);
+    };
+
+    this.removeFollowersFromTask = function (success, failure, options) {
+        options = options || {};
+        options.method = "POST";
+        options.path = "tasks/" + options.task_id + "/removeFollowers";
+        options.data = {
+            followers: [options.follower_id]
+        };
+        this.api(success, failure, options);
+    };
+
     //called by others
     this.api = function (success, failure, options) {
         options.headers = {
