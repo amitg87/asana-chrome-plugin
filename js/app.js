@@ -10,15 +10,18 @@ asanaModule.config(function($routeProvider, $locationProvider) {
        .when("/createTask", {
             // route for the create task page
             templateUrl : "pages/createTask.html",
-            controller  : "createTaskController"
+            controller  : "createTaskController",
+            controllerAs: "createTaskCtrl"
         })
         .when("/tasks", {
             templateUrl : "pages/tasks.html",
-            controller  : "tasksController"
+            controller  : "tasksController",
+            controllerAs: "tasksCtrl"
         })
         .when("/settings", {
             templateUrl : "pages/settings.html",
-            controller  : "settingsController"
+            controller  : "settingsController",
+            controllerAs: "settingsCtrl"
         });
 });
 
