@@ -84,7 +84,7 @@ asanaModule.service("AsanaGateway", ["$http", "AsanaConstants", "$q", function (
         options = options || {};
         options.method = "GET";
         options.path = "tasks";
-        options.query.opt_fields = "name,due_at,due_on,completed,tags,projects,assignee";
+        options.query.opt_fields = "name,completed,assignee";
         options.query.completed_since = "now";
         return AsanaGateway.api(options);
     };

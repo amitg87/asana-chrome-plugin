@@ -67,12 +67,12 @@
                     <span class="task-name" title="{{task.name}}">
                         {{task.name}}
                     </span>
-                    <a class="pull-right task-details" data-ng-click="tasksCtrl.showTask(task.id)" title="Show Details">
+                    <a class="pull-right task-details" data-ng-click="tasksCtrl.showTask(task.id, $index)" title="Show Details">
                         <i class="fa fa-comment-o"></i>
                         <i class="fa fa-chevron-right"></i>
                     </a>
                     <img class="pull-right img-circle profile-img profile-img-sm" src="../img/nopicture.png"
-                            data-ng-src="{{task.assignee.photo.image_21x21}}" title="{{task.assignee.name}}">
+                         data-ng-src="{{task.assignee.photo.image_128x128}}" title="{{task.assignee.name}}">
                 </div>
             </li>
         </ul>
@@ -86,8 +86,8 @@
     </div>
     <div class="form-group task-title">
         <div class="checkbox checkbox-info checkbox-circle checkbox-asana" data-ng-model="tasksCtrl.task.id">
-            <input id="{{tasksCtrl.task_id}}" class="styled" type="checkbox" data-ng-checked="tasksCtrl.task.completed" data-ng-click="tasksCtrl.markTaskDone(task)"/>
-            <label for="{{tasksCtrl.task_id}}"></label>
+            <input id="{{tasksCtrl.selectedTaskId}}" class="styled" type="checkbox" data-ng-checked="tasksCtrl.task.completed" data-ng-click="tasksCtrl.markTaskDone(task)"/>
+            <label for="{{tasksCtrl.selectedTaskId}}"></label>
             <textarea id="taskName" class="task-name" rows="1" data-ng-model="tasksCtrl.taskDetails.name" placeholder="Task Name"
                       data-ng-change="tasksCtrl.updateName()" data-ng-model-options='{ debounce: 1000 }'> </textarea>
         </div>
@@ -116,8 +116,11 @@
     </div>
 
     <div class="form-group">
-        <ui-select data-ng-model="tasksCtrl.taskDetails.assignee">
+        <ui-select data-ng-model="tasksCtrl.taskDetails.assignee" on-select="tasksCtrl.updateAssignee()">
             <ui-select-match placeholder="Select User">
+                <img class="img-circle profile-img profile-img-sm" src="../img/nopicture.png"
+                     data-ng-src="{{tasksCtrl.taskDetails.assignee.photo.image_128x128}}"
+                     title="{{tasksCtrl.taskDetails.assignee.name}}">
                 <span data-ng-bind="$select.selected.name"></span>
             </ui-select-match>
             <ui-select-choices repeat="user in tasksCtrl.users | filter: $select.search" position="down">

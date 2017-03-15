@@ -557,14 +557,14 @@ asanaModule.controller("tasksController", ['$scope', 'AsanaGateway', function ($
         tasksCtrl.showTaskManager = true;
     };
 
-    tasksCtrl.showTask = function (taskId) {
+    tasksCtrl.showTask = function (taskId, index) {
         console.log("Fetch details of task id: " + taskId);
         tasksCtrl.showTaskManager = false;
         tasksCtrl.selectedTaskId = taskId;
-        tasksCtrl.task_id = taskId;
+        tasksCtrl.selectedTaskIndex = index;
 
-        console.log("fetching task details: " + tasksCtrl.task_id);
-        AsanaGateway.getTaskStories({task_id: tasksCtrl.task_id}).then(function (response) {
+        console.log("fetching task details: " + tasksCtrl.selectedTaskId);
+        AsanaGateway.getTaskStories({task_id: tasksCtrl.selectedTaskId}).then(function (response) {
             console.dir("Stories: " + response);
             tasksCtrl.activities = response.filter(function (activity) {
                 return activity.type === "system";
@@ -576,8 +576,14 @@ asanaModule.controller("tasksController", ['$scope', 'AsanaGateway', function ($
             console.log("Error fetching task stories");
         });
 
-        AsanaGateway.getTask({task_id: tasksCtrl.task_id}).then(function (response) {
-            tasksCtrl.taskDetails = response;
+        AsanaGateway.getTask({task_id: tasksCtrl.selectedTaskId}).then(function (response) {
+            tasksCtrl.users.forEach(function (element1, index1) {
+                if(response.assignee !== null && response.assignee.id == element1.id){
+                    response.assignee.photo = element1.photo;
+                }
+            });
+            tasksCtrl.tasks[tasksCtrl.selectedTaskIndex] = response;
+            tasksCtrl.taskDetails = tasksCtrl.tasks[tasksCtrl.selectedTaskIndex];
             tasksCtrl.taskDetails.due = {
                 open: false
             };
@@ -592,9 +598,9 @@ asanaModule.controller("tasksController", ['$scope', 'AsanaGateway', function ($
     };
 
     tasksCtrl.updateName = function () {
-        console.log("Updating task name: " + tasksCtrl.task_id);
+        console.log("Updating task name: " + tasksCtrl.selectedTaskId);
         var options = {
-            task_id: tasksCtrl.task_id,
+            task_id: tasksCtrl.selectedTaskId,
             data: {
                 name: tasksCtrl.taskDetails.name
             }
@@ -603,9 +609,9 @@ asanaModule.controller("tasksController", ['$scope', 'AsanaGateway', function ($
     };
 
     tasksCtrl.updateNotes = function () {
-        console.log("Updating task name: " + tasksCtrl.task_id);
+        console.log("Updating task name: " + tasksCtrl.selectedTaskId);
         var options = {
-            task_id: tasksCtrl.task_id,
+            task_id: tasksCtrl.selectedTaskId,
             data: {
                 notes: tasksCtrl.taskDetails.notes
             }
@@ -613,10 +619,34 @@ asanaModule.controller("tasksController", ['$scope', 'AsanaGateway', function ($
         tasksCtrl.updateTask(options);
     };
 
-    tasksCtrl.updateDueDate = function () {
-        console.log("updating task due date" + tasksCtrl.task_id);
+    tasksCtrl.updateAssignee = function () {
+        console.log("Updating assignee: " + tasksCtrl.selectedTaskId);
         var options = {
-            task_id: tasksCtrl.task_id,
+            task_id: tasksCtrl.selectedTaskId,
+            data: {
+                assignee: tasksCtrl.taskDetails.assignee.id
+            }
+        };
+        tasksCtrl.updateTask(options).then(function (response) {
+            var userId = response.assignee.id;
+            tasksCtrl.users.forEach(function (element, index) {
+                if(userId == element.id){
+                    //force ng-src refresh by providing default image
+                    if(element.photo == null){
+                        element.photo = {
+                            "image_128x128": "../img/nopicture.png"
+                        }
+                    }
+                    tasksCtrl.taskDetails.assignee = element;
+                }
+            })
+        });
+    };
+
+    tasksCtrl.updateDueDate = function () {
+        console.log("updating task due date" + tasksCtrl.selectedTaskId);
+        var options = {
+            task_id: tasksCtrl.selectedTaskId,
             data: {
                 due_at: tasksCtrl.taskDetails.due.due_date
             }
@@ -625,16 +655,17 @@ asanaModule.controller("tasksController", ['$scope', 'AsanaGateway', function ($
     };
 
     tasksCtrl.updateTask = function (options) {
-        AsanaGateway.updateTask(options).then(function (response) {
+        return AsanaGateway.updateTask(options).then(function (response) {
             console.log("updated task: " + JSON.stringify(response));
+            return response;
         }).catch(function () {
             console.log("Error occurred updating task");
         });
     };
 
     tasksCtrl.addComment = function () {
-        console.log("Adding comment: " + tasksCtrl.commentText + " to task_id: " + tasksCtrl.task_id);
-        AsanaGateway.addComment({task_id: tasksCtrl.task_id, commentText: tasksCtrl.commentText}).then(function (response) {
+        console.log("Adding comment: " + tasksCtrl.commentText + " to task_id: " + tasksCtrl.selectedTaskId);
+        AsanaGateway.addComment({task_id: tasksCtrl.selectedTaskId, commentText: tasksCtrl.commentText}).then(function (response) {
             console.log("Added comment: " + JSON.stringify(response));
             tasksCtrl.comments.push({
                 id: response.id,
