@@ -109,7 +109,7 @@ asanaModule.service("AsanaGateway", ["$http", "AsanaConstants", "$q", function (
         options.method = "GET";
         options.path = "tasks/" + options.task_id + "/stories";
         options.query = {
-            opt_fields: "type,text,created_at,created_by.name,created_by.email,created_by.photo.image_128x128"
+            opt_fields: "type,text,created_at,created_by.name,created_by.email,created_by.photo.image_36x36"
         };
 
         return AsanaGateway.api(options);

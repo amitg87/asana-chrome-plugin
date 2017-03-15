@@ -149,6 +149,10 @@ span.archived-project{
     margin-bottom: 5px;
 }
 
+.form-group input.ui-select-search{
+    width: 100% !important;
+}
+
 .form-group.multi-select input.ui-select-search{
     width: auto !important;
 }

@@ -2,7 +2,7 @@
     <div class="form-group dropdown task-criteria">
         <button class="btn btn-default btn-xs dropdown-toggle" type="button" id="selectedView"
                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-            <span>{{tasksCtrl.selectedView}}</span>
+            <span data-ng-bind="tasksCtrl.selectedView"></span>
             <span class="caret"></span>
         </button>
         <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
@@ -24,7 +24,7 @@
         </ui-select>
     </div>
 
-    <div class="form-group multi-select">
+    <div class="form-group">
         <ui-select tagging="tasksCtrl.projectTaggingHandler" data-ng-model="tasksCtrl.filterProject.selected"
                    data-ng-show="tasksCtrl.filterTask==='filterProjectTasks'" on-select="tasksCtrl.onProjectSelected($item, $model)">
             <ui-select-match placeholder="Select Project">
@@ -34,7 +34,7 @@
                 <div class="overflow-ellipsis">
                     <span data-ng-class="{'archived-project':project.archived}" data-ng-bind="project.name" title="{{project.notes}}"></span>
                     <span data-ng-bind="tasksCtrl.project.prompt"></span>
-                    <i class="fa fa-lock private-project" data-ng-hide="{{project.public}}" title="Private to me"></i>
+                    <i class="fa fa-lock private-project" data-ng-hide="project.public" title="Private to me"></i>
                 </div>
             </ui-select-choices>
         </ui-select>
@@ -64,15 +64,13 @@
                            data-ng-click="tasksCtrl.markTaskDone(task.id, task.completed); task.completed = !task.completed;">
                     <label for="{{task.id}}">
                     </label>
-                    <span class="task-name" title="{{task.name}}">
-                        {{task.name}}
-                    </span>
+                    <span class="task-name" title="{{task.name}}" data-ng-bind="task.name"></span>
                     <a class="pull-right task-details" data-ng-click="tasksCtrl.showTask(task.id, $index)" title="Show Details">
                         <i class="fa fa-comment-o"></i>
                         <i class="fa fa-chevron-right"></i>
                     </a>
                     <img class="pull-right img-circle profile-img profile-img-sm" src="../img/nopicture.png"
-                         data-ng-src="{{task.assignee.photo.image_128x128}}" title="{{task.assignee.name}}">
+                         data-ng-src="{{task.assignee.photo.image_36x36}}" title="{{task.assignee.name}}">
                 </div>
             </li>
         </ul>
@@ -109,7 +107,7 @@
                 <div class="overflow-ellipsis">
                     <span data-ng-class="{'archived-project':project.archived}" data-ng-bind="project.name" title="{{project.notes}}"></span>
                     <span data-ng-bind="project.prompt"></span>
-                    <i class="fa fa-lock private-project" data-ng-hide="{{project.public}}" title="Private to me"></i>
+                    <i class="fa fa-lock private-project" data-ng-hide="project.public" title="Private to me"></i>
                 </div>
             </ui-select-choices>
         </ui-select>
@@ -119,14 +117,14 @@
         <ui-select data-ng-model="tasksCtrl.taskDetails.assignee" on-select="tasksCtrl.updateAssignee()">
             <ui-select-match placeholder="Select User">
                 <img class="img-circle profile-img profile-img-sm" src="../img/nopicture.png"
-                     data-ng-src="{{tasksCtrl.taskDetails.assignee.photo.image_128x128}}"
+                     data-ng-src="{{tasksCtrl.taskDetails.assignee.photo.image_36x36}}"
                      title="{{tasksCtrl.taskDetails.assignee.name}}">
                 <span data-ng-bind="$select.selected.name"></span>
             </ui-select-match>
             <ui-select-choices repeat="user in tasksCtrl.users | filter: $select.search" position="down">
                 <div class="overflow-ellipsis">
                     <img class="img-circle profile-img profile-img-sm"
-                         data-ng-src="{{user.photo.image_128x128}}"
+                         data-ng-src="{{user.photo.image_36x36}}"
                          src="../img/nopicture.png">
                     <span data-ng-bind="user.name" class="font-size-12"></span>
                     <span data-ng-bind="user.email" class="font-size-10"></span>
@@ -162,7 +160,7 @@
             <ui-select-choices repeat="follower in tasksCtrl.users | filter: $select.search track by follower.id">
                 <div class="overflow-ellipsis">
                     <img class="img-circle profile-img profile-img-sm"
-                         data-ng-src="{{follower.photo.image_128x128}}"
+                         data-ng-src="{{follower.photo.image_36x36}}"
                          src="../img/nopicture.png">
                     <span data-ng-bind="follower.name" class="font-size-12"></span>
                     <span data-ng-bind="follower.email" class="font-size-10"></span>
@@ -188,9 +186,11 @@
     <div class="form-group">
         <ul class="list activity-list">
             <li data-ng-repeat="activity in tasksCtrl.activities">
-                <span class="user-name" title="{{activity.created_by.email}}">{{activity.created_by.name}}</span>
-                <span class="user-activity">{{activity.text}}</span>
-                <span class="activity-time" title="{{activity.created_at|date:'dd-MMM-yyyy hh:mm:ss a'}}">{{activity.created_at|date:'dd-MMM hh:mm a'}}</span>
+                <span class="user-name" title="{{activity.created_by.email}}"
+                      data-ng-bind="activity.created_by.name"></span>
+                <span class="user-activity" data-ng-bind="activity.text"></span>
+                <span class="activity-time" title="{{activity.created_at|date:'dd-MMM-yyyy hh:mm:ss a'}}"
+                      data-ng-bind="activity.created_at|date:'dd-MMM hh:mm a'"></span>
             </li>
         </ul>
     </div>
@@ -199,9 +199,10 @@
         <ul class="list comment-list">
             <li class="comment" data-ng-repeat="comment in tasksCtrl.comments">
                 <img class="img-circle profile-img profile-img-sm" title="{{comment.created_by.email}}"
-                     data-ng-src="{{comment.created_by.photo.image_128x128}}" src="../img/nopicture.png">
-                <span class="user-name" title="{{comment.created_by.email}}">{{comment.created_by.name}}</span>
-                <span class="activity-time" title="{{comment.created_at|date:'dd-MMM-yyyy hh:mm:ss a'}}">{{comment.created_at|date:'dd-MMM hh:mm a'}}</span>
+                     data-ng-src="{{comment.created_by.photo.image_36x36}}" src="../img/nopicture.png">
+                <span class="user-name" title="{{comment.created_by.email}}" data-ng-bind="comment.created_by.name"></span>
+                <span class="activity-time" title="{{comment.created_at|date:'dd-MMM-yyyy hh:mm:ss a'}}"
+                     data-ng-bind="comment.created_at|date:'dd-MMM hh:mm a'"></span>
                 <div class="user-comment">{{comment.text}}</div>
             </li>
         </ul>
@@ -211,8 +212,8 @@
         <ul class="list comment-list">
             <li class="comment">
                 <img class="img-circle profile-img profile-img-sm" title=""
-                     data-ng-src="{{tasksCtrl.user.photo.image_128x128}}" src="../img/nopicture.png">
-                <span class="user-name" title="">{{tasksCtrl.user.name}}</span>
+                     data-ng-src="{{tasksCtrl.user.photo.image_36x36}}" src="../img/nopicture.png">
+                <span class="user-name" title="taskCtrl.user.email" data-ng-bind="tasksCtrl.user.name"></span>
                 <div>
                     <textarea id="add-comment" data-ng-model="tasksCtrl.commentText" placeholder="Add Comment"> </textarea>
                 </div>

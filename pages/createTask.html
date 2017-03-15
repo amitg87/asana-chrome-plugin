@@ -22,7 +22,7 @@
                 <div class="overflow-ellipsis">
                     <span data-ng-class="{'archived-project':project.archived}" data-ng-bind="project.name" title="{{project.notes}}"></span>
                     <span data-ng-bind="project.prompt"></span>
-                    <i class="fa fa-lock private-project" data-ng-hide="{{project.public}}" title="Private to me"></i>
+                    <i class="fa fa-lock private-project" data-ng-hide="project.public" title="Private to me"></i>
                 </div>
             </ui-select-choices>
         </ui-select>
@@ -39,7 +39,7 @@
             <ui-select-choices repeat="user in createTaskCtrl.users | filter: $select.search" position="down">
                 <div class="overflow-ellipsis">
                     <img class="img-circle profile-img profile-img-sm"
-                         data-ng-src="{{user.photo.image_128x128}}"
+                         data-ng-src="{{user.photo.image_36x36}}"
                             src="../img/nopicture.png">
                     <span data-ng-bind="user.name" class="font-size-12"></span>
                     <span data-ng-bind="user.email" class="font-size-10"></span>
@@ -68,12 +68,12 @@
         <ui-select multiple tagging="createTaskCtrl.tagHandler"  data-ng-model="createTaskCtrl.selectedFollowers.list"
                    data-ng-disabled="createTaskCtrl.workspaceNotSelected">
             <ui-select-match placeholder="Select Follower(s)" style="padding-left: 5px;">
-                <span data-ng-bind="$item.name | nameInitials" title="{{$item.name}}"></span>
+                <span data-ng-bind="$item.name | nameInitials" data-ng-attr-title="{{$item.name}}"></span>
             </ui-select-match>
             <ui-select-choices repeat="follower in createTaskCtrl.users | filter: $select.search track by follower.id">
                 <div class="overflow-ellipsis">
                     <img class="img-circle profile-img profile-img-sm"
-                         data-ng-src="{{follower.photo.image_128x128}}"
+                         data-ng-src="{{follower.photo.image_36x36}}"
                          src="../img/nopicture.png">
                     <span data-ng-bind="follower.name" class="font-size-12"></span>
                     <span data-ng-bind="follower.email" class="font-size-10"></span>
@@ -117,8 +117,8 @@
         <button type="button" class="btn btn-sm btn-asana"
             data-ng-click="createTaskCtrl.createTask()">Create Task</button>
         <span class="status label" data-ng-show="createTaskCtrl.taskCreationStatus.show"
-            data-ng-class="createTaskCtrl.taskCreationStatus.success?'label-success':'label-danger'">
-            {{createTaskCtrl.taskCreationStatus.message}}
+            data-ng-class="createTaskCtrl.taskCreationStatus.success?'label-success':'label-danger'"
+            data-ng-bind="createTaskCtrl.taskCreationStatus.message">
         </span>
         <a target="_blank" class="label asana-link" data-ng-href="{{createTaskCtrl.taskCreationStatus.link}}"
            data-ng-show="createTaskCtrl.taskCreationStatus.show && createTaskCtrl.taskCreationStatus.success">

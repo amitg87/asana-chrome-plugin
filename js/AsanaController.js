@@ -634,7 +634,7 @@ asanaModule.controller("tasksController", ['$scope', 'AsanaGateway', function ($
                     //force ng-src refresh by providing default image
                     if(element.photo == null){
                         element.photo = {
-                            "image_128x128": "../img/nopicture.png"
+                            "image_36x36": "../img/nopicture.png"
                         }
                     }
                     tasksCtrl.taskDetails.assignee = element;
