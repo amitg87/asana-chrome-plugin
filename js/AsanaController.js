@@ -21,10 +21,9 @@ asanaModule.controller("createTaskController", ['$scope', 'AsanaGateway', '$time
     createTaskCtrl.projectRequired = false;
     createTaskCtrl.taskNameRequired = false;
     createTaskCtrl.deadlineType = "due_on";
-    //"dd MMM yyyy HH:mm"
-    //"dd MMM yyyy"
-    //-d "due_on=2016-06-25" - yyyy-dd-MM
-    //-d "due_at=2016-06-25T13:01:00.000Z"
+    createTaskCtrl.dueDate = {
+        open: false
+    };
 
     createTaskCtrl.dateSet = function () {
         if(createTaskCtrl.dueDate.date === null){
@@ -33,38 +32,32 @@ asanaModule.controller("createTaskController", ['$scope', 'AsanaGateway', '$time
             return;
         }
         console.log("date set");
-        $timeout(function () {
-            createTaskCtrl.$apply(function () {
-                createTaskCtrl.deadline = new Date();
-                createTaskCtrl.deadline.setDate(createTaskCtrl.dueDate.date.getDate());
-                createTaskCtrl.deadline.setMonth(createTaskCtrl.dueDate.date.getMonth());
-                createTaskCtrl.deadline.setYear(createTaskCtrl.dueDate.date.getFullYear());
-                createTaskCtrl.deadlineType = "due_on";
-                createTaskCtrl.deadlinevalue = $filter('date')(createTaskCtrl.deadline, "dd MMM yyyy");
-                createTaskCtrl.dueTime = {
-                    date: createTaskCtrl.deadline,
-                    open: false
-                };
-            })
-        }, 0);
+
+        createTaskCtrl.deadline = new Date();
+        createTaskCtrl.deadline.setDate(createTaskCtrl.dueDate.date.getDate());
+        createTaskCtrl.deadline.setMonth(createTaskCtrl.dueDate.date.getMonth());
+        createTaskCtrl.deadline.setYear(createTaskCtrl.dueDate.date.getFullYear());
+        createTaskCtrl.deadlineType = "due_on";
+        createTaskCtrl.deadlinevalue = $filter('date')(createTaskCtrl.deadline, "dd MMM yyyy");
+        createTaskCtrl.dueTime = {
+            date: createTaskCtrl.deadline,
+            open: false
+        };
     };
 
     createTaskCtrl.timeSet = function () {
         console.log("time set");
         console.log("New date: " + createTaskCtrl.dueTime.date);
-        $timeout(function () {
-            createTaskCtrl.$apply(function () {
-                if(createTaskCtrl.dueTime.date === null){
-                    createTaskCtrl.dueTime.date = new Date();
-                    createTaskCtrl.deadlineType = "due_on";
-                    createTaskCtrl.deadlinevalue = $filter('date')(createTaskCtrl.deadline, "dd MMM yyyy");
-                } else {
-                    createTaskCtrl.deadlineType = "due_at";
-                    createTaskCtrl.deadline = createTaskCtrl.dueTime.date;
-                    createTaskCtrl.deadlinevalue = $filter('date')(createTaskCtrl.deadline, "dd MMM yyyy hh:mm a");
-                }
-            });
-        }, 0);
+
+        if(createTaskCtrl.dueTime.date === null){
+            createTaskCtrl.dueTime.date = new Date();
+            createTaskCtrl.deadlineType = "due_on";
+            createTaskCtrl.deadlinevalue = $filter('date')(createTaskCtrl.deadline, "dd MMM yyyy");
+        } else {
+            createTaskCtrl.deadlineType = "due_at";
+            createTaskCtrl.deadline = createTaskCtrl.dueTime.date;
+            createTaskCtrl.deadlinevalue = $filter('date')(createTaskCtrl.deadline, "dd MMM yyyy hh:mm a");
+        }
     };
 
     createTaskCtrl.timeClick = function () {
