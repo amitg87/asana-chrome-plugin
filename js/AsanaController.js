@@ -1,4 +1,5 @@
-asanaModule.controller("userController", ['$scope', 'AsanaGateway', 'AsanaConstants', function ($scope, AsanaGateway, AsanaConstants) {
+asanaModule.controller("userController", ['$scope', 'AsanaGateway', 'AsanaConstants', "ChromeExtensionService",
+    function ($scope, AsanaGateway, AsanaConstants, ChromeExtension) {
     var userCtrl = this;
     userCtrl.loggedIn = AsanaConstants.isLoggedIn();
 
@@ -9,13 +10,12 @@ asanaModule.controller("userController", ['$scope', 'AsanaGateway', 'AsanaConsta
     });
 
     userCtrl.createTab = function (url) {
-        chrome.tabs.create({url: url}, function () {
-            window.close();
-        });
+        ChromeExtension.openLink(url);
     }
 }]);
 
-asanaModule.controller("createTaskController", ['$scope', 'AsanaGateway', '$timeout', 'AsanaConstants', '$filter', function ($scope, AsanaGateway, $timeout, AsanaConstants, $filter) {
+asanaModule.controller("createTaskController", ['$scope', 'AsanaGateway', '$timeout', 'AsanaConstants', '$filter',
+    function ($scope, AsanaGateway, $timeout, AsanaConstants, $filter) {
     var createTaskCtrl = this;
     createTaskCtrl.workspaceNotSelected = true;
     createTaskCtrl.projectRequired = false;
@@ -300,7 +300,8 @@ asanaModule.controller("createTaskController", ['$scope', 'AsanaGateway', '$time
     }
 }]);
 
-asanaModule.controller("tasksController", ['$scope', 'AsanaGateway', function ($scope, AsanaGateway) {
+asanaModule.controller("tasksController", ["$scope", "AsanaGateway", "ChromeExtensionService",
+    function ($scope, AsanaGateway, ChromeExtension) {
     var tasksCtrl = this;
     tasksCtrl.selectedView = "My Tasks";
     tasksCtrl.filterTask = 'filterMyTasks';
@@ -529,7 +530,7 @@ asanaModule.controller("tasksController", ['$scope', 'AsanaGateway', function ($
         });
     };
 
-    tasksCtrl.markTaskDone = function (task_id, task_completed) {
+    tasksCtrl.toggleTaskDone = function (task_id, task_completed) {
         var taskNextStatus = !task_completed;
         var option = {
             task_id: task_id,
@@ -548,6 +549,10 @@ asanaModule.controller("tasksController", ['$scope', 'AsanaGateway', function ($
 
     tasksCtrl.showTaskList = function () {
         tasksCtrl.showTaskManager = true;
+    };
+
+    tasksCtrl.openInAsana = function (url) {
+        ChromeExtension.openLink(url)
     };
 
     tasksCtrl.showTask = function (taskId, index) {
@@ -580,6 +585,9 @@ asanaModule.controller("tasksController", ['$scope', 'AsanaGateway', function ($
             tasksCtrl.taskDetails.due = {
                 open: false
             };
+            var workSpaceId = tasksCtrl.taskDetails.workspace.id;
+            var taskId = tasksCtrl.taskDetails.id;
+            tasksCtrl.taskDetails.link = "https://app.asana.com/0/" + workSpaceId + "/" + taskId;
             if(response.due_at !== null)
                 tasksCtrl.taskDetails.due.due_date = new Date(Date.parse(response.due_at));
             else

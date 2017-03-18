@@ -370,7 +370,7 @@ span:focus{
     border: 1px solid #bbbbbb;
     border-radius: 5px;
     font-size:12px;
-    padding: 2px;
+    padding: 5px;
 }
 
 .asana-ng-container .task-details .comment-list .activity-time{

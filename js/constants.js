@@ -1,4 +1,4 @@
-asanaModule.constant("AsanaConstants", (function () {
+asanaModule.value("AsanaConstants", (function () {
     return {
         API_VERSION          : "1.0",
         ASANA_HOST           : "app.asana.com",

@@ -241,3 +241,13 @@ asanaModule.service("AsanaGateway", ["$http", "AsanaConstants", "$q", function (
         return deferred.promise;
     };
 }]);
+
+asanaModule.service("ChromeExtensionService", [function () {
+    var ChromeExtension = this;
+
+    ChromeExtension.openLink = function (url) {
+        chrome.tabs.create({url: url}, function () {
+            window.close();
+        });
+    }
+}]);

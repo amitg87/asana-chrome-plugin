@@ -61,7 +61,8 @@
             <li class="list-group-item" data-ng-repeat="task in tasksCtrl.tasks" data-ng-if='tasksCtrl.isTask(task.name)'>
                 <div class="checkbox checkbox-info checkbox-circle checkbox-asana" data-ng-model="task.id">
                     <input id="{{task.id}}" class="styled" type="checkbox" data-ng-checked="task.completed"
-                           data-ng-click="tasksCtrl.markTaskDone(task.id, task.completed); task.completed = !task.completed;">
+                           data-ng-click="tasksCtrl.toggleTaskDone(task.id, task.completed); task.completed = !task.completed;"
+                           title="{{task.completed?'Mark Not Done': 'Mark Done'}}">
                     <label for="{{task.id}}">
                     </label>
                     <span class="task-name" title="{{task.name}}" data-ng-bind="task.name"></span>
@@ -81,10 +82,15 @@
         <button type="button" class="btn btn-sm btn-asana" data-ng-click="tasksCtrl.showTaskList()">
             <i class="fa fa-backward"></i> Back
         </button>
+        <button type="button" class="btn btn-sm btn-asana pull-right" data-ng-click="tasksCtrl.openInAsana(tasksCtrl.taskDetails.link)">
+            <i class="fa fa-external-link"></i> View in Asana
+        </button>
     </div>
     <div class="form-group task-title">
-        <div class="checkbox checkbox-info checkbox-circle checkbox-asana" data-ng-model="tasksCtrl.task.id">
-            <input id="{{tasksCtrl.selectedTaskId}}" class="styled" type="checkbox" data-ng-checked="tasksCtrl.task.completed" data-ng-click="tasksCtrl.markTaskDone(task)"/>
+        <div class="checkbox checkbox-info checkbox-circle checkbox-asana" data-ng-model="tasksCtrl.taskDetails.id">
+            <input id="{{tasksCtrl.selectedTaskId}}" class="styled" type="checkbox"
+                   data-ng-checked="tasksCtrl.taskDetails.completed" title="{{tasksCtrl.task.completed?'Mark Not Done': 'Mark Done'}}"
+                   data-ng-click="tasksCtrl.toggleTaskDone(tasksCtrl.selectedTaskId, taskCtrl.taskDetails.completed)"/>
             <label for="{{tasksCtrl.selectedTaskId}}"></label>
             <textarea id="taskName" class="task-name" rows="1" data-ng-model="tasksCtrl.taskDetails.name" placeholder="Task Name"
                       data-ng-change="tasksCtrl.updateName()" data-ng-model-options='{ debounce: 1000 }'> </textarea>
@@ -203,7 +209,7 @@
                 <span class="user-name" title="{{comment.created_by.email}}" data-ng-bind="comment.created_by.name"></span>
                 <span class="activity-time" title="{{comment.created_at|date:'dd-MMM-yyyy hh:mm:ss a'}}"
                      data-ng-bind="comment.created_at|date:'dd-MMM hh:mm a'"></span>
-                <div class="user-comment">{{comment.text}}</div>
+                <textarea class="user-comment" readonly>{{comment.text}}</textarea>
             </li>
         </ul>
     </div>
@@ -215,7 +221,7 @@
                      data-ng-src="{{tasksCtrl.user.photo.image_36x36}}" src="../img/nopicture.png">
                 <span class="user-name" title="taskCtrl.user.email" data-ng-bind="tasksCtrl.user.name"></span>
                 <div>
-                    <textarea id="add-comment" data-ng-model="tasksCtrl.commentText" placeholder="Add Comment"> </textarea>
+                    <textarea id="add-comment" placeholder="Add Comment" rows="4" data-ng-model="tasksCtrl.commentText"></textarea>
                 </div>
             </li>
         </ul>

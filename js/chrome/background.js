@@ -17,7 +17,8 @@ asanaModule.run(['AsanaConstants', function (AsanaConstants) {
     });
 
     chrome.commands.onCommand.addListener(function (command) {
-        chrome.browserAction.enable();
+        if(command === "_execute_browser_action")
+            chrome.browserAction.enable();
     });
 
     chrome.runtime.onInstalled.addListener(function(details){
