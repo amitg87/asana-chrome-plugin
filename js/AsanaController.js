@@ -20,56 +20,6 @@ asanaModule.controller("createTaskController", ['$scope', 'AsanaGateway', '$time
     createTaskCtrl.workspaceNotSelected = true;
     createTaskCtrl.projectRequired = false;
     createTaskCtrl.taskNameRequired = false;
-    createTaskCtrl.deadlineType = "due_on";
-    createTaskCtrl.dueDate = {
-        open: false
-    };
-
-    createTaskCtrl.dateSet = function () {
-        if(createTaskCtrl.dueDate.date === null){
-            createTaskCtrl.deadline = undefined;
-            createTaskCtrl.deadlinevalue = undefined;
-            return;
-        }
-        console.log("date set");
-
-        createTaskCtrl.deadline = new Date();
-        createTaskCtrl.deadline.setDate(createTaskCtrl.dueDate.date.getDate());
-        createTaskCtrl.deadline.setMonth(createTaskCtrl.dueDate.date.getMonth());
-        createTaskCtrl.deadline.setYear(createTaskCtrl.dueDate.date.getFullYear());
-        createTaskCtrl.deadlineType = "due_on";
-        createTaskCtrl.deadlinevalue = $filter('date')(createTaskCtrl.deadline, "dd MMM yyyy");
-        createTaskCtrl.dueTime = {
-            date: createTaskCtrl.deadline,
-            open: false
-        };
-    };
-
-    createTaskCtrl.timeSet = function () {
-        console.log("time set");
-        console.log("New date: " + createTaskCtrl.dueTime.date);
-
-        if(createTaskCtrl.dueTime.date === null){
-            createTaskCtrl.dueTime.date = new Date();
-            createTaskCtrl.deadlineType = "due_on";
-            createTaskCtrl.deadlinevalue = $filter('date')(createTaskCtrl.deadline, "dd MMM yyyy");
-        } else {
-            createTaskCtrl.deadlineType = "due_at";
-            createTaskCtrl.deadline = createTaskCtrl.dueTime.date;
-            createTaskCtrl.deadlinevalue = $filter('date')(createTaskCtrl.deadline, "dd MMM yyyy hh:mm a");
-        }
-    };
-
-    createTaskCtrl.timeClick = function () {
-        console.log("time click");
-        if(angular.isDefined(createTaskCtrl.deadline)){
-            //if date set - open time calendar
-            createTaskCtrl.dueTime.open=!createTaskCtrl.dueTime.open;
-        } else {
-            //if date not set open date calendar
-            createTaskCtrl.dueDate.open = !createTaskCtrl.dueDate.open;
-        }
-    };
 
     createTaskCtrl.taskCreationStatus = {
         success: false,
@@ -98,7 +48,7 @@ asanaModule.controller("createTaskController", ['$scope', 'AsanaGateway', '$time
         createTaskCtrl.taskName = undefined;
         createTaskCtrl.taskNotes = undefined;
         createTaskCtrl.deadline = undefined;
-        createTaskCtrl.deadlinevalue = "";
+        createTaskCtrl.deadlineValue = "";
         createTaskCtrl.taskNameRequired = false;
     };
 
@@ -146,7 +96,7 @@ asanaModule.controller("createTaskController", ['$scope', 'AsanaGateway', '$time
         options.data.workspace = createTaskCtrl.selectedWorkspaceId;
         if(angular.isDefined(createTaskCtrl.selectedUser.selected))
             options.data.assignee = createTaskCtrl.selectedUser.selected.id;
-        if(angular.isDefined(createTaskCtrl.deadline)){
+        if(angular.isDefined(createTaskCtrl.deadlineValue)){
             if(createTaskCtrl.deadlineType === 'due_at')
                 options.data.due_at = createTaskCtrl.deadline;
             else

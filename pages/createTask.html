@@ -92,27 +92,8 @@
     </div>
 
     <div class="form-group">
-        <p class="input-group">
-            <input type="text" class="form-control" placeholder="Set Due date"
-                   data-ng-click="createTaskCtrl.dueDate.open=!createTaskCtrl.dueDate.open"
-                   data-ng-model="createTaskCtrl.deadlinevalue"/>
-            <input type="text" class="form-control"
-                   datetime-picker enable-time="false" data-ng-model="createTaskCtrl.dueDate.date" data-ng-change="createTaskCtrl.dateSet()"
-                   is-open="createTaskCtrl.dueDate.open" data-ng-click="createTaskCtrl.dueDate.open=!createTaskCtrl.dueDate.open" style="display: none;"/>
-            <input type="text" class="form-control"
-                   datetime-picker enable-date="false" data-ng-model="createTaskCtrl.dueTime.date" data-ng-change="createTaskCtrl.timeSet()"
-                   is-open="createTaskCtrl.dueTime.open" data-ng-click="createTaskCtrl.dueTime.open=!createTaskCtrl.dueTime.open" style="display: none;"/>
-            <span class="input-group-btn">
-                <button type="button" class="btn btn-default" title="Set Date"
-                        data-ng-click="createTaskCtrl.dueDate.open=!createTaskCtrl.dueDate.open">
-                    <i class="fa fa-calendar"></i>
-                </button>
-                <button type="button" class="btn btn-default" title="Set Time"
-                        data-ng-click="createTaskCtrl.timeClick()">
-                    <i class="fa fa-clock-o"></i>
-                </button>
-            </span>
-        </p>
+        <datetime value="createTaskCtrl.deadlineValue" type="createTaskCtrl.deadlineType" date="createTaskCtrl.deadline">
+        </datetime>
     </div>
 
     <div class="form-group">
