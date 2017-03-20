@@ -26,6 +26,7 @@
     <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" />
     <link href="css/lib/awesome-bootstrap-checkbox.css" rel="stylesheet" />
     <link href="css/main.css" rel="stylesheet" />
+    <base href="/"/>
 </head>
 <body class="container asana-ng-container" data-ng-app="asana" data-ng-controller="userController as userCtrl">
 <header data-ng-show="userCtrl.loggedIn">
@@ -45,13 +46,13 @@
     </div>
     <ul class="nav nav-pills">
         <li role="presentation" title="Create Task in Asana">
-            <a href="#createTask"><i class="fa fa-plus-circle"></i> Create</a>
+            <a href="createTask"><i class="fa fa-plus-circle"></i> Create</a>
         </li>
         <li role="presentation" title="Manage Tasks">
-            <a href="#tasks"><i class="fa fa-check-circle"></i> Manage</a>
+            <a href="tasks"><i class="fa fa-check-circle"></i> Manage</a>
         </li>
         <li role="presentation" title="AsanaNG Settings">
-            <a href="#settings"><i class="fa fa-gear"></i> Settings</a>
+            <a href="settings"><i class="fa fa-gear"></i> Settings</a>
         </li>
     </ul>
 </header>

@@ -1,14 +1,9 @@
 var asanaModule = angular.module("asana", ["ngRoute", "ngSanitize", "ui.select", "ui.bootstrap", "ui.bootstrap.datetimepicker"]);
 
 asanaModule.config(function($routeProvider, $locationProvider) {
+    $locationProvider.html5Mode(true);
     $routeProvider
-        .when("/", {
-            // route for the create task page
-            templateUrl : "pages/createTask.html",
-            controller  : "createTaskController",
-            controllerAs: "createTaskCtrl"
-        })
-       .when("/createTask", {
+        .when("/createTask", {
             // route for the create task page
             templateUrl : "pages/createTask.html",
             controller  : "createTaskController",
@@ -25,6 +20,12 @@ asanaModule.config(function($routeProvider, $locationProvider) {
             templateUrl : "pages/settings.html",
             controller  : "settingsController",
             controllerAs: "settingsCtrl"
+        })
+        .otherwise({
+            // route for the create task page
+            templateUrl : "pages/createTask.html",
+            controller  : "createTaskController",
+            controllerAs: "createTaskCtrl"
         });
 });
 
