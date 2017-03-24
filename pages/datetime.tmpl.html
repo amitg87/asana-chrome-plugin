@@ -1,20 +1,20 @@
 <p class="input-group">
     <input type="text" class="form-control" placeholder="Set Due date"
-           data-ng-click="datetimeCtrl.dueDate.open=!datetimeCtrl.dueDate.open"
+           data-ng-click="dueDate.open=!dueDate.open"
            data-ng-model="value"/>
     <input type="text" class="form-control"
-           datetime-picker enable-time="false" data-ng-model="datetimeCtrl.dueDate.date" data-ng-change="datetimeCtrl.dateSet()"
-           is-open="datetimeCtrl.dueDate.open" data-ng-click="datetimeCtrl.dueDate.open=!datetimeCtrl.dueDate.open" style="display: none;"/>
+           datetime-picker enable-time="false" data-ng-model="dueDate.date" data-ng-change="dateSet()"
+           is-open="dueDate.open" data-ng-click="dueDate.open=!dueDate.open" style="display: none;"/>
     <input type="text" class="form-control"
-           datetime-picker enable-date="false" data-ng-model="datetimeCtrl.dueTime.date" data-ng-change="datetimeCtrl.timeSet()"
-           is-open="datetimeCtrl.dueTime.open" data-ng-click="datetimeCtrl.dueTime.open=!datetimeCtrl.dueTime.open" style="display: none;"/>
+           datetime-picker enable-date="false" data-ng-model="dueTime.date" data-ng-change="timeSet()"
+           is-open="dueTime.open" data-ng-click="dueTime.open=!dueTime.open" style="display: none;"/>
     <span class="input-group-btn">
         <button type="button" class="btn btn-default" title="Set Date"
-                data-ng-click="datetimeCtrl.dueDate.open=!datetimeCtrl.dueDate.open">
+                data-ng-click="dueDate.open=!dueDate.open">
             <i class="fa fa-calendar"></i>
             </button>
             <button type="button" class="btn btn-default" title="Set Time"
-                    data-ng-click="datetimeCtrl.timeClick()">
+                    data-ng-click="timeClick()">
                 <i class="fa fa-clock-o"></i>
             </button>
     </span>

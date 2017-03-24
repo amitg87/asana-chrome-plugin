@@ -1,68 +1,110 @@
-asanaModule.directive("datetime", function () {
+asanaModule.directive("datetime",["AsanaConstants", "$timeout", function (AsanaConstants, $timeout) {
     return {
         restrict: 'E',
         scope: {
-            value: "=value",
             type: "=type",
-            date: "=date"
+            date: "=date",
+            onChange: "&onChange"
         },
         controller: ["$scope", "$filter", function ($scope, $filter) {
-            $scope.type = "due_on";
-
-            var datetimeCtrl = this;
-
-            //datetimeCtrl
-            datetimeCtrl.dueDate = {
+            console.log("typeof " + typeof $scope.onChange);
+            console.log("controller");
+            $scope.date = new Date();
+            $scope.type = AsanaConstants.DEADLINE_TYPE.NONE;
+            $scope.dueDate = {
+                date: new Date(),
                 open: false
             };
+            $scope.dueTime = {
+                date: new Date(),
+                open: false
+            };
+            $scope.value = undefined;
 
-            datetimeCtrl.dateSet = function () {
-                if(datetimeCtrl.dueDate.date === null){
-                    $scope.date = undefined;
-                    $scope.value = undefined;
+            $scope.dateSet = function () {
+                console.log("date set");
+                console.log("New date: " + $scope.dueDate.date);
+                if(angular.isDefined($scope.onChange) && typeof $scope.onChange === 'function'){
+                    $timeout($scope.onChange);
+                }
+                if($scope.dueDate.date === null){
+                    //clear date - then clear time too
+                    $scope.type = AsanaConstants.DEADLINE_TYPE.NONE;
+                    $scope.updateValue();
                     return;
                 }
-                console.log("date set");
-
-                $scope.date = new Date();
-                $scope.date.setDate(datetimeCtrl.dueDate.date.getDate());
-                $scope.date.setMonth(datetimeCtrl.dueDate.date.getMonth());
-                $scope.date.setYear(datetimeCtrl.dueDate.date.getFullYear());
-                $scope.type = "due_on";
-                $scope.value = $filter('date')($scope.date, "dd MMM yyyy");
-                datetimeCtrl.dueTime = {
-                    date: $scope.date,
-                    open: false
-                };
+                if($scope.type === AsanaConstants.DEADLINE_TYPE.NONE){
+                    $scope.type = AsanaConstants.DEADLINE_TYPE.DUE_ON;
+                }
+                $scope.copyDay($scope.date, $scope.dueDate.date);
+                $scope.updateValue();
             };
 
-            datetimeCtrl.timeSet = function () {
+            $scope.timeSet = function () {
                 console.log("time set");
-                console.log("New date: " + datetimeCtrl.dueTime.date);
+                console.log("New time: " + $scope.dueTime.date);
 
-                if(datetimeCtrl.dueTime.date === null){
-                    datetimeCtrl.dueTime.date = new Date();
-                    $scope.type = "due_on";
-                    $scope.value = $filter('date')($scope.date, "dd MMM yyyy");
+                if($scope.dueTime.date === null){
+                    $scope.dueTime.date = new Date();
+                    $scope.type = AsanaConstants.DEADLINE_TYPE.DUE_ON;
                 } else {
-                    $scope.type = "due_at";
-                    $scope.date = datetimeCtrl.dueTime.date;
-                    $scope.value = $filter('date')($scope.date, "dd MMM yyyy hh:mm a");
+                    $scope.type = AsanaConstants.DEADLINE_TYPE.DUE_AT;
+                    $scope.copyTime($scope.date, $scope.dueTime.date);
+                }
+                $scope.updateValue();
+                if(angular.isDefined($scope.onChange) && typeof $scope.onChange === 'function'){
+                    $timeout($scope.onChange);
                 }
             };
 
-            datetimeCtrl.timeClick = function () {
+            $scope.timeClick = function () {
                 console.log("time click");
-                if(angular.isDefined($scope.date)){
-                    //if date set - open time calendar
-                    datetimeCtrl.dueTime.open=!datetimeCtrl.dueTime.open;
+                if($scope.type !== AsanaConstants.DEADLINE_TYPE.NONE){
+                    $scope.dueTime.open=!$scope.dueTime.open; //if date set - open time calendar
                 } else {
-                    //if date not set open date calendar
-                    datetimeCtrl.dueDate.open = !datetimeCtrl.dueDate.open;
+                    $scope.dueDate.open = !$scope.dueDate.open; //if date not set open date calendar
                 }
             };
+
+            $scope.$watch("type", function (newValue, oldValue) {
+                console.log("type changed from: " + oldValue + " to: " + newValue);
+                console.log("Current type: " + $scope.type);
+            });
+
+            $scope.$watch("date", function (newValue, oldValue) {
+                if(angular.isDefined($scope.date)){
+                    $scope.dueDate.date = $scope.date;
+                    $scope.dueTime.date = $scope.date;
+                } else {
+                    $scope.date = new Date();
+                }
+                console.log("date changed from: " + oldValue + " to: " + newValue);
+                console.log("Current Date: " + $scope.date);
+                console.log("show value: " + $scope.value);
+                $scope.updateValue();
+            });
+
+            $scope.updateValue = function() {
+                if($scope.type === AsanaConstants.DEADLINE_TYPE.DUE_ON){
+                    $scope.value = $filter('date')($scope.date, "dd MMM yyyy");
+                } else if($scope.type === AsanaConstants.DEADLINE_TYPE.DUE_AT) {
+                    $scope.value = $filter('date')($scope.date, "dd MMM yyyy hh:mm a");
+                } else {
+                    $scope.value = undefined;
+                }
+            };
+
+            $scope.copyDay = function(targetDate, sourceDate){
+                targetDate.setDate(sourceDate.getDate());
+                targetDate.setMonth(sourceDate.getMonth());
+                targetDate.setYear(sourceDate.getFullYear());
+            };
+
+            $scope.copyTime = function(targetDate, sourceDate){
+                targetDate.setHours(sourceDate.getHours());
+                targetDate.setMinutes(sourceDate.getMinutes());
+            }
         }],
-        controllerAs: "datetimeCtrl",
         templateUrl: "../pages/datetime.tmpl.html"
     };
-});
+}]);

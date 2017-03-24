@@ -176,16 +176,8 @@
     </div>
 
     <div class="form-group">
-        <p class="input-group">
-            <input type="text" class="form-control" data-datetime-picker="yyyy-MM-dd HH:mm:ss" data-ng-model="tasksCtrl.taskDetails.due.due_date"
-                   data-is-open="tasksCtrl.taskDetails.due.open" placeholder="Due Date" data-ng-click="tasksCtrl.taskDetails.due.open=!userCtrl.taskDetails.due.open"
-                   data-ng-change="tasksCtrl.updateDueDate()" data-ng-model-options='{ debounce: 1000 }'/>
-            <span class="input-group-btn">
-                <button type="button" class="btn btn-default" data-ng-click="tasksCtrl.taskDetails.due.open=!userCtrl.taskDetails.due.open">
-                    <i class="fa fa-calendar"></i>
-                </button>
-            </span>
-        </p>
+        <datetime type="tasksCtrl.taskDetails.deadlineType" date="tasksCtrl.taskDetails.deadline" on-change="tasksCtrl.updateDeadline()">
+        </datetime>
     </div>
 
     <hr/>
@@ -228,4 +220,3 @@
         <input type="button" class="btn btn-sm btn-asana" value="Add Comment" data-ng-click="tasksCtrl.addComment()">
     </div>
 </div>
-

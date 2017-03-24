@@ -3,6 +3,11 @@ asanaModule.value("AsanaConstants", (function () {
         API_VERSION          : "1.0",
         ASANA_HOST           : "app.asana.com",
         ASANA_LOGIN_COOKIE_NAME : "ticket",
+        DEADLINE_TYPE: {
+            NONE: 0,
+            DUE_ON: 1,
+            DUE_AT: 2
+        },
 
         getBaseApiUrl        : function () {
             return "https://" + this.ASANA_HOST + '/api/' + this.API_VERSION + "/";

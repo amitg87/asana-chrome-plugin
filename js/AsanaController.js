@@ -48,7 +48,7 @@ asanaModule.controller("createTaskController", ['$scope', 'AsanaGateway', '$time
         createTaskCtrl.taskName = undefined;
         createTaskCtrl.taskNotes = undefined;
         createTaskCtrl.deadline = undefined;
-        createTaskCtrl.deadlineValue = "";
+        createTaskCtrl.deadlineType = AsanaConstants.DEADLINE_TYPE.NONE;
         createTaskCtrl.taskNameRequired = false;
     };
 
@@ -96,10 +96,10 @@ asanaModule.controller("createTaskController", ['$scope', 'AsanaGateway', '$time
         options.data.workspace = createTaskCtrl.selectedWorkspaceId;
         if(angular.isDefined(createTaskCtrl.selectedUser.selected))
             options.data.assignee = createTaskCtrl.selectedUser.selected.id;
-        if(angular.isDefined(createTaskCtrl.deadlineValue)){
-            if(createTaskCtrl.deadlineType === 'due_at')
+        if(angular.isDefined(createTaskCtrl.deadline)){
+            if(createTaskCtrl.deadlineType === AsanaConstants.DEADLINE_TYPE.DUE_AT  )
                 options.data.due_at = createTaskCtrl.deadline;
-            else
+            else if(createTaskCtrl.deadlineType === AsanaConstants.DEADLINE_TYPE.DUE_ON)
                 options.data.due_on = $filter('date')(createTaskCtrl.deadline, 'yyyy-MM-dd');
         }
 
@@ -250,8 +250,8 @@ asanaModule.controller("createTaskController", ['$scope', 'AsanaGateway', '$time
     }
 }]);
 
-asanaModule.controller("tasksController", ["$scope", "AsanaGateway", "ChromeExtensionService",
-    function ($scope, AsanaGateway, ChromeExtension) {
+asanaModule.controller("tasksController", ["$scope", "AsanaGateway", "ChromeExtensionService", "$filter", "AsanaConstants",
+    function ($scope, AsanaGateway, ChromeExtension, $filter, AsanaConstants) {
     var tasksCtrl = this;
     tasksCtrl.selectedView = "My Tasks";
     tasksCtrl.filterTask = 'filterMyTasks';
@@ -538,10 +538,18 @@ asanaModule.controller("tasksController", ["$scope", "AsanaGateway", "ChromeExte
             var workSpaceId = tasksCtrl.taskDetails.workspace.id;
             var taskId = tasksCtrl.taskDetails.id;
             tasksCtrl.taskDetails.link = "https://app.asana.com/0/" + workSpaceId + "/" + taskId;
-            if(response.due_at !== null)
-                tasksCtrl.taskDetails.due.due_date = new Date(Date.parse(response.due_at));
-            else
-                tasksCtrl.taskDetails.due.due_date = new Date(Date.parse(response.due_on));
+            if(response.due_at !== null){
+                tasksCtrl.taskDetails.deadline = new Date(Date.parse(response.due_at));
+                tasksCtrl.taskDetails.deadlineType = AsanaConstants.DEADLINE_TYPE.DUE_AT;
+            }
+            else if(response.due_on !== null) {
+                tasksCtrl.taskDetails.deadline = new Date(Date.parse(response.due_on));
+                tasksCtrl.taskDetails.deadlineType = AsanaConstants.DEADLINE_TYPE.DUE_ON;
+            }
+            else {
+                tasksCtrl.taskDetails.deadlineType = AsanaConstants.DEADLINE_TYPE.NONE;
+            }
+
             console.dir("Task details: " + JSON.stringify(tasksCtrl.taskDetails));
         }).catch(function () {
             console.log("Error fetching task details");
@@ -594,14 +602,33 @@ asanaModule.controller("tasksController", ["$scope", "AsanaGateway", "ChromeExte
         });
     };
 
-    tasksCtrl.updateDueDate = function () {
+    tasksCtrl.updateDeadline = function () {
         console.log("updating task due date" + tasksCtrl.selectedTaskId);
+        console.log("type=" + tasksCtrl.taskDetails.deadlineType + " date=" + tasksCtrl.taskDetails.deadline);
         var options = {
-            task_id: tasksCtrl.selectedTaskId,
-            data: {
-                due_at: tasksCtrl.taskDetails.due.due_date
-            }
+            task_id: tasksCtrl.selectedTaskId
         };
+        switch (tasksCtrl.taskDetails.deadlineType) {
+            case AsanaConstants.DEADLINE_TYPE.DUE_ON:
+                options.data = {
+                    due_on: $filter('date')(tasksCtrl.taskDetails.deadline, 'yyyy-MM-dd'),
+                    due_at: null
+                };
+                break;
+            case AsanaConstants.DEADLINE_TYPE.DUE_AT:
+                options.data = {
+                    due_at: tasksCtrl.taskDetails.deadline,
+                    due_on: null
+                };
+                break;
+            default:
+                options.data = {
+                    due_on: null,
+                    due_at: null
+                };
+                break;
+        }
+        console.log("New deadline: " + options.data);
         tasksCtrl.updateTask(options);
     };
 
