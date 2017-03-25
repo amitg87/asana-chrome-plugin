@@ -30,17 +30,13 @@ img.profile-img{
     height: auto;
     width: auto;
 }
-img.profile-img-lg {
-    max-width: 40px;
-    max-height: 40px;
+img.profile-img-md {
+    max-width: 36px;
+    max-height: 36px;
 }
-img.profile-img-md{
-    max-width: 32px;
-    max-height: 32px;
-}
-img.profile-img-sm{
-    max-width: 18px;
-    max-height: 18px;
+img.profile-img-sm {
+    max-width: 24px;
+    max-height: 24px;
 }
 
 /* fonts */
@@ -83,6 +79,17 @@ img.profile-img-sm{
 
 .line-height-one{
     line-height: 1;
+}
+
+body section{
+    width: 360px;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+hr{
+    margin-bottom: 3px;
+    margin-top: 3px;
 }
 
 /* asana buttons */
@@ -142,6 +149,10 @@ span.archived-project{
     margin-bottom: 5px;
 }
 
+.form-group input.ui-select-search{
+    width: 100% !important;
+}
+
 .form-group.multi-select input.ui-select-search{
     width: auto !important;
 }
@@ -152,13 +163,14 @@ span.archived-project{
     padding: 5px;
 }
 
-.form-group-box textarea{
+.form-group textarea{
     outline: none;
     padding: 2px;
     resize:none;
     width: 100%;
     border:0;
     background-color: #ffffff;
+    font-size: 12px;
 }
 
 .requiredField{
@@ -181,12 +193,21 @@ span.archived-project{
 Calendar popup above rather than below
 */
 .dropdown-menu.datetime-picker-dropdown.ng-valid-date-disabled {
-    top: calc(-50% - 275px) !important;
+    top: calc(-50% - 223px) !important;
 }
 
 .dropdown-menu.datetime-picker-dropdown.ng-not-empty.ng-valid-time,
 .dropdown-menu.datetime-picker-dropdown.ng-empty{
-    top: calc( -15% - 159px);
+    top: calc(-15% - 127px);
+}
+
+.dropdown-menu.datetime-picker-dropdown a.btn {
+    padding: 0;
+    font-size: 10px;
+}
+
+.dropdown-menu.datetime-picker-dropdown .btn-group-sm>.btn, .btn-sm {
+    padding: 2px 4px;
 }
 
 /*
@@ -206,8 +227,17 @@ https://github.com/angular-ui/ui-select/issues/379
     line-height: 1;
 }
 
-.ui-select-bootstrap .ui-select-choices-row>a{
+.ui-select-multiple.ui-select-bootstrap .ui-select-match {
+    padding-left: 0 !important;
+}
+
+.ui-select-choices .ui-select-choices-row > a{
     padding: 3px 10px;
+}
+
+.ui-select-bootstrap .ui-select-choices,
+.ui-select-bootstrap .ui-select-no-choice{
+    max-height: 150px;
 }
 
 /*multiselect span - showing default outline*/
@@ -244,3 +274,116 @@ span:focus{
     font-size: 12px;
     line-height: 23px;
 }
+
+.asana-ng-container .open>.dropdown-toggle.btn-default:hover {
+    color: #02CEFF;
+    background-color: #ffffff;
+    border-color: #02CEFF;
+}
+
+.asana-ng-container .task-criteria.open>.dropdown-toggle.btn-default{
+    background-color: #ffffff;
+    border-color: #02CEFF;
+}
+
+.asana-ng-container .task-criteria .dropdown-menu{
+    font-size: 12px;
+    min-width: 110px;
+}
+
+.asana-ng-container .task-criteria .dropdown-menu>li>a{
+    padding: 3px 5px;
+}
+
+.asana-ng-container .task-manager .list-group-item{
+    padding: 2px 2px;
+}
+
+.asana-ng-container .task-list .task-name {
+    padding-left: 0;
+    max-width: calc(100% - 75px);
+    vertical-align: bottom;
+}
+
+.asana-ng-container .task-list .task-details{
+    color: #bbbbbb;
+    cursor: pointer;
+}
+
+.asana-ng-container .task-list .task-details:hover{
+    color: #02CEFF;
+}
+
+.asana-ng-container .task-list {
+    height: 256px;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    border: 1px solid rgba(0, 0, 0, 0.149);
+    border-radius: 5px;
+    margin-bottom: 0;
+}
+
+.asana-ng-container .task-list .list-group{
+    margin-bottom: 0;
+}
+
+.asana-ng-container .task-details .task-name{
+    border: 1px solid #efefef;
+    border-radius: 5px;
+    width: calc(100% - 4px);
+    vertical-align: middle;
+    padding-left: 5px;
+    resize: none;
+}
+
+.asana-ng-container .task-list .checkbox label,
+.asana-ng-container .task-details .checkbox label{
+    padding-left: 0;
+}
+
+.asana-ng-container .task-details .user-name,
+.asana-ng-container .task-details .activity-time{
+    cursor: pointer;
+    font-size: 10px;
+    font-weight: lighter;
+    color: #777;
+}
+
+.asana-ng-container .task-details .user-name:hover,
+.asana-ng-container .task-details .activity-time:hover,
+.asana-ng-container .task-details .user-name:focus,
+.asana-ng-container .task-details .activity-time:focus{
+    color: #02CEFF;
+}
+
+.asana-ng-container .task-details .list{
+    list-style: none;
+    padding-left: 0;
+    margin-bottom: 0;
+}
+
+.asana-ng-container .task-details .activity-list .user-activity{
+    font-size: 10px;
+}
+
+.asana-ng-container .task-details .comment-list .user-comment{
+    border: 1px solid #bbbbbb;
+    border-radius: 5px;
+    font-size:12px;
+    padding: 5px;
+}
+
+.asana-ng-container .task-details .comment-list .activity-time{
+    float: right;
+    line-height: 26px;
+}
+
+.asana-ng-container .task-details .list.activity-list {
+    line-height: 12px;
+}
+
+.asana-ng-container .task-details .comment-list img.profile-img-sm,
+.asana-ng-container .task-manager .task-list img.profile-img-sm {
+    margin: 0 2px;
+}
+

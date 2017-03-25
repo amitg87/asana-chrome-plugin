@@ -1,0 +1,222 @@
+<form class="task-manager" data-ng-show="tasksCtrl.showTaskManager">
+    <div class="form-group dropdown task-criteria">
+        <button class="btn btn-default btn-xs dropdown-toggle" type="button" id="selectedView"
+                data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+            <span data-ng-bind="tasksCtrl.selectedView"></span>
+            <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+            <li><a data-ng-click="tasksCtrl.switchView('My Tasks', 'filterMyTasks')" href="">My Tasks</a></li>
+            <li><a data-ng-click="tasksCtrl.switchView('Tasks by Project', 'filterProjectTasks')" href="">Tasks by Project</a></li>
+            <li><a data-ng-click="tasksCtrl.switchView('Tasks by Tag', 'filterTagsTasks')" href="">Tasks by Tag</a></li>
+        </ul>
+    </div>
+    <div class="form-group">
+        <ui-select data-ng-model="tasksCtrl.selectedWorkspace.selected" on-select="tasksCtrl.onWorkspaceSelect($item, $model)">
+            <ui-select-match placeholder="Select Workspace">
+                <span data-ng-bind="$select.selected.name"></span>
+            </ui-select-match>
+            <ui-select-choices repeat="workspace in (tasksCtrl.workspaces | filter: $select.search)" position="down">
+                <div class="overflow-ellipsis">
+                    <span data-ng-bind="workspace.name"></span>
+                </div>
+            </ui-select-choices>
+        </ui-select>
+    </div>
+
+    <div class="form-group">
+        <ui-select tagging="tasksCtrl.projectTaggingHandler" data-ng-model="tasksCtrl.filterProject.selected"
+                   data-ng-show="tasksCtrl.filterTask==='filterProjectTasks'" on-select="tasksCtrl.onProjectSelected($item, $model)">
+            <ui-select-match placeholder="Select Project">
+                <span data-ng-bind="$select.selected.name"></span>
+            </ui-select-match>
+            <ui-select-choices repeat="project in (tasksCtrl.projects | filter: $select.search)" position="down">
+                <div class="overflow-ellipsis">
+                    <span data-ng-class="{'archived-project':project.archived}" data-ng-bind="project.name" title="{{project.notes}}"></span>
+                    <span data-ng-bind="tasksCtrl.project.prompt"></span>
+                    <i class="fa fa-lock private-project" data-ng-hide="project.public" title="Private to me"></i>
+                </div>
+            </ui-select-choices>
+        </ui-select>
+    </div>
+
+    <div class="form-group multi-select">
+        <ui-select tagging="tasksCtrl.tagHandler" data-ng-model="tasksCtrl.filterTag.selected" data-ng-show="tasksCtrl.filterTask==='filterTagsTasks'"
+                   on-select="tasksCtrl.onTagSelected($item, $model)">
+            <ui-select-match placeholder="Select tag">
+                <span data-ng-bind="$select.selected.name"></span>
+            </ui-select-match>
+            <ui-select-choices repeat="tag in (tasksCtrl.tags | filter: $select.search) track by tag.id" position="down">
+                <div class="overflow-ellipsis" title="{{tag.notes}}">
+                    <i class="fa fa-tag"></i>
+                    <span data-ng-bind="tag.name"></span>
+                    <span data-ng-bind="tag.prompt"></span>
+                </div>
+            </ui-select-choices>
+        </ui-select>
+    </div>
+
+    <div class="form-group task-list">
+        <ul class="list-group">
+            <li class="list-group-item" data-ng-repeat="task in tasksCtrl.tasks" data-ng-if='tasksCtrl.isTask(task.name)'>
+                <div class="checkbox checkbox-info checkbox-circle checkbox-asana" data-ng-model="task.id">
+                    <input id="{{task.id}}" class="styled" type="checkbox" data-ng-checked="task.completed"
+                           data-ng-click="tasksCtrl.toggleTaskDone(task.id, task.completed); task.completed = !task.completed;"
+                           title="{{task.completed?'Mark Not Done': 'Mark Done'}}">
+                    <label for="{{task.id}}">
+                    </label>
+                    <span class="task-name" title="{{task.name}}" data-ng-bind="task.name"></span>
+                    <a class="pull-right task-details" data-ng-click="tasksCtrl.showTask(task.id, $index)" title="Show Details">
+                        <i class="fa fa-comment-o"></i>
+                        <i class="fa fa-chevron-right"></i>
+                    </a>
+                    <img class="pull-right img-circle profile-img profile-img-sm" src="../img/nopicture.png"
+                         data-ng-src="{{task.assignee.photo.image_36x36}}" title="{{task.assignee.name}}">
+                </div>
+            </li>
+        </ul>
+    </div>
+</form>
+<div class="task-details" data-ng-if="!tasksCtrl.showTaskManager">
+    <div class="form-group">
+        <button type="button" class="btn btn-sm btn-asana" data-ng-click="tasksCtrl.showTaskList()">
+            <i class="fa fa-backward"></i> Back
+        </button>
+        <button type="button" class="btn btn-sm btn-asana pull-right" data-ng-click="tasksCtrl.openInAsana(tasksCtrl.taskDetails.link)">
+            <i class="fa fa-external-link"></i> View in Asana
+        </button>
+    </div>
+    <div class="form-group task-title">
+        <div class="checkbox checkbox-info checkbox-circle checkbox-asana" data-ng-model="tasksCtrl.taskDetails.id">
+            <input id="{{tasksCtrl.selectedTaskId}}" class="styled" type="checkbox"
+                   data-ng-checked="tasksCtrl.taskDetails.completed" title="{{tasksCtrl.task.completed?'Mark Not Done': 'Mark Done'}}"
+                   data-ng-click="tasksCtrl.toggleTaskDone(tasksCtrl.selectedTaskId, taskCtrl.taskDetails.completed)"/>
+            <label for="{{tasksCtrl.selectedTaskId}}"></label>
+            <textarea id="taskName" class="task-name" rows="1" data-ng-model="tasksCtrl.taskDetails.name" placeholder="Task Name"
+                      data-ng-change="tasksCtrl.updateName()" data-ng-model-options='{ debounce: 1000 }'> </textarea>
+        </div>
+
+    </div>
+    <div class="form-group form-group-box">
+        <textarea id="taskNotes" class="task-notes" data-ng-model="tasksCtrl.taskDetails.notes" placeholder="Task Description"
+                  data-ng-change="tasksCtrl.updateNotes()" data-ng-model-options='{ debounce: 1000 }'> </textarea>
+    </div>
+
+    <div class="form-group multi-select">
+        <ui-select multiple tagging="tasksCtrl.projectTaggingHandler" data-ng-model="tasksCtrl.taskDetails.projects"
+                   data-ng-disabled="tasksCtrl.workspaceNotSelected" on-select="tasksCtrl.onProjectAdd($item, $model)"
+                   on-remove="tasksCtrl.onProjectRemove($item, $model)">
+            <ui-select-match placeholder="Select Project" style="padding-left: 5px;">
+                {{$item.name}}
+            </ui-select-match>
+            <ui-select-choices repeat="project in (tasksCtrl.projects | filter: $select.search)" position="down">
+                <div class="overflow-ellipsis">
+                    <span data-ng-class="{'archived-project':project.archived}" data-ng-bind="project.name" title="{{project.notes}}"></span>
+                    <span data-ng-bind="project.prompt"></span>
+                    <i class="fa fa-lock private-project" data-ng-hide="project.public" title="Private to me"></i>
+                </div>
+            </ui-select-choices>
+        </ui-select>
+    </div>
+
+    <div class="form-group">
+        <ui-select data-ng-model="tasksCtrl.taskDetails.assignee" on-select="tasksCtrl.updateAssignee()">
+            <ui-select-match placeholder="Select User">
+                <img class="img-circle profile-img profile-img-sm" src="../img/nopicture.png"
+                     data-ng-src="{{tasksCtrl.taskDetails.assignee.photo.image_36x36}}"
+                     title="{{tasksCtrl.taskDetails.assignee.name}}">
+                <span data-ng-bind="$select.selected.name"></span>
+            </ui-select-match>
+            <ui-select-choices repeat="user in (tasksCtrl.users | filter: $select.search)" position="down">
+                <div class="overflow-ellipsis">
+                    <img class="img-circle profile-img profile-img-sm"
+                         data-ng-src="{{user.photo.image_36x36}}"
+                         src="../img/nopicture.png">
+                    <span data-ng-bind="user.name" class="font-size-12"></span>
+                    <span data-ng-bind="user.email" class="font-size-10"></span>
+                </div>
+            </ui-select-choices>
+        </ui-select>
+    </div>
+
+    <div class="form-group multi-select">
+        <ui-select multiple tagging="tasksCtrl.tagHandler" data-ng-model="tasksCtrl.taskDetails.tags"
+                   data-ng-disabled="tasksCtrl.workspaceNotSelected" on-select="tasksCtrl.onTagAdd($item, $model)"
+                   on-remove="tasksCtrl.onTagRemove($item, $model)">
+            <ui-select-match placeholder="Select tag(s)" style="padding-left: 5px;">
+                {{$item.name}}
+            </ui-select-match>
+            <ui-select-choices repeat="tag in (tasksCtrl.tags | filter: $select.search) track by tag.id" position="down">
+                <div class="overflow-ellipsis" title="{{tag.notes}}">
+                    <i class="fa fa-tag"></i>
+                    <span data-ng-bind="tag.name"></span>
+                    <span data-ng-bind="tag.prompt"></span>
+                </div>
+            </ui-select-choices>
+        </ui-select>
+    </div>
+
+    <div class="form-group multi-select">
+        <ui-select multiple tagging="tasksCtrl.tagHandler"  data-ng-model="tasksCtrl.taskDetails.followers"
+                   data-ng-disabled="tasksCtrl.workspaceNotSelected" on-select="tasksCtrl.onFollowerAdd($item, $model)"
+                   on-remove="tasksCtrl.onFollowerRemove($item, $model)">
+            <ui-select-match placeholder="Select Follower(s)" style="padding-left: 5px;">
+                <span data-ng-bind="$item.name | nameInitials" title="{{$item.name}}"></span>
+            </ui-select-match>
+            <ui-select-choices repeat="follower in (tasksCtrl.users | filter: $select.search) track by follower.id">
+                <div class="overflow-ellipsis">
+                    <img class="img-circle profile-img profile-img-sm"
+                         data-ng-src="{{follower.photo.image_36x36}}"
+                         src="../img/nopicture.png">
+                    <span data-ng-bind="follower.name" class="font-size-12"></span>
+                    <span data-ng-bind="follower.email" class="font-size-10"></span>
+                </div>
+            </ui-select-choices>
+        </ui-select>
+    </div>
+
+    <div class="form-group">
+        <datetime type="tasksCtrl.taskDetails.deadlineType" date="tasksCtrl.taskDetails.deadline" on-change="tasksCtrl.updateDeadline()">
+        </datetime>
+    </div>
+
+    <hr/>
+    <div class="form-group">
+        <ul class="list activity-list">
+            <li data-ng-repeat="activity in tasksCtrl.activities">
+                <span class="user-name" title="{{activity.created_by.email}}"
+                      data-ng-bind="activity.created_by.name"></span>
+                <span class="user-activity" data-ng-bind="activity.text"></span>
+                <span class="activity-time" title="{{activity.created_at|date:'dd-MMM-yyyy hh:mm:ss a'}}"
+                      data-ng-bind="activity.created_at|date:'dd-MMM hh:mm a'"></span>
+            </li>
+        </ul>
+    </div>
+    <hr/>
+    <div class="form-group">
+        <ul class="list comment-list">
+            <li class="comment" data-ng-repeat="comment in tasksCtrl.comments">
+                <img class="img-circle profile-img profile-img-sm" title="{{comment.created_by.email}}"
+                     data-ng-src="{{comment.created_by.photo.image_36x36}}" src="../img/nopicture.png">
+                <span class="user-name" title="{{comment.created_by.email}}" data-ng-bind="comment.created_by.name"></span>
+                <span class="activity-time" title="{{comment.created_at|date:'dd-MMM-yyyy hh:mm:ss a'}}"
+                     data-ng-bind="comment.created_at|date:'dd-MMM hh:mm a'"></span>
+                <textarea class="user-comment" readonly>{{comment.text}}</textarea>
+            </li>
+        </ul>
+    </div>
+    <hr/>
+    <div class="form-group form-group-box">
+        <ul class="list comment-list">
+            <li class="comment">
+                <img class="img-circle profile-img profile-img-sm" title=""
+                     data-ng-src="{{tasksCtrl.user.photo.image_36x36}}" src="../img/nopicture.png">
+                <span class="user-name" title="taskCtrl.user.email" data-ng-bind="tasksCtrl.user.name"></span>
+                <div>
+                    <textarea id="add-comment" placeholder="Add Comment" rows="4" data-ng-model="tasksCtrl.commentText"></textarea>
+                </div>
+            </li>
+        </ul>
+        <input type="button" class="btn btn-sm btn-asana" value="Add Comment" data-ng-click="tasksCtrl.addComment()">
+    </div>
+</div>
