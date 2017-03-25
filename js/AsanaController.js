@@ -58,14 +58,13 @@ asanaModule.controller("createTaskController", ['$scope', 'AsanaGateway', '$time
         createTaskCtrl.projectRequired = false;
         if(item.isTag){
             console.log("Creating new project: " + JSON.stringify(item));
-            var projRef = item;
             var options = {data: {}};
             options.data.workspace = createTaskCtrl.selectedWorkspaceId;
             options.data.name = item.name;
 
             AsanaGateway.createNewProject(options).then(function (response) {
                 console.log("New project created: " + JSON.stringify(response));
-                projRef.id = response.id;
+                item.id = response.id;
             }).catch(function (response) {
                 console.log("New project create failed: " + JSON.stringify(response));
             });
@@ -215,7 +214,6 @@ asanaModule.controller("createTaskController", ['$scope', 'AsanaGateway', '$time
     };
 
     createTaskCtrl.projectTaggingHandler = function (input) {
-        //console.log(createTaskCtrl.projects);
         var lowInput = input.toLowerCase();
         for(var i=0; i<createTaskCtrl.projects.length; i++){
             if(createTaskCtrl.projects[i].name.toLowerCase().indexOf(lowInput)>=0){
@@ -223,21 +221,6 @@ asanaModule.controller("createTaskController", ['$scope', 'AsanaGateway', '$time
             }
         }
         return { id: 1, name: input, notes: '', prompt: "(new project)", public: true};
-    };
-
-    createTaskCtrl.createProject = function (item, model) {
-        if(item.isTag){
-            console.log("Creating new project: " + JSON.stringify(item));
-            var options = {data: {}};
-            options.data.workspace = createTaskCtrl.selectedWorkspaceId;
-            options.data.name = item.name;
-
-            AsanaGateway.createNewProject(options).then(function (response) {
-                console.log("New project created: " + JSON.stringify(response));
-            }).catch(function (response) {
-                console.log("New project failed: " + JSON.stringify(response));
-            });
-        }
     };
 
     createTaskCtrl.copyPage = function () {
@@ -304,26 +287,24 @@ asanaModule.controller("tasksController", ["$scope", "AsanaGateway", "ChromeExte
         return { id: 1, name: input, notes: '', prompt: "(new tag)" }
     };
 
-    tasksCtrl.createNewTag = function (item, model) {
+    tasksCtrl.createNewTag = function (item, model, callback) {
         if(item.isTag){
-            var tagRef = item;
-            //var tags = tasksCtrl.tags;
-            console.log("Creating new tag: " + JSON.stringify(item));
             var options = {data: {}};
             options.data.workspace = tasksCtrl.selectedWorkspaceId;
             options.data.name = item.name;
             AsanaGateway.createNewTag(options).then(function (response) {
                 console.log("Create tag success: " + JSON.stringify(response));
-                tagRef.id = response.id; //update created tag with new id
-                //tags.push({"id": response.id, "name": response.name, "notes": response.notes}); //update taglist
+                item.id = response.id; //update created tag with new id
+                callback();
             }).catch(function (response) {
                 console.log("Create tag failed: " + JSON.stringify(response));
             });
+        } else {
+            callback();
         }
     };
 
     tasksCtrl.projectTaggingHandler = function (input) {
-        //console.log(tasksCtrl.projects);
         var lowInput = input.toLowerCase();
         for(var i=0; i<tasksCtrl.projects.length; i++){
             if(tasksCtrl.projects[i].name.toLowerCase().indexOf(lowInput)>=0){
@@ -333,18 +314,21 @@ asanaModule.controller("tasksController", ["$scope", "AsanaGateway", "ChromeExte
         return { id: 1, name: input, notes: '', prompt: "(new project)", public: true};
     };
 
-    tasksCtrl.createProject = function (item, model) {
+    tasksCtrl.createProject = function (item, model, callback) {
         if(item.isTag){
-            console.log("Creating new project: " + JSON.stringify(item));
             var options = {data: {}};
             options.data.workspace = tasksCtrl.selectedWorkspaceId;
             options.data.name = item.name;
 
             AsanaGateway.createNewProject(options).then(function (response) {
+                item.id = response.id;
                 console.log("New project created: " + JSON.stringify(response));
+                callback();
             }).catch(function (response) {
                 console.log("New project failed: " + JSON.stringify(response));
             });
+        } else {
+            callback();
         }
     };
 
@@ -400,16 +384,17 @@ asanaModule.controller("tasksController", ["$scope", "AsanaGateway", "ChromeExte
     };
 
     tasksCtrl.onProjectAdd = function (item, model) {
-        tasksCtrl.createProject(item, model);
-        console.log("Adding project");
-        var options = {
-            task_id: tasksCtrl.selectedTaskId,
-            project_id: item.id
-        };
-        AsanaGateway.addProjectToTask(options).then(function () {
-            console.log("add project to task");
-        }).catch(function () {
-            console.log("could not add project to task");
+        tasksCtrl.createProject(item, model, function () {
+            console.log("Adding project");
+            var options = {
+                task_id: tasksCtrl.selectedTaskId,
+                project_id: item.id
+            };
+            AsanaGateway.addProjectToTask(options).then(function () {
+                console.log("add project to task");
+            }).catch(function () {
+                console.log("could not add project to task");
+            });
         });
     };
 
@@ -427,16 +412,17 @@ asanaModule.controller("tasksController", ["$scope", "AsanaGateway", "ChromeExte
     };
 
     tasksCtrl.onTagAdd = function (item, model) {
-        tasksCtrl.createNewTag(item, model);
-        console.log("tag adding: ");
-        var options = {
-            task_id: tasksCtrl.selectedTaskId,
-            tag_id: item.id
-        };
-        AsanaGateway.addTag(options).then(function () {
-            console.log("Tag added");
-        }).catch(function () {
-            console.log("Tag add failed");
+        tasksCtrl.createNewTag(item, model, function () {
+            console.log("tag adding: ");
+            var options = {
+                task_id: tasksCtrl.selectedTaskId,
+                tag_id: item.id
+            };
+            AsanaGateway.addTag(options).then(function () {
+                console.log("Tag added");
+            }).catch(function () {
+                console.log("Tag add failed");
+            });
         });
     };
 
@@ -603,8 +589,8 @@ asanaModule.controller("tasksController", ["$scope", "AsanaGateway", "ChromeExte
     };
 
     tasksCtrl.updateDeadline = function () {
-        console.log("updating task due date" + tasksCtrl.selectedTaskId);
-        console.log("type=" + tasksCtrl.taskDetails.deadlineType + " date=" + tasksCtrl.taskDetails.deadline);
+        //console.log("updating task due date" + tasksCtrl.selectedTaskId);
+        //console.log("type=" + tasksCtrl.taskDetails.deadlineType + " date=" + tasksCtrl.taskDetails.deadline);
         var options = {
             task_id: tasksCtrl.selectedTaskId
         };

@@ -256,6 +256,25 @@ span:focus{
     color: #02CEFF;
 }
 
+.asana-ng-container .checkbox-asana{
+    margin-top: 2px;
+    margin-bottom: 2px;
+    padding-left: 22px;
+}
+
+.asana-ng-container .checkbox-asana input[type="checkbox"]{
+    cursor: pointer;
+}
+
+.asana-ng-container .checkbox-asana .task-name {
+    display: inline-block;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    font-size: 12px;
+    line-height: 23px;
+}
+
 .asana-ng-container .open>.dropdown-toggle.btn-default:hover {
     color: #02CEFF;
     background-color: #ffffff;
@@ -278,25 +297,6 @@ span:focus{
 
 .asana-ng-container .task-manager .list-group-item{
     padding: 2px 2px;
-}
-
-.asana-ng-container .checkbox-asana{
-    margin-top: 2px;
-    margin-bottom: 2px;
-    padding-left: 22px;
-}
-
-.asana-ng-container .checkbox-asana input[type="checkbox"]{
-    cursor: pointer;
-}
-
-.asana-ng-container .checkbox-asana .task-name {
-    display: inline-block;
-    text-overflow: ellipsis;
-    overflow: hidden;
-    white-space: nowrap;
-    font-size: 12px;
-    line-height: 23px;
 }
 
 .asana-ng-container .task-list .task-name {

@@ -2,13 +2,13 @@ asanaModule.directive("datetime",["AsanaConstants", "$timeout", function (AsanaC
     return {
         restrict: 'E',
         scope: {
-            type: "=type",
-            date: "=date",
-            onChange: "&onChange"
+            type: "=",
+            date: "=",
+            onChange: "&"
         },
         controller: ["$scope", "$filter", function ($scope, $filter) {
-            console.log("typeof " + typeof $scope.onChange);
-            console.log("controller");
+            //console.log("typeof " + typeof $scope.onChange);
+            //console.log("controller");
             $scope.date = new Date();
             $scope.type = AsanaConstants.DEADLINE_TYPE.NONE;
             $scope.dueDate = {
@@ -22,8 +22,8 @@ asanaModule.directive("datetime",["AsanaConstants", "$timeout", function (AsanaC
             $scope.value = undefined;
 
             $scope.dateSet = function () {
-                console.log("date set");
-                console.log("New date: " + $scope.dueDate.date);
+                //console.log("date set");
+                //console.log("New date: " + $scope.dueDate.date);
                 if(angular.isDefined($scope.onChange) && typeof $scope.onChange === 'function'){
                     $timeout($scope.onChange);
                 }
@@ -41,8 +41,8 @@ asanaModule.directive("datetime",["AsanaConstants", "$timeout", function (AsanaC
             };
 
             $scope.timeSet = function () {
-                console.log("time set");
-                console.log("New time: " + $scope.dueTime.date);
+                //console.log("time set");
+                //console.log("New time: " + $scope.dueTime.date);
 
                 if($scope.dueTime.date === null){
                     $scope.dueTime.date = new Date();
@@ -58,7 +58,7 @@ asanaModule.directive("datetime",["AsanaConstants", "$timeout", function (AsanaC
             };
 
             $scope.timeClick = function () {
-                console.log("time click");
+                //console.log("time click");
                 if($scope.type !== AsanaConstants.DEADLINE_TYPE.NONE){
                     $scope.dueTime.open=!$scope.dueTime.open; //if date set - open time calendar
                 } else {
@@ -66,10 +66,10 @@ asanaModule.directive("datetime",["AsanaConstants", "$timeout", function (AsanaC
                 }
             };
 
-            $scope.$watch("type", function (newValue, oldValue) {
+            /*$scope.$watch("type", function (newValue, oldValue) {
                 console.log("type changed from: " + oldValue + " to: " + newValue);
                 console.log("Current type: " + $scope.type);
-            });
+            });*/
 
             $scope.$watch("date", function (newValue, oldValue) {
                 if(angular.isDefined($scope.date)){
@@ -78,9 +78,9 @@ asanaModule.directive("datetime",["AsanaConstants", "$timeout", function (AsanaC
                 } else {
                     $scope.date = new Date();
                 }
-                console.log("date changed from: " + oldValue + " to: " + newValue);
-                console.log("Current Date: " + $scope.date);
-                console.log("show value: " + $scope.value);
+                //console.log("date changed from: " + oldValue + " to: " + newValue);
+                //console.log("Current Date: " + $scope.date);
+                //console.log("show value: " + $scope.value);
                 $scope.updateValue();
             });
 
