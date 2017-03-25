@@ -1,4 +1,4 @@
-asanaModule.directive("datetime",["AsanaConstants", "$timeout", function (AsanaConstants, $timeout) {
+asanaModule.directive("datetime", function () {
     return {
         restrict: 'E',
         scope: {
@@ -6,7 +6,8 @@ asanaModule.directive("datetime",["AsanaConstants", "$timeout", function (AsanaC
             date: "=",
             onChange: "&"
         },
-        controller: ["$scope", "$filter", function ($scope, $filter) {
+        controller: ["$scope", "$filter", "AsanaConstants", "$timeout",
+            function ($scope, $filter, AsanaConstants, $timeout) {
             //console.log("typeof " + typeof $scope.onChange);
             //console.log("controller");
             $scope.date = new Date();
@@ -105,6 +106,6 @@ asanaModule.directive("datetime",["AsanaConstants", "$timeout", function (AsanaC
                 targetDate.setMinutes(sourceDate.getMinutes());
             }
         }],
-        templateUrl: "../pages/datetime.tmpl.html"
+        templateUrl: "../templates/datetime.tmpl.html"
     };
-}]);
+});
