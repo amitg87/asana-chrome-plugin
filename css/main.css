@@ -25,6 +25,12 @@ body{
     float: left;
 }
 
+.superscript {
+    font-size: 0.5em;
+    vertical-align: super;
+    color: #f00;
+}
+
 /* profile image */
 img.profile-img{
     height: auto;
