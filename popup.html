@@ -45,13 +45,13 @@
         </div>
     </div>
     <ul class="nav nav-pills">
-        <li role="presentation" title="Create Task in Asana">
-            <a href="createTask"><i class="fa fa-plus-circle"></i> Create</a>
+        <li role="presentation" title="Create Task in Asana" data-ng-class="{ active: userCtrl.isActive('create')}">
+            <a href="create"><i class="fa fa-plus-circle"></i> Create</a>
         </li>
-        <li role="presentation" title="Manage Tasks">
-            <a href="tasks"><i class="fa fa-check-circle"></i> Manage <span class="superscript">New</span></a>
+        <li role="presentation" title="Manage Tasks" data-ng-class="{ active: userCtrl.isActive('manage')}">
+            <a href="manage"><i class="fa fa-check-circle"></i> Manage <span class="superscript">New</span></a>
         </li>
-        <li role="presentation" title="AsanaNG Settings">
+        <li role="presentation" title="AsanaNG Settings" data-ng-class="{ active: userCtrl.isActive('settings')}">
             <a href="settings"><i class="fa fa-gear"></i> Settings</a>
         </li>
     </ul>

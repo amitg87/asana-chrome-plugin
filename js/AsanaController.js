@@ -1,6 +1,7 @@
-asanaModule.controller("userController", ['$scope', 'AsanaGateway', 'AsanaConstants', "ChromeExtensionService",
-    function ($scope, AsanaGateway, AsanaConstants, ChromeExtension) {
+asanaModule.controller("userController", ["$scope", "AsanaGateway", "AsanaConstants", "ChromeExtensionService", "$route",
+    function ($scope, AsanaGateway, AsanaConstants, ChromeExtension, $route) {
     var userCtrl = this;
+    userCtrl.$route = $route;
     userCtrl.loggedIn = AsanaConstants.isLoggedIn();
 
     AsanaGateway.getUserData().then(function (response) {
@@ -11,7 +12,11 @@ asanaModule.controller("userController", ['$scope', 'AsanaGateway', 'AsanaConsta
 
     userCtrl.createTab = function (url) {
         ChromeExtension.openLink(url);
-    }
+    };
+
+    userCtrl.isActive = function (path) {
+        return angular.isDefined(userCtrl.$route.current) && userCtrl.$route.current.activeTab === path;
+    };
 }]);
 
 asanaModule.controller("createTaskController", ['$scope', 'AsanaGateway', '$timeout', 'AsanaConstants', '$filter',

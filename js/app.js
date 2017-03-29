@@ -3,29 +3,33 @@ var asanaModule = angular.module("asana", ["ngRoute", "ngSanitize", "ui.select",
 asanaModule.config(function($routeProvider, $locationProvider) {
     $locationProvider.html5Mode(true);
     $routeProvider
-        .when("/createTask", {
+        .when("/create", {
             // route for the create task page
             templateUrl : "pages/createTask.html",
             controller  : "createTaskController",
-            controllerAs: "createTaskCtrl"
+            controllerAs: "createTaskCtrl",
+            activeTab   : "create"
         })
-        .when("/tasks", {
+        .when("/manage", {
             // task management page
             templateUrl : "pages/tasks.html",
             controller  : "tasksController",
-            controllerAs: "tasksCtrl"
+            controllerAs: "tasksCtrl",
+            activeTab   : "manage"
         })
         .when("/settings", {
             // settings
             templateUrl : "pages/settings.html",
             controller  : "settingsController",
-            controllerAs: "settingsCtrl"
+            controllerAs: "settingsCtrl",
+            activeTab   : "settings"
+        })
+        .when("popup.html", {
+            redirectTo  : "/create"
         })
         .otherwise({
-            // route for the create task page
-            templateUrl : "pages/createTask.html",
-            controller  : "createTaskController",
-            controllerAs: "createTaskCtrl"
+            //default
+            redirectTo  : "/create"
         });
 });
 
