@@ -109,3 +109,32 @@ asanaModule.directive("datetime", function () {
         templateUrl: "../templates/datetime.tmpl.html"
     };
 });
+
+asanaModule.directive('uiSelectFocus', ['$timeout', function($timeout){
+    return {
+        require: 'uiSelect',
+        restrict: 'A',
+        link: function($scope, el, attrs, uiSelect) {
+            var closing = false;
+
+            angular.element(uiSelect.focusser || uiSelect.focusInput).on('focus', function() {
+                if(!closing) {
+                    uiSelect.activate();
+                }
+            });
+
+            // Disable the auto open when this select element has been activated.
+            $scope.$on('uis:activate', function() {
+                autoopen = false;
+            });
+
+            // Re-enable the auto open after the select element has been closed
+            $scope.$on('uis:close', function() {
+                closing = true;
+                $timeout(function() { // I'm so sorry
+                    closing = false;
+                });
+            });
+        }
+    };
+}]);
