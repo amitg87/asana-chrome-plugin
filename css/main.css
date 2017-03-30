@@ -139,6 +139,15 @@ span.archived-project{
 .selectize-control > .selectize-dropdown {
     top: 36px;
 }
+
+.btn.ui-select-toggle {
+    padding: 6px 6px;
+}
+
+.ui-select-match .ui-select-toggle a{
+    color: #333;
+}
+
 /* Some additional styling to demonstrate that append-to-body helps achieve the proper z-index layering. */
 .select-box {
     background: #fff;

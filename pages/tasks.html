@@ -121,7 +121,7 @@
 
     <div class="form-group">
         <ui-select data-ng-model="tasksCtrl.taskDetails.assignee" on-select="tasksCtrl.updateAssignee()" ui-select-focus>
-            <ui-select-match placeholder="Select Assignee">
+            <ui-select-match allow-clear="true" placeholder="Select Assignee">
                 <img class="img-circle profile-img profile-img-sm" src="../img/nopicture.png"
                      data-ng-src="{{tasksCtrl.taskDetails.assignee.photo.image_36x36}}"
                      title="{{tasksCtrl.taskDetails.assignee.name}}">

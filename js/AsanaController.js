@@ -87,7 +87,13 @@ asanaModule.controller("createTaskController", ['$scope', 'AsanaGateway', '$time
 
         AsanaGateway.getWorkspaceUsers({workspace_id: createTaskCtrl.selectedWorkspaceId}).then(function (response) {
             createTaskCtrl.users = response;
-            createTaskCtrl.setDefaultAssignee();
+        }).then(function () {
+            AsanaGateway.getUserData().then(function (response) {
+                createTaskCtrl.user = response;
+                createTaskCtrl.setDefaultAssignee();
+            }).catch(function (response) {
+                console.log("AsanaNG Error: "+response[0].message);
+            });
         });
 
         AsanaGateway.getWorkspaceProjects({workspace_id: createTaskCtrl.selectedWorkspaceId}).then(function (response) {
@@ -572,12 +578,21 @@ asanaModule.controller("tasksController", ["$scope", "AsanaGateway", "ChromeExte
     tasksCtrl.updateAssignee = function () {
         console.log("Updating assignee: " + tasksCtrl.selectedTaskId);
         var options = {
-            task_id: tasksCtrl.selectedTaskId,
-            data: {
+            task_id: tasksCtrl.selectedTaskId
+        };
+        if(angular.isDefined(tasksCtrl.taskDetails.assignee)){
+            options.data = {
                 assignee: tasksCtrl.taskDetails.assignee.id
             }
-        };
+        } else {
+            options.data = {
+                assignee: null
+            }
+        }
         tasksCtrl.updateTask(options).then(function (response) {
+            if(response.assignee === null){
+                return;
+            }
             var userId = response.assignee.id;
             tasksCtrl.users.forEach(function (element, index) {
                 if(userId == element.id){

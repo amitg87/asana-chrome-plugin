@@ -33,7 +33,7 @@
     <div class="form-group">
         <ui-select data-ng-model="createTaskCtrl.selectedUser.selected"
                    data-ng-disabled="createTaskCtrl.workspaceNotSelected" ui-select-focus>
-            <ui-select-match placeholder="Select Assignee">
+            <ui-select-match allow-clear="true" placeholder="Select Assignee">
                 <img class="img-circle profile-img profile-img-sm"
                      data-ng-src="{{$select.selected.photo.image_21x21}}"
                      src="../img/nopicture.png">
