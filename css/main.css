@@ -8,6 +8,10 @@ body{
     padding: 5px
 }
 
+.margin-bottom-5 {
+    margin-bottom: 5px;
+}
+
 .navbar{
     min-height: initial;
     margin-bottom: 0;
