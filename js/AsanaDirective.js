@@ -10,14 +10,14 @@ asanaModule.directive("datetime", function () {
             function ($scope, $filter, AsanaConstants, $timeout) {
             //console.log("typeof " + typeof $scope.onChange);
             //console.log("controller");
-            $scope.date = new Date();
+            $scope.date = undefined;
             $scope.type = AsanaConstants.DEADLINE_TYPE.NONE;
             $scope.dueDate = {
-                date: new Date(),
+                date: undefined,
                 open: false
             };
             $scope.dueTime = {
-                date: new Date(),
+                date: undefined,
                 open: false
             };
             $scope.value = undefined;
@@ -37,7 +37,7 @@ asanaModule.directive("datetime", function () {
                 if($scope.type === AsanaConstants.DEADLINE_TYPE.NONE){
                     $scope.type = AsanaConstants.DEADLINE_TYPE.DUE_ON;
                 }
-                $scope.copyDay($scope.date, $scope.dueDate.date);
+                $scope.copyDay();
                 $scope.updateValue();
             };
 
@@ -46,11 +46,10 @@ asanaModule.directive("datetime", function () {
                 //console.log("New time: " + $scope.dueTime.date);
 
                 if($scope.dueTime.date === null){
-                    $scope.dueTime.date = new Date();
                     $scope.type = AsanaConstants.DEADLINE_TYPE.DUE_ON;
                 } else {
                     $scope.type = AsanaConstants.DEADLINE_TYPE.DUE_AT;
-                    $scope.copyTime($scope.date, $scope.dueTime.date);
+                    $scope.copyTime();
                 }
                 $scope.updateValue();
                 if(angular.isDefined($scope.onChange) && typeof $scope.onChange === 'function'){
@@ -76,8 +75,6 @@ asanaModule.directive("datetime", function () {
                 if(angular.isDefined($scope.date)){
                     $scope.dueDate.date = $scope.date;
                     $scope.dueTime.date = $scope.date;
-                } else {
-                    $scope.date = new Date();
                 }
                 //console.log("date changed from: " + oldValue + " to: " + newValue);
                 //console.log("Current Date: " + $scope.date);
@@ -95,16 +92,22 @@ asanaModule.directive("datetime", function () {
                 }
             };
 
-            $scope.copyDay = function(targetDate, sourceDate){
-                targetDate.setDate(sourceDate.getDate());
-                targetDate.setMonth(sourceDate.getMonth());
-                targetDate.setYear(sourceDate.getFullYear());
+            $scope.copyDay = function(){
+                if (typeof $scope.date === 'undefined'){
+                    $scope.date = new Date();
+                }
+                $scope.date.setDate($scope.dueDate.date.getDate());
+                $scope.date.setMonth($scope.dueDate.date.getMonth());
+                $scope.date.setYear($scope.dueDate.date.getFullYear());
             };
 
-            $scope.copyTime = function(targetDate, sourceDate){
-                targetDate.setHours(sourceDate.getHours());
-                targetDate.setMinutes(sourceDate.getMinutes());
-            }
+            $scope.copyTime = function(){
+                if (typeof $scope.date === 'undefined'){
+                    $scope.date = new Date();
+                }
+                $scope.date.setHours($scope.dueTime.date.getHours());
+                $scope.date.setMinutes($scope.dueTime.date.getMinutes());
+            };
         }],
         templateUrl: "../templates/datetime.tmpl.html"
     };
