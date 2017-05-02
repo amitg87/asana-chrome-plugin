@@ -685,5 +685,10 @@ asanaModule.controller("settingsController", ['$scope', 'AsanaConstants', functi
     settingsCtrl.projectOptional = AsanaConstants.getProjectOptional();
     settingsCtrl.changeProjectOptional = function () {
         AsanaConstants.setProjectOptional(settingsCtrl.projectOptional);
-    }
+    };
+
+    settingsCtrl.myTasksAlarmOn = AsanaConstants.getMyTasksAlarmOn();
+    settingsCtrl.changeMyTasksAlarmOn = function () {
+        AsanaConstants.setMyTasksAlarmOn(settingsCtrl.myTasksAlarmOn);
+    };
 }]);

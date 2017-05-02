@@ -56,6 +56,14 @@ asanaModule.value("AsanaConstants", (function () {
         },
         setProjectOptional: function (value) {
             localStorage[this.PROJECT_OPTIONAL] = value;
+        },
+
+        MY_TASKS_ALARM_ON: "myTasksAlarmOn",
+        getMyTasksAlarmOn: function () {
+            return localStorage[this.MY_TASKS_ALARM_ON] === 'true';
+        },
+        setMyTasksAlarmOn: function (value) {
+            localStorage[this.MY_TASKS_ALARM_ON] = value;
         }
     };
 })());
