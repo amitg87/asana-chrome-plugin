@@ -36,6 +36,7 @@ of REST API. Onus is on us to develop something great out of it.
 
 3. Other Utilities
     - set alarm on my tasks with due time
+    - replace patterns in task description (notes)
 
 ## Usage
 ### Install as a User:

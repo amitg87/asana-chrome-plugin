@@ -1,0 +1,33 @@
+<form>
+    <div data-ng-hide="utilitiesCtrl.taskWorkspace">
+        <h5>Not an Asana task page</h5>
+    </div>
+
+    <div data-ng-show="utilitiesCtrl.taskWorkspace">
+        <div class="form-group">
+            <h5>Replace text in task note</h5>
+        </div>
+
+        <div>
+            <table class="separate">
+                <tr class="form-tr" data-ng-repeat="pattern in utilitiesCtrl.patternsArray">
+                    <td class="with-border"><input class="no-border width-220" type="text" data-ng-model="pattern[0]" data-ng-trim="false" data-ng-change="utilitiesCtrl.saveReplacePatterns()"></td>
+                    <td class="with-border"><textarea trusted-html class="no-border width-100" type="text" data-ng-model="pattern[1]" data-ng-trim="false" data-ng-change="utilitiesCtrl.saveReplacePatterns()"></textarea></td>
+                    <td><span data-ng-click="utilitiesCtrl.delPattern($index)"><i class="fa fa-minus-circle"></i></span></td>
+                </tr>
+            </table>
+
+            <span data-ng-click="utilitiesCtrl.addPattern()" class="btn"><i class="fa fa-plus-circle"></i> Add</span>
+            <span data-ng-click="utilitiesCtrl.clearPatterns()" class="btn"><i class="fa fa-times"></i> Clear</span>
+            <span data-ng-click="utilitiesCtrl.resetToDefault()" class="btn"><i class="fa fa-refresh"></i> Default</span>
+        </div>
+
+        <div>
+            <button type="button" class="btn btn-sm btn-asana" title="Note: All formatting will be lost" data-ng-click="utilitiesCtrl.replacePatterns()" data-ng-disabled='!utilitiesCtrl.taskId'>Replace</button>
+            <span class="status label" data-ng-show="utilitiesCtrl.taskUpdateStatus.show"
+                data-ng-class="utilitiesCtrl.taskUpdateStatus.success?'label-success':'label-danger'">
+                {{utilitiesCtrl.taskUpdateStatus.message}}
+            </span>
+        </div>
+    </div>
+</form>

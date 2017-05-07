@@ -121,7 +121,14 @@ asanaModule.service("AsanaGateway", ["$http", "AsanaConstants", "$q", function (
         options.query = {
             opt_fields: "type,text,created_at,created_by.name,created_by.email,created_by.photo.image_36x36"
         };
+        return AsanaGateway.api(options);
+    };
 
+    AsanaGateway.getTaskWorkspace = function (options) {
+        options = options || {};
+        options.method = "GET";
+        options.path = "tasks/" + options.task_id;
+        options.query = {opt_fields: "workspace"};
         return AsanaGateway.api(options);
     };
 
