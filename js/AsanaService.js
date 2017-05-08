@@ -236,7 +236,11 @@ asanaModule.service("AsanaGateway", ["$http", "AsanaConstants", "$q", function (
         }).success(function (response) {
             deferred.resolve(response.data);
         }).error(function (response, status) {
-            deferred.reject(response.errors);
+            if (response && response.hasOwnProperty(errors)) {
+                deferred.reject(response.errors);
+            } else {
+                deferred.reject(response);
+            }
         });
         return deferred.promise;
     };
