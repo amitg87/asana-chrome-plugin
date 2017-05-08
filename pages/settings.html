@@ -28,4 +28,13 @@
             </div>
         </div>
     </div>
+
+    <div class="form-group">
+        <div class="input-group input-group-sm">
+            <div class="checkbox checkbox-info checkbox-circle checkbox-asana">
+                <input id="myTasksAlarmOn" class="styled" type="checkbox" data-ng-model="settingsCtrl.myTasksAlarmOn" data-ng-change="settingsCtrl.changeMyTasksAlarmOn()"/>
+                <label for="myTasksAlarmOn" title="Alarm runs 60, 30, 15, 5, and 1 minutes before due time.">Set Alarm for My Tasks</label>
+            </div>
+        </div>
+    </div>
 </form>
