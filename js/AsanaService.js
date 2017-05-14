@@ -124,11 +124,28 @@ asanaModule.service("AsanaGateway", ["$http", "AsanaConstants", "$q", function (
         return AsanaGateway.api(options);
     };
 
-    AsanaGateway.getTaskWorkspace = function (options) {
+    AsanaGateway.getTaskSubtasks = function (options) {
+        options = options || {};
+        options.method = "GET";
+        options.path = "tasks/" + options.task_id + "/subtasks";
+        return AsanaGateway.api(options);
+    };
+
+    AsanaGateway.getTaskWorkspaceParent = function (options) {
         options = options || {};
         options.method = "GET";
         options.path = "tasks/" + options.task_id;
-        options.query = {opt_fields: "workspace"};
+        options.query = {opt_fields: "workspace, parent"};
+        return AsanaGateway.api(options);
+    };
+
+    AsanaGateway.setParent = function (options) {
+        options = options || {};
+        options.method = "POST";
+        options.path = "tasks/" + options.task_id + "/setParent";
+        options.data = {
+            parent: options.parent_id
+        };
         return AsanaGateway.api(options);
     };
 
@@ -205,6 +222,17 @@ asanaModule.service("AsanaGateway", ["$http", "AsanaConstants", "$q", function (
         options.path = "tasks/" + options.task_id + "/removeFollowers";
         options.data = {
             followers: [options.follower_id]
+        };
+        return AsanaGateway.api(options);
+    };
+
+    AsanaGateway.tasksTypeahead = function (options) {
+        options = options || {};
+        options.method = "GET";
+        options.path = "workspaces/" + options.workspace_id + "/typeahead";
+        options.query = {
+            type: 'task',
+            query: options.query
         };
         return AsanaGateway.api(options);
     };
