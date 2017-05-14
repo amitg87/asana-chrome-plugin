@@ -665,8 +665,111 @@ asanaModule.controller("tasksController", ["$scope", "AsanaGateway", "ChromeExte
             });
             tasksCtrl.commentText = "";
         }).catch(function (response) {
-            console.log("Failed to add comment.")
+            console.log("Failed to add comment.");
         });
+    };
+}]);
+
+asanaModule.controller("utilitiesController", ["$scope", "AsanaGateway", "$timeout", function($scope, AsanaGateway, $timeout) {
+    var utilitiesCtrl = this;
+    chrome.tabs.query({ currentWindow: true, active: true }, function (tabArray) {
+        utilitiesCtrl.pageUrl = tabArray[0].url;
+
+        var asanaUrlMatch = /(https:\/\/app\.asana\.com\/0\/\d+\/)(\d+)/.exec(utilitiesCtrl.pageUrl);
+        utilitiesCtrl.containerUrl = asanaUrlMatch? asanaUrlMatch[1]: null;
+        utilitiesCtrl.taskId = asanaUrlMatch? asanaUrlMatch[2]: null;
+
+        if (utilitiesCtrl.taskId) {
+            AsanaGateway.getTaskWorkspace({task_id: utilitiesCtrl.taskId})
+            .then(function (response) {
+                utilitiesCtrl.taskWorkspace = response.workspace;
+            });
+        }
+    });
+
+    utilitiesCtrl.replacePatterns = function () {
+        AsanaGateway.getTask({task_id: utilitiesCtrl.taskId})
+        .then(function (response) {
+            var updatedNote = response.notes;
+            for (var i = 0; i < utilitiesCtrl.patternsArray.length; i ++) {
+                //https://bugs.chromium.org/p/chromium/issues/detail?id=380964
+                var pattern = new RegExp(utilitiesCtrl.patternsArray[i][0], 'gm');
+                updatedNote = updatedNote.replace(pattern, utilitiesCtrl.patternsArray[i][1]);
+            }
+            AsanaGateway.updateTask({task_id: response.id, data: {notes: updatedNote}}
+            ).then(function (response) {
+                console.log("updated task: " + JSON.stringify(response));
+                utilitiesCtrl.taskUpdateStatus = {
+                    success: true,
+                    message: "Task updated",
+                    show: true,
+                };
+                utilitiesCtrl.hideUpdateStatusAfterFive();
+            }).catch(function () {
+                console.log("Error updating task:" + JSON.stringify(response));
+                utilitiesCtrl.taskUpdateStatus = {
+                    success: false,
+                    message: "Failed to update the task",
+                    show: true,
+                };
+                utilitiesCtrl.hideUpdateStatusAfterFive();
+            });
+        }).catch(function (response) {
+            console.log('Error fetching task details: ' + JSON.stringify(response));
+            utilitiesCtrl.taskUpdateStatus = {
+                success: false,
+                message: "Failed to get task data",
+                show: true,
+            };
+            utilitiesCtrl.hideUpdateStatusAfterFive();
+        });
+    };
+
+    utilitiesCtrl.hideUpdateStatusAfterFive = function () {
+        $timeout(function () {
+            utilitiesCtrl.taskUpdateStatus.show = false;
+        }, 5000);
+    };
+
+    utilitiesCtrl.defaultPatternArray = [
+        ['[<"]?([A-Za-z0-9\\-:;/._=+&%?!#@]+)[>"]?\\s[<\\[](mailto:|http://|https://)?\\1[/\\s]*[>\\]]', '$1'],
+        ['&b?[rl]?d?quot?;', '\"'],
+        ['&([rl]squo|apos);', "\'"],
+        ['&[mn]?dash;', "-"]
+    ];
+
+    utilitiesCtrl.saveReplacePatterns = function () {
+        // using chrome.storage instead of localStorage for easier handling of array
+        chrome.storage.local.set({'patternsArray': utilitiesCtrl.patternsArray});
+    };
+
+    utilitiesCtrl.setReplaceOnLoad = function () {
+        chrome.storage.local.get(null, function (value) {
+            utilitiesCtrl.patternsArray = value.patternsArray || utilitiesCtrl.defaultPatternArray;
+            utilitiesCtrl.saveReplacePatterns();
+        });
+    };
+
+    utilitiesCtrl.setReplaceOnLoad();
+
+    utilitiesCtrl.clearPatterns = function () {
+        utilitiesCtrl.patternsArray = [];
+        utilitiesCtrl.saveReplacePatterns();
+    };
+
+    utilitiesCtrl.resetToDefault = function () {
+        chrome.storage.local.remove("patternsArray");
+        utilitiesCtrl.setReplaceOnLoad();
+    };
+
+    utilitiesCtrl.addPattern = function(){
+        utilitiesCtrl.patternsArray.push(['', '']);
+        utilitiesCtrl.saveReplacePatterns();
+    };
+
+    utilitiesCtrl.delPattern = function(idx){
+        utilitiesCtrl.patternsArray.splice(idx, 1);
+        utilitiesCtrl.saveReplacePatterns();
     };
 }]);
 
@@ -685,5 +788,10 @@ asanaModule.controller("settingsController", ['$scope', 'AsanaConstants', functi
     settingsCtrl.projectOptional = AsanaConstants.getProjectOptional();
     settingsCtrl.changeProjectOptional = function () {
         AsanaConstants.setProjectOptional(settingsCtrl.projectOptional);
-    }
+    };
+
+    settingsCtrl.myTasksAlarmOn = AsanaConstants.getMyTasksAlarmOn();
+    settingsCtrl.changeMyTasksAlarmOn = function () {
+        AsanaConstants.setMyTasksAlarmOn(settingsCtrl.myTasksAlarmOn);
+    };
 }]);

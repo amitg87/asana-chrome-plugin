@@ -25,3 +25,5 @@ asanaModule.run(['AsanaConstants', function (AsanaConstants) {
         chrome.tabs.create({url: "info.html"});
     });
 }]);
+
+chrome.alarms.create('everyOneMinute', {when: Date.now() + 1000, periodInMinutes: 1});

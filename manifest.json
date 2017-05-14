@@ -27,7 +27,7 @@
     "default_popup": "popup.html"
   },
 
-  "permissions": ["cookies", "tabs", "*://*.asana.com/"],
+  "permissions": ["alarms", "cookies", "notifications", "storage", "tabs", "*://*.asana.com/"],
   "content_security_policy": "script-src 'self' https://maxcdn.bootstrapcdn.com; object-src 'self'",
 
   "commands": {
