@@ -35,6 +35,10 @@ body{
     color: #f00;
 }
 
+select.subtasks>option{
+    color: #333;
+}
+
 table.separate{
     border-collapse: separate;
     border-spacing: 1px;

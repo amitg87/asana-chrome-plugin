@@ -34,8 +34,9 @@ of REST API. Onus is on us to develop something great out of it.
     - view tasks assigned to another user
     - mark tasks as done
 
-3. Other Utilities
+3. Other Utilities on Asana task pages
     - set alarm on my tasks with due time
+    - navigate subtasks
     - replace patterns in task description (notes)
 
 ## Usage
@@ -52,5 +53,5 @@ Head to [Chrome Web Store](https://chrome.google.com/webstore/detail/asanang-asa
 ## User Guide
 Long Way - Look for Asana in Chrome Browser Action (top-right corner),
  when clicked, pops up a window.
- 
+
 Short-cut key - press 'Alt + A' keyboard shortcut

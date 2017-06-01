@@ -5,27 +5,6 @@
 
     <div data-ng-show="utilitiesCtrl.taskWorkspace">
         <div>
-            <h5>Make subtask of ...</h5>
-        </div>
-
-        <div class="form-group">
-            <ui-select data-ng-model="utilitiesCtrl.selectedParentTask.selected" ui-select-focus>
-                <ui-select-match allow-clear="true" placeholder="Enter Parent Task Name">
-                    <span data-ng-bind="$select.selected.name"></span>
-                </ui-select-match>
-                <ui-select-choices repeat="task in utilitiesCtrl.tasksTypeaheadArray | filter: $select.search | filter: utilitiesCtrl.notEndsWithColon | filter: utilitiesCtrl.notSameTask" refresh="utilitiesCtrl.updateTypeahead($select.search)" minimum-input-length="1" refresh-delay="100" position="down">
-                    <div class="overflow-ellipsis">
-                        <span data-ng-bind="task.name"></span>
-                    </div>
-                </ui-select-choices>
-            </ui-select>
-        </div>
-
-        <div class="form-group">
-                <button type="button" class="btn btn-sm btn-asana" data-ng-click="utilitiesCtrl.setParent()" data-ng-disabled="!utilitiesCtrl.selectedParentTask.selected.id">Add as Subtask</button>
-        </div>
-
-        <div>
             <h5>Navigate subtasks</h5>
         </div>
 
@@ -34,11 +13,42 @@
                 <button type="button" class="btn btn-sm btn-asana" title="[Tab + Up]" data-ng-click="utilitiesCtrl.openParentTask()" data-ng-disabled="!utilitiesCtrl.parentTask"><i class="fa fa-arrow-left"></i> Parent</button>
             </span>
             <span>
-                <button type="button" class="btn btn-sm btn-asana" title="[Tab + Up], [Ctrl + Up], [Tab + Left]" data-ng-click="utilitiesCtrl.openPreviousSubtask()" data-ng-disabled="!utilitiesCtrl.previousSubtask"><i class="fa fa-arrow-up"></i> Previous</button>
+                <button type="button" class="btn btn-sm btn-asana" title="[Tab + Up], [Up], [Tab + Right]" data-ng-click="utilitiesCtrl.openPreviousSubtask()" data-ng-disabled="!utilitiesCtrl.previousSubtask"><i class="fa fa-arrow-up"></i> Previous</button>
+            </span>
+            <span data-ng-show="utilitiesCtrl.previousSubtask || utilitiesCtrl.nextSubtask">
+                <button type="button" class="btn btn-sm btn-asana">
+                    <i class="fa fa-list"></i>
+                    <select class="subtasks" data-ng-model="utilitiesCtrl.currentSubtask" data-ng-options="subtask as subtask.name for subtask in utilitiesCtrl.subtasksArray" data-ng-change="utilitiesCtrl.openSelectedSubtask()" data-ng-style="{'width': 60 + 'px', 'border': 'none', 'background-color': 'rgba(0, 0, 0, 0)'}">
+                     </select>
+                </button>
+            </span>
+            <span data-ng-hide="utilitiesCtrl.previousSubtask || utilitiesCtrl.nextSubtask">
+                <button type="button" class="btn btn-sm btn-asana" disabled>
+                    <i class="fa fa-list"></i> Siblings ...
+                </button>
             </span>
             <span>
-                <button type="button" class="btn btn-sm btn-asana" title="[Tab + Up], [Ctrl + Down], [Tab + Left]" data-ng-click="utilitiesCtrl.openNextSubtask()" data-ng-disabled="!utilitiesCtrl.nextSubtask"><i class="fa fa-arrow-down"></i> Next</button>
+                <button type="button" class="btn btn-sm btn-asana" title="[Tab + Up], [Down], [Tab + Right]" data-ng-click="utilitiesCtrl.openNextSubtask()" data-ng-disabled="!utilitiesCtrl.nextSubtask"><i class="fa fa-arrow-down"></i> Next</button>
             </span>
+        </div>
+
+        <div>
+            <span>
+                <button type="button" class="btn btn-sm btn-asana" title="Add as Subtask" data-ng-click="utilitiesCtrl.setParent()" data-ng-disabled="!utilitiesCtrl.selectedParentTask.selected.id"><i class="fa fa-sitemap"></i> Make subtask of ...</button>
+            </span>
+        </div>
+
+        <div class="form-group">
+            <ui-select data-ng-model="utilitiesCtrl.selectedParentTask.selected" ui-select-focus>
+                <ui-select-match allow-clear="true" placeholder="New parent task name">
+                    <span data-ng-bind="$select.selected.name"></span>
+                </ui-select-match>
+                <ui-select-choices repeat="task in utilitiesCtrl.tasksTypeaheadArray | filter: $select.search | filter: utilitiesCtrl.notEndsWithColon | filter: utilitiesCtrl.notSameTask" refresh="utilitiesCtrl.updateTypeahead($select.search)" minimum-input-length="1" refresh-delay="100" position="down">
+                    <div class="overflow-ellipsis">
+                        <span data-ng-bind="task.name"></span>
+                    </div>
+                </ui-select-choices>
+            </ui-select>
         </div>
 
         <div>
@@ -60,7 +70,7 @@
         </div>
 
         <div>
-            <button type="button" class="btn btn-sm btn-asana" title="Note: All formatting will be lost" data-ng-click="utilitiesCtrl.replacePatterns()" data-ng-disabled='!utilitiesCtrl.taskId'>Replace</button>
+            <button type="button" class="btn btn-sm btn-asana" title="Note: All formatting will be lost" data-ng-click="utilitiesCtrl.replacePatterns()" data-ng-disabled='!utilitiesCtrl.taskId'>Replace Text</button>
             <span class="status label" data-ng-show="utilitiesCtrl.taskUpdateStatus.show"
                 data-ng-class="utilitiesCtrl.taskUpdateStatus.success?'label-success':'label-danger'">
                 {{utilitiesCtrl.taskUpdateStatus.message}}

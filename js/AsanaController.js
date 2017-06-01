@@ -673,47 +673,50 @@ asanaModule.controller("tasksController", ["$scope", "AsanaGateway", "ChromeExte
 asanaModule.controller("utilitiesController", ["$scope", "AsanaGateway", "$timeout", function($scope, AsanaGateway, $timeout) {
     var utilitiesCtrl = this;
 
-    utilitiesCtrl.onPageUpdate = function(){
+    utilitiesCtrl.onPageLoad = function(){
         chrome.tabs.query({ currentWindow: true, active: true }, function (tabArray) {
             utilitiesCtrl.pageUrl = tabArray[0].url;
 
             var asanaUrlMatch = /(https:\/\/app\.asana\.com\/0\/\d+\/)(\d+)/.exec(utilitiesCtrl.pageUrl);
-            utilitiesCtrl.containerUrl = asanaUrlMatch? asanaUrlMatch[1]: null;
-            utilitiesCtrl.taskId = asanaUrlMatch? asanaUrlMatch[2]: null;
+            utilitiesCtrl.containerUrl = asanaUrlMatch? asanaUrlMatch[1]: undefined;
+            utilitiesCtrl.taskId = asanaUrlMatch? asanaUrlMatch[2]: undefined;
 
             if (utilitiesCtrl.taskId) {
-                AsanaGateway.getTaskWorkspaceParent({task_id: utilitiesCtrl.taskId})
-                .then(function (response) {
-                    utilitiesCtrl.taskWorkspace = response.workspace;
-
-                    if (response.parent) {
-                         utilitiesCtrl.parentTask = response.parent;
-                        utilitiesCtrl.updateSiblings(utilitiesCtrl.parentTask.id);
-                    }
-                });
+                utilitiesCtrl.getWorkspaceParent();
             }
         });
     };
 
-    utilitiesCtrl.onPageUpdate();
+    utilitiesCtrl.onPageLoad();
 
-    utilitiesCtrl.updateSiblings = function (parent_id) {
-        if (!parent_id) {
-            utilitiesCtrl.previousSubtask = null;
-            utilitiesCtrl.nextSubtask = null;
-        } else {
-            AsanaGateway.getTaskSubtasks({task_id: parent_id})
-            .then(function(response){
+    utilitiesCtrl.getWorkspaceParent = function () {
+        AsanaGateway.getTaskWorkspaceParent({task_id: utilitiesCtrl.taskId})
+        .then(function (response) {
+            utilitiesCtrl.taskWorkspace = response.workspace;
 
-                if (response) {
-                    utilitiesCtrl.subtasksArray = response;
-                    utilitiesCtrl.moveSubtasks();
-                }
-            });
-        }
+            if (response.parent) {
+                utilitiesCtrl.parentTask = response.parent;
+                utilitiesCtrl.getSiblings();
+            } else {
+                utilitiesCtrl.parentTask = undefined;
+                utilitiesCtrl.clearSubtasks();
+            }
+        });
     };
 
-    utilitiesCtrl.moveSubtasks = function () {
+    utilitiesCtrl.getSiblings = function () {
+        AsanaGateway.getTaskSubtasks({task_id: utilitiesCtrl.parentTask.id})
+        .then(function(response){
+            if (response) {
+                utilitiesCtrl.subtasksArray = response;
+                utilitiesCtrl.shiftSubtasks();
+            }
+        });
+    };
+
+    utilitiesCtrl.shiftSubtasks = function () {
+        utilitiesCtrl.clearSubtasks();
+
         var idx = -1, len = utilitiesCtrl.subtasksArray.length;
         for (var i = 0; i < len; i ++) {
             if (utilitiesCtrl.subtasksArray[i].id == utilitiesCtrl.taskId) {
@@ -722,19 +725,61 @@ asanaModule.controller("utilitiesController", ["$scope", "AsanaGateway", "$timeo
             }
         }
         if (idx !== -1) {
-            for (var j = 1; j <= idx; j ++) {
+            utilitiesCtrl.currentSubtask = utilitiesCtrl.subtasksArray[idx];
+
+            for (var j = 1; idx - j >= 0; j ++) {
                 if (!utilitiesCtrl.subtasksArray[idx - j].name.endsWith(':')){
-                    utilitiesCtrl.previousSubtask = utilitiesCtrl.subtasksArray[idx - j] || null;
+                    utilitiesCtrl.previousSubtask = utilitiesCtrl.subtasksArray[idx - j];
                     break;
                 }
             }
-            for (var k = 1; idx + k < len - 1; k ++) {
+            for (var k = 1; idx + k <= len - 1; k ++) {
                 if (!utilitiesCtrl.subtasksArray[idx + k].name.endsWith(':')){
-                    utilitiesCtrl.nextSubtask = utilitiesCtrl.subtasksArray[idx + k] || null;
+                    utilitiesCtrl.nextSubtask = utilitiesCtrl.subtasksArray[idx + k];
                     break;
                 }
             }
         }
+    };
+
+    utilitiesCtrl.clearSubtasks = function () {
+        utilitiesCtrl.currentSubtask = undefined;
+        utilitiesCtrl.previousSubtask = undefined;
+        utilitiesCtrl.nextSubtask = undefined;
+    };
+
+    utilitiesCtrl.executeFuncAfter100ms = function (func) {
+        $timeout(function () {
+            func();
+        }, 100);
+    };
+
+    utilitiesCtrl.openParentTask = function () {
+        chrome.tabs.update({url: utilitiesCtrl.containerUrl + utilitiesCtrl.parentTask.id}, function(){
+            utilitiesCtrl.taskId = utilitiesCtrl.parentTask.id;
+            utilitiesCtrl.executeFuncAfter100ms(utilitiesCtrl.onPageLoad);
+        });
+    };
+
+    utilitiesCtrl.openPreviousSubtask = function () {
+        chrome.tabs.update({url: utilitiesCtrl.containerUrl + utilitiesCtrl.previousSubtask.id}, function(){
+            utilitiesCtrl.taskId = utilitiesCtrl.previousSubtask.id;
+            utilitiesCtrl.executeFuncAfter100ms(utilitiesCtrl.shiftSubtasks);
+        });
+    };
+
+    utilitiesCtrl.openNextSubtask = function () {
+        chrome.tabs.update({url: utilitiesCtrl.containerUrl + utilitiesCtrl.nextSubtask.id}, function(){
+            utilitiesCtrl.taskId = utilitiesCtrl.nextSubtask.id;
+            utilitiesCtrl.executeFuncAfter100ms(utilitiesCtrl.shiftSubtasks);
+        });
+    };
+
+    utilitiesCtrl.openSelectedSubtask = function() {
+        chrome.tabs.update({url: utilitiesCtrl.containerUrl + utilitiesCtrl.currentSubtask.id}, function(){
+            utilitiesCtrl.taskId = utilitiesCtrl.currentSubtask.id;
+            utilitiesCtrl.executeFuncAfter100ms(utilitiesCtrl.shiftSubtasks);
+        });
     };
 
     utilitiesCtrl.setParent = function () {
@@ -744,7 +789,7 @@ asanaModule.controller("utilitiesController", ["$scope", "AsanaGateway", "$timeo
          };
         AsanaGateway.setParent(options)
         .then(function (response){
-            console.log("updated task: " + JSON.stringify(response));
+            console.log("Added parent: " + JSON.stringify(response));
             utilitiesCtrl.taskUpdateStatus = {
                 success: true,
                 message: "Task updated",
@@ -752,7 +797,8 @@ asanaModule.controller("utilitiesController", ["$scope", "AsanaGateway", "$timeo
             };
             utilitiesCtrl.hideUpdateStatusAfterFive();
             utilitiesCtrl.parentTask = utilitiesCtrl.selectedParentTask.selected;
-            utilitiesCtrl.updateSiblings(utilitiesCtrl.parentTask.id);
+            utilitiesCtrl.executeFuncAfter100ms(utilitiesCtrl.getSiblings);
+            utilitiesCtrl.selectedParentTask.selected = undefined;
         }).catch(function (response) {
             console.log('Error adding parent: ' + JSON.stringify(response));
             utilitiesCtrl.taskUpdateStatus = {
@@ -783,29 +829,6 @@ asanaModule.controller("utilitiesController", ["$scope", "AsanaGateway", "$timeo
         return task.id != utilitiesCtrl.taskId;
     };
 
-
-    utilitiesCtrl.openParentTask = function () {
-        chrome.tabs.update({url: utilitiesCtrl.containerUrl + utilitiesCtrl.parentTask.id}, function(){
-            utilitiesCtrl.taskId = utilitiesCtrl.parentTask.id;
-            utilitiesCtrl.parentTask = null;
-            utilitiesCtrl.onPageUpdate();
-        });
-    };
-
-    utilitiesCtrl.openPreviousSubtask = function () {
-        chrome.tabs.update({url: utilitiesCtrl.containerUrl + utilitiesCtrl.previousSubtask.id}, function(){
-            utilitiesCtrl.taskId = utilitiesCtrl.previousSubtask.id;
-            utilitiesCtrl.moveSubtasks();
-        });
-    };
-
-    utilitiesCtrl.openNextSubtask = function () {
-        chrome.tabs.update({url: utilitiesCtrl.containerUrl + utilitiesCtrl.nextSubtask.id}, function(){
-            utilitiesCtrl.taskId = utilitiesCtrl.nextSubtask.id;
-            utilitiesCtrl.moveSubtasks();
-        });
-    };
-
     utilitiesCtrl.replacePatterns = function () {
         AsanaGateway.getTask({task_id: utilitiesCtrl.taskId})
         .then(function (response) {
@@ -817,7 +840,7 @@ asanaModule.controller("utilitiesController", ["$scope", "AsanaGateway", "$timeo
             }
             AsanaGateway.updateTask({task_id: response.id, data: {notes: updatedNote}}
             ).then(function (response) {
-                console.log("updated task: " + JSON.stringify(response));
+                console.log("updated task note: " + JSON.stringify(response));
                 utilitiesCtrl.taskUpdateStatus = {
                     success: true,
                     message: "Task updated",
@@ -825,7 +848,7 @@ asanaModule.controller("utilitiesController", ["$scope", "AsanaGateway", "$timeo
                 };
                 utilitiesCtrl.hideUpdateStatusAfterFive();
             }).catch(function () {
-                console.log("Error updating task:" + JSON.stringify(response));
+                console.log("Error updating task note:" + JSON.stringify(response));
                 utilitiesCtrl.taskUpdateStatus = {
                     success: false,
                     message: "Failed to update the task",
