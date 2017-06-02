@@ -677,9 +677,10 @@ asanaModule.controller("utilitiesController", ["$scope", "AsanaGateway", "$timeo
         chrome.tabs.query({ currentWindow: true, active: true }, function (tabArray) {
             utilitiesCtrl.pageUrl = tabArray[0].url;
 
-            var asanaUrlMatch = /(https:\/\/app\.asana\.com\/0\/\d+\/)(\d+)/.exec(utilitiesCtrl.pageUrl);
+            var asanaUrlMatch = /(https:\/\/app\.asana\.com\/0(?:\/inbox}|\/search)?\/\d+\/)(\d+)(\/\d+)?/.exec(utilitiesCtrl.pageUrl);
             utilitiesCtrl.containerUrl = asanaUrlMatch? asanaUrlMatch[1]: undefined;
             utilitiesCtrl.taskId = asanaUrlMatch? asanaUrlMatch[2]: undefined;
+            utilitiesCtrl.taskStoryId = asanaUrlMatch? asanaUrlMatch[3]: undefined;
 
             if (utilitiesCtrl.taskId) {
                 utilitiesCtrl.getWorkspaceParent();
@@ -755,28 +756,29 @@ asanaModule.controller("utilitiesController", ["$scope", "AsanaGateway", "$timeo
     };
 
     utilitiesCtrl.openParentTask = function () {
-        chrome.tabs.update({url: utilitiesCtrl.containerUrl + utilitiesCtrl.parentTask.id}, function(){
+        // [array of string].join("") is slower but needed to exclude undefined when concatenating
+        chrome.tabs.update({url: [utilitiesCtrl.containerUrl, utilitiesCtrl.parentTask.id, utilitiesCtrl.taskStoryId].join("")}, function(){
             utilitiesCtrl.taskId = utilitiesCtrl.parentTask.id;
             utilitiesCtrl.executeFuncAfter100ms(utilitiesCtrl.onPageLoad);
         });
     };
 
     utilitiesCtrl.openPreviousSubtask = function () {
-        chrome.tabs.update({url: utilitiesCtrl.containerUrl + utilitiesCtrl.previousSubtask.id}, function(){
+        chrome.tabs.update({url: [utilitiesCtrl.containerUrl, utilitiesCtrl.previousSubtask.id, utilitiesCtrl.taskStoryId].join("")}, function(){
             utilitiesCtrl.taskId = utilitiesCtrl.previousSubtask.id;
             utilitiesCtrl.executeFuncAfter100ms(utilitiesCtrl.shiftSubtasks);
         });
     };
 
     utilitiesCtrl.openNextSubtask = function () {
-        chrome.tabs.update({url: utilitiesCtrl.containerUrl + utilitiesCtrl.nextSubtask.id}, function(){
+        chrome.tabs.update({url: [utilitiesCtrl.containerUrl, utilitiesCtrl.nextSubtask.id, utilitiesCtrl.taskStoryId].join("")}, function(){
             utilitiesCtrl.taskId = utilitiesCtrl.nextSubtask.id;
             utilitiesCtrl.executeFuncAfter100ms(utilitiesCtrl.shiftSubtasks);
         });
     };
 
     utilitiesCtrl.openSelectedSubtask = function() {
-        chrome.tabs.update({url: utilitiesCtrl.containerUrl + utilitiesCtrl.currentSubtask.id}, function(){
+        chrome.tabs.update({url: [utilitiesCtrl.containerUrl, utilitiesCtrl.currentSubtask.id, utilitiesCtrl.taskStoryId].join("")}, function(){
             utilitiesCtrl.taskId = utilitiesCtrl.currentSubtask.id;
             utilitiesCtrl.executeFuncAfter100ms(utilitiesCtrl.shiftSubtasks);
         });
