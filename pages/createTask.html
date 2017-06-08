@@ -5,7 +5,7 @@
             <ui-select-match placeholder="Select Workspace">
                 <span data-ng-bind="$select.selected.name"></span>
             </ui-select-match>
-            <ui-select-choices repeat="workspace in (createTaskCtrl.workspaces | filter: $select.search)" position="down">
+            <ui-select-choices repeat="workspace in createTaskCtrl.workspaces | orderBy:'name' | filter: $select.search)" position="down">
                 <div class="overflow-ellipsis">
                     <span data-ng-bind="workspace.name"></span>
                 </div>
@@ -20,7 +20,7 @@
             <ui-select-match placeholder="Select Project(s)" style="padding-left: 5px;">
                 {{$item.name}}
             </ui-select-match>
-            <ui-select-choices repeat="project in (createTaskCtrl.projects | filter: $select.search)" position="down">
+            <ui-select-choices repeat="project in createTaskCtrl.projects | orderBy:'name' | filter: $select.search" position="down">
                 <div class="overflow-ellipsis">
                     <span data-ng-class="{'archived-project':project.archived}" data-ng-bind="project.name" title="{{project.notes}}"></span>
                     <span data-ng-bind="project.prompt"></span>
@@ -39,7 +39,7 @@
                      src="../img/nopicture.png">
                 <span data-ng-bind="$select.selected.name"></span>
             </ui-select-match>
-            <ui-select-choices repeat="user in (createTaskCtrl.users | filter: $select.search)" position="down">
+            <ui-select-choices repeat="user in createTaskCtrl.users | orderBy:'name' | filter: $select.search)" position="down">
                 <div class="overflow-ellipsis">
                     <img class="img-circle profile-img profile-img-sm"
                          data-ng-src="{{user.photo.image_36x36}}"
@@ -58,7 +58,7 @@
             <ui-select-match placeholder="Select Tag(s)" style="padding-left: 5px;">
                 <i class="fa fa-tag"></i> {{$item.name}}
             </ui-select-match>
-            <ui-select-choices repeat="tag in (createTaskCtrl.tags | filter: $select.search) track by tag.id" position="down">
+            <ui-select-choices repeat="tag in (createTaskCtrl.tags | orderBy:'name' | filter: $select.search) track by tag.id" position="down">
                 <div class="overflow-ellipsis" title="{{tag.notes}}">
                     <i class="fa fa-tag"></i>
                     <span data-ng-bind="tag.name"></span>
@@ -74,7 +74,7 @@
             <ui-select-match placeholder="Select Follower(s)" style="padding-left: 5px;">
                 <span data-ng-bind="$item.name | nameInitials" data-ng-attr-title="{{$item.name}}"></span>
             </ui-select-match>
-            <ui-select-choices repeat="follower in createTaskCtrl.users | filter: $select.search track by follower.id">
+            <ui-select-choices repeat="follower in createTaskCtrl.users | orderBy:'name' | filter: $select.search track by follower.id">
                 <div class="overflow-ellipsis">
                     <img class="img-circle profile-img profile-img-sm"
                          data-ng-src="{{follower.photo.image_36x36}}"
