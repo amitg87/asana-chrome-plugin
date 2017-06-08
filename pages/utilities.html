@@ -43,7 +43,7 @@
                 <ui-select-match allow-clear="true" placeholder="New parent task name">
                     <span data-ng-bind="$select.selected.name"></span>
                 </ui-select-match>
-                <ui-select-choices repeat="task in utilitiesCtrl.tasksTypeaheadArray | filter: $select.search | filter: utilitiesCtrl.notEndsWithColon | filter: utilitiesCtrl.notSameTask" refresh="utilitiesCtrl.updateTypeahead($select.search)" minimum-input-length="1" refresh-delay="100" position="down">
+                <ui-select-choices repeat="task in utilitiesCtrl.tasksTypeaheadArray | orderBy: 'name' | filter: $select.search | filter: utilitiesCtrl.notEndsWithColon | filter: utilitiesCtrl.notSameTask" refresh="utilitiesCtrl.updateTypeahead($select.search)" minimum-input-length="1" refresh-delay="100" position="down">
                     <div class="overflow-ellipsis">
                         <span data-ng-bind="task.name"></span>
                     </div>
