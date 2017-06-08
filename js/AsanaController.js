@@ -114,7 +114,7 @@ asanaModule.controller("createTaskController", ['$scope', 'AsanaGateway', '$time
         }
 
         var projectList = createTaskCtrl.selectedProject.list;
-        if(createTaskCtrl.selectedProject.list.length == 0 && !AsanaConstants.getProjectOptional()){
+        if(createTaskCtrl.selectedProject.list.length === 0 && !AsanaConstants.getProjectOptional()){
             createTaskCtrl.taskCreationStatus.success = false;
             createTaskCtrl.taskCreationStatus.message = "Missing Project";
             createTaskCtrl.taskCreationStatus.show = true;
@@ -203,7 +203,7 @@ asanaModule.controller("createTaskController", ['$scope', 'AsanaGateway', '$time
                 return createTaskCtrl.tags[i];
             }
         }
-        return { id: 1, name: input, notes: '', prompt: "(new tag)" }
+        return { id: 1, name: input, notes: '', prompt: "(new tag)" };
     };
 
     createTaskCtrl.createNewTag = function (item, model) {
@@ -241,7 +241,7 @@ asanaModule.controller("createTaskController", ['$scope', 'AsanaGateway', '$time
             createTaskCtrl.taskNotes = tab.url;
             createTaskCtrl.taskNameRequired = false;
         });
-    }
+    };
 }]);
 
 asanaModule.controller("tasksController", ["$scope", "AsanaGateway", "ChromeExtensionService", "$filter", "AsanaConstants",
@@ -295,7 +295,7 @@ asanaModule.controller("tasksController", ["$scope", "AsanaGateway", "ChromeExte
                 return tasksCtrl.tags[i];
             }
         }
-        return { id: 1, name: input, notes: '', prompt: "(new tag)" }
+        return { id: 1, name: input, notes: '', prompt: "(new tag)" };
     };
 
     tasksCtrl.createNewTag = function (item, model, callback) {
@@ -385,7 +385,7 @@ asanaModule.controller("tasksController", ["$scope", "AsanaGateway", "ChromeExte
                         element.assignee.name = element1.name;
                         element.assignee.photo = element1.photo;
                     }
-                })
+                });
             });
 
             tasksCtrl.tasks = response; //response[0].assignee.id -> tasksCtrl.users
@@ -499,7 +499,7 @@ asanaModule.controller("tasksController", ["$scope", "AsanaGateway", "ChromeExte
     };
 
     tasksCtrl.openInAsana = function (url) {
-        ChromeExtension.openLink(url)
+        ChromeExtension.openLink(url);
     };
 
     tasksCtrl.showTask = function (taskId, index) {
@@ -583,11 +583,11 @@ asanaModule.controller("tasksController", ["$scope", "AsanaGateway", "ChromeExte
         if(angular.isDefined(tasksCtrl.taskDetails.assignee)){
             options.data = {
                 assignee: tasksCtrl.taskDetails.assignee.id
-            }
+            };
         } else {
             options.data = {
                 assignee: null
-            }
+            };
         }
         tasksCtrl.updateTask(options).then(function (response) {
             if(response.assignee === null){
@@ -600,11 +600,11 @@ asanaModule.controller("tasksController", ["$scope", "AsanaGateway", "ChromeExte
                     if(element.photo == null){
                         element.photo = {
                             "image_36x36": "../img/nopicture.png"
-                        }
+                        };
                     }
                     tasksCtrl.taskDetails.assignee = element;
                 }
-            })
+            });
         });
     };
 

@@ -259,7 +259,7 @@ asanaModule.service("AsanaGateway", ["$http", "AsanaConstants", "$q", function (
             asanaOptions = {client_name: client_name};
         } else {
             options.query = options.query || {};
-            options.query["opt_client_name"] = client_name;
+            options.query.opt_client_name = client_name;
         }
         var queryParams = "";
         for (var key in options.query) {

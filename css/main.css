@@ -5,7 +5,7 @@ body{
 }
 
 .container{
-    padding: 5px
+    padding: 5px;
 }
 
 .margin-bottom-5 {
@@ -246,7 +246,7 @@ span.archived-project{
 }
 
 .copy-page:hover, .copy-page:focus{
-    color: #02CEFF
+    color: #02CEFF;
 }
 
 /*

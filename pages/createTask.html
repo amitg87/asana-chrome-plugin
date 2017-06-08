@@ -55,7 +55,7 @@
         <ui-select multiple tagging="createTaskCtrl.tagHandler"  data-ng-model="createTaskCtrl.selectedTags.list"
                    data-ng-disabled="createTaskCtrl.workspaceNotSelected" on-select="createTaskCtrl.createNewTag($item, $model)"
                    ui-select-focus>
-            <ui-select-match placeholder="Select tag(s)" style="padding-left: 5px;">
+            <ui-select-match placeholder="Select Tag(s)" style="padding-left: 5px;">
                 <i class="fa fa-tag"></i> {{$item.name}}
             </ui-select-match>
             <ui-select-choices repeat="tag in (createTaskCtrl.tags | filter: $select.search) track by tag.id" position="down">

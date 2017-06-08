@@ -1,7 +1,7 @@
 # The Unofficial Asana Chrome Plugin
 
 This is a free, open-source Chrome extension to allow quick and easy access 
-to Asana. This extension uses Asana API to communicate to Asana.
+to Asana. This extension uses Asana API to communicate with Asana.
 
 This extension is based on Asana's - Official Chrome Extension available here:
 [Chromestore](https://chrome.google.com/webstore/detail/asana-extension-for-chrom/khnpeclbnipcdacdkhejifenadikeghk)
@@ -45,13 +45,13 @@ Head to [Chrome Web Store](https://chrome.google.com/webstore/detail/asanang-asa
 
 ### Install as a developer:
   1. Download the code, e.g. `git clone git@github.com:amitg87/asana-chrome-plugin.git`
-  2. Navigate chrome to `chrome://extensions`
+  2. Navigate Chrome to `chrome://extensions`
   3. Check the `Developer mode` toggle
-  4. Click on `Load Unpacked Extension...`
+  4. Click on `Load unpacked extension...`
   5. Select the folder containing the extension
 
 ## User Guide
 Long Way - Look for Asana in Chrome Browser Action (top-right corner),
- when clicked, pops up a window.
-
+ when clicked, a window pops up.
+ 
 Short-cut key - press 'Alt + A' keyboard shortcut
