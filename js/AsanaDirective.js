@@ -104,7 +104,7 @@ asanaModule.directive("datetime", function () {
             $scope.copyTime = function(targetDate, sourceDate){
                 targetDate.setHours(sourceDate.getHours());
                 targetDate.setMinutes(sourceDate.getMinutes());
-            }
+            };
         }],
         templateUrl: "../templates/datetime.tmpl.html"
     };
