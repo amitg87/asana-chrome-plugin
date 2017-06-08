@@ -15,7 +15,25 @@ asanaModule.service("AsanaGateway", ["$http", "AsanaConstants", "$q", function (
         options.path = "workspaces/" + options.workspace_id + "/users";
         options.query = {opt_fields: "name,email,photo"};
 
-        return AsanaGateway.api(options);
+        var deferred = $q.defer();
+        AsanaGateway.api(options).then(function (response) {
+            response.forEach(function (user, index) {
+                if(user.photo == null){
+                    user.photo = {
+                        "image_21x21": "../img/nopicture.png",
+                        "image_27x27": "../img/nopicture.png",
+                        "image_36x36": "../img/nopicture.png",
+                        "image_60x60": "../img/nopicture.png",
+                        "image_128x128": "../img/nopicture.png",
+                        "image_1024x1024": "../img/nopicture.png"
+                    };
+                }
+            });
+            deferred.resolve(response);
+        }).catch(function (response) {
+            deferred.reject(response);
+        });
+        return deferred.promise;
     };
 
     AsanaGateway.getWorkspaceProjects = function (options) {
