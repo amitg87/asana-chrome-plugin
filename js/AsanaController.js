@@ -677,7 +677,7 @@ asanaModule.controller("utilitiesController", ["$scope", "AsanaGateway", "$timeo
         chrome.tabs.query({ currentWindow: true, active: true }, function (tabArray) {
             utilitiesCtrl.pageUrl = tabArray[0].url;
 
-            var asanaUrlMatch = /(https:\/\/app\.asana\.com\/0(?:\/inbox}|\/search)?\/\d+\/)(\d+)(\/\d+)?/.exec(utilitiesCtrl.pageUrl);
+            var asanaUrlMatch = /(https:\/\/app\.asana\.com\/0(?:\/inbox|\/search)?\/\d+\/)(\d+)(\/\d+)?/.exec(utilitiesCtrl.pageUrl);
             utilitiesCtrl.containerUrl = asanaUrlMatch? asanaUrlMatch[1]: undefined;
             utilitiesCtrl.taskId = asanaUrlMatch? asanaUrlMatch[2]: undefined;
             utilitiesCtrl.taskStoryId = asanaUrlMatch? asanaUrlMatch[3]: undefined;
