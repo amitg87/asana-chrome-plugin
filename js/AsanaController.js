@@ -86,6 +86,7 @@ asanaModule.controller("createTaskController", ['$scope', 'AsanaGateway', '$time
         });
 
         AsanaGateway.getWorkspaceUsers({workspace_id: createTaskCtrl.selectedWorkspaceId}).then(function (response) {
+            // console.log("user list: " + JSON.stringify(response));
             createTaskCtrl.users = response;
         }).then(function () {
             AsanaGateway.getUserData().then(function (response) {
@@ -589,23 +590,7 @@ asanaModule.controller("tasksController", ["$scope", "AsanaGateway", "ChromeExte
                 assignee: null
             };
         }
-        tasksCtrl.updateTask(options).then(function (response) {
-            if(response.assignee === null){
-                return;
-            }
-            var userId = response.assignee.id;
-            tasksCtrl.users.forEach(function (element, index) {
-                if(userId == element.id){
-                    //force ng-src refresh by providing default image
-                    if(element.photo == null){
-                        element.photo = {
-                            "image_36x36": "../img/nopicture.png"
-                        };
-                    }
-                    tasksCtrl.taskDetails.assignee = element;
-                }
-            });
-        });
+        tasksCtrl.updateTask(options);
     };
 
     tasksCtrl.updateDeadline = function () {
