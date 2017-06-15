@@ -86,7 +86,7 @@ asanaModule.controller("createTaskController", ['$scope', 'AsanaGateway', '$time
         });
 
         AsanaGateway.getWorkspaceUsers({workspace_id: createTaskCtrl.selectedWorkspaceId}).then(function (response) {
-            console.log("user list: " + JSON.stringify(response));
+            // console.log("user list: " + JSON.stringify(response));
             createTaskCtrl.users = response;
         }).then(function () {
             AsanaGateway.getUserData().then(function (response) {

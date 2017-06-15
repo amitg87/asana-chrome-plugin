@@ -5,7 +5,7 @@
             <ui-select-match placeholder="Select Workspace">
                 <span data-ng-bind="$select.selected.name"></span>
             </ui-select-match>
-            <ui-select-choices repeat="workspace in createTaskCtrl.workspaces | orderBy:'name' | filter: $select.search)" position="down">
+            <ui-select-choices repeat="workspace in createTaskCtrl.workspaces | orderBy:'name' | filter: $select.search" position="down">
                 <div class="overflow-ellipsis">
                     <span data-ng-bind="workspace.name"></span>
                 </div>
@@ -39,7 +39,7 @@
                      src="../img/nopicture.png">
                 <span data-ng-bind="$select.selected.name"></span>
             </ui-select-match>
-            <ui-select-choices repeat="user in createTaskCtrl.users | orderBy:'name' | filter: $select.search)" position="down">
+            <ui-select-choices repeat="user in createTaskCtrl.users | orderBy:'name' | filter: $select.search" position="down">
                 <div class="overflow-ellipsis">
                     <img class="img-circle profile-img profile-img-sm"
                          data-ng-src="{{user.photo.image_36x36}}"
