@@ -62,13 +62,11 @@ asanaModule.controller("createTaskController", ['$scope', 'AsanaGateway', '$time
     createTaskCtrl.onProjectSelected = function (item, model) {
         createTaskCtrl.projectRequired = false;
         if(item.isTag){
-            console.log("Creating new project: " + JSON.stringify(item));
             var options = {data: {}};
             options.data.workspace = createTaskCtrl.selectedWorkspaceId;
             options.data.name = item.name;
 
             AsanaGateway.createNewProject(options).then(function (response) {
-                console.log("New project created: " + JSON.stringify(response));
                 item.id = response.id;
             }).catch(function (response) {
                 console.log("New project create failed: " + JSON.stringify(response));
@@ -162,8 +160,6 @@ asanaModule.controller("createTaskController", ['$scope', 'AsanaGateway', '$time
         options.data.notes = createTaskCtrl.taskNotes;
 
         AsanaGateway.createTask(options).then(function (response) {
-            console.log("Success: creating task: " + JSON.stringify(response));
-            //createTaskCtrl.selectedWorkspace = {};
             createTaskCtrl.clearFields();
 
             var containerId = (response.projects[0])? response.projects[0].id: (response.tags[0])? response.tags[0].id: (response.assignee)? response.assignee.id: 0;
@@ -210,13 +206,10 @@ asanaModule.controller("createTaskController", ['$scope', 'AsanaGateway', '$time
     createTaskCtrl.createNewTag = function (item, model) {
         if(item.isTag){
             var tagRef = item;
-            //var tags = createTaskCtrl.tags;
-            console.log("Creating new tag: " + JSON.stringify(item));
             var options = {data: {}};
             options.data.workspace = createTaskCtrl.selectedWorkspaceId;
             options.data.name = item.name;
             AsanaGateway.createNewTag(options).then(function (response) {
-                console.log("Create tag success: " + JSON.stringify(response));
                 tagRef.id = response.id; //update created tag with new id
                 //tags.push({"id": response.id, "name": response.name, "notes": response.notes}); //update taglist
             }).catch(function (response) {
@@ -305,7 +298,6 @@ asanaModule.controller("tasksController", ["$scope", "AsanaGateway", "ChromeExte
             options.data.workspace = tasksCtrl.selectedWorkspaceId;
             options.data.name = item.name;
             AsanaGateway.createNewTag(options).then(function (response) {
-                console.log("Create tag success: " + JSON.stringify(response));
                 item.id = response.id; //update created tag with new id
                 callback();
             }).catch(function (response) {
@@ -334,7 +326,6 @@ asanaModule.controller("tasksController", ["$scope", "AsanaGateway", "ChromeExte
 
             AsanaGateway.createNewProject(options).then(function (response) {
                 item.id = response.id;
-                console.log("New project created: " + JSON.stringify(response));
                 callback();
             }).catch(function (response) {
                 console.log("New project failed: " + JSON.stringify(response));
@@ -354,12 +345,10 @@ asanaModule.controller("tasksController", ["$scope", "AsanaGateway", "ChromeExte
 
 
     tasksCtrl.onProjectSelected = function (item, model) {
-        console.log("filter on project");
         tasksCtrl.fetchTasks();
     };
 
     tasksCtrl.onTagSelected = function (item, model) {
-        console.log("filter on tags");
         tasksCtrl.fetchTasks();
     };
 
@@ -397,13 +386,12 @@ asanaModule.controller("tasksController", ["$scope", "AsanaGateway", "ChromeExte
 
     tasksCtrl.onProjectAdd = function (item, model) {
         tasksCtrl.createProject(item, model, function () {
-            console.log("Adding project");
             var options = {
                 task_id: tasksCtrl.selectedTaskId,
                 project_id: item.id
             };
             AsanaGateway.addProjectToTask(options).then(function () {
-                console.log("add project to task");
+
             }).catch(function () {
                 console.log("could not add project to task");
             });
@@ -411,13 +399,12 @@ asanaModule.controller("tasksController", ["$scope", "AsanaGateway", "ChromeExte
     };
 
     tasksCtrl.onProjectRemove = function (item, model) {
-        console.log("Removing project");
         var options = {
             task_id: tasksCtrl.selectedTaskId,
             project_id: item.id
         };
         AsanaGateway.removeProjectFromTask(options).then(function () {
-            console.log("project removed from task");
+
         }).catch(function () {
             console.log("project could not be removed from task");
         });
@@ -425,13 +412,11 @@ asanaModule.controller("tasksController", ["$scope", "AsanaGateway", "ChromeExte
 
     tasksCtrl.onTagAdd = function (item, model) {
         tasksCtrl.createNewTag(item, model, function () {
-            console.log("tag adding: ");
             var options = {
                 task_id: tasksCtrl.selectedTaskId,
                 tag_id: item.id
             };
             AsanaGateway.addTag(options).then(function () {
-                console.log("Tag added");
             }).catch(function () {
                 console.log("Tag add failed");
             });
@@ -439,42 +424,36 @@ asanaModule.controller("tasksController", ["$scope", "AsanaGateway", "ChromeExte
     };
 
     tasksCtrl.onTagRemove = function (item, model) {
-        console.log("tag removed");
         var options = {
             task_id: tasksCtrl.selectedTaskId,
             tag_id : item.id
         };
 
         AsanaGateway.removeTag(options).then(function () {
-            console.log("Tag removed");
         }).catch(function () {
             console.log("Tag could not be removed");
         });
     };
 
     tasksCtrl.onFollowerAdd = function (item, model) {
-        console.log("adding follower:");
         var options = {
             task_id: tasksCtrl.selectedTaskId,
             follower_id: item.id
         };
         AsanaGateway.addFollowerToTask(options).then(function () {
-            console.log("follower added");
         }).catch(function () {
-            console.log("follower added");
+            console.log("failed to add follower");
         });
     };
 
     tasksCtrl.onFollowerRemove = function (item, model) {
-        console.log("removing follower:");
         var options = {
             task_id: tasksCtrl.selectedTaskId,
             follower_id: item.id
         };
         AsanaGateway.removeFollowersFromTask(options).then(function () {
-            console.log("follower removed");
         }).catch(function () {
-            console.log("follower removed");
+            console.log("failed to remove follower");
         });
     };
 
@@ -485,9 +464,8 @@ asanaModule.controller("tasksController", ["$scope", "AsanaGateway", "ChromeExte
             completed: taskNextStatus
         };
         AsanaGateway.taskDone(option).then(function (response) {
-            console.log("marked task: " + taskNextStatus);
         }).catch(function () {
-            console.log("error");
+            console.log("Error marking task as done");
         });
     };
 
@@ -504,14 +482,11 @@ asanaModule.controller("tasksController", ["$scope", "AsanaGateway", "ChromeExte
     };
 
     tasksCtrl.showTask = function (taskId, index) {
-        console.log("Fetch details of task id: " + taskId);
         tasksCtrl.showTaskManager = false;
         tasksCtrl.selectedTaskId = taskId;
         tasksCtrl.selectedTaskIndex = index;
 
-        console.log("fetching task details: " + tasksCtrl.selectedTaskId);
         AsanaGateway.getTaskStories({task_id: tasksCtrl.selectedTaskId}).then(function (response) {
-            console.dir("Stories: " + response);
             tasksCtrl.activities = response.filter(function (activity) {
                 return activity.type === "system";
             });
@@ -555,7 +530,6 @@ asanaModule.controller("tasksController", ["$scope", "AsanaGateway", "ChromeExte
     };
 
     tasksCtrl.updateName = function () {
-        console.log("Updating task name: " + tasksCtrl.selectedTaskId);
         var options = {
             task_id: tasksCtrl.selectedTaskId,
             data: {
@@ -566,7 +540,6 @@ asanaModule.controller("tasksController", ["$scope", "AsanaGateway", "ChromeExte
     };
 
     tasksCtrl.updateNotes = function () {
-        console.log("Updating task name: " + tasksCtrl.selectedTaskId);
         var options = {
             task_id: tasksCtrl.selectedTaskId,
             data: {
@@ -577,7 +550,6 @@ asanaModule.controller("tasksController", ["$scope", "AsanaGateway", "ChromeExte
     };
 
     tasksCtrl.updateAssignee = function () {
-        console.log("Updating assignee: " + tasksCtrl.selectedTaskId);
         var options = {
             task_id: tasksCtrl.selectedTaskId
         };
@@ -594,8 +566,6 @@ asanaModule.controller("tasksController", ["$scope", "AsanaGateway", "ChromeExte
     };
 
     tasksCtrl.updateDeadline = function () {
-        //console.log("updating task due date" + tasksCtrl.selectedTaskId);
-        //console.log("type=" + tasksCtrl.taskDetails.deadlineType + " date=" + tasksCtrl.taskDetails.deadline);
         var options = {
             task_id: tasksCtrl.selectedTaskId
         };
@@ -619,13 +589,11 @@ asanaModule.controller("tasksController", ["$scope", "AsanaGateway", "ChromeExte
                 };
                 break;
         }
-        console.log("New deadline: " + options.data);
         tasksCtrl.updateTask(options);
     };
 
     tasksCtrl.updateTask = function (options) {
         return AsanaGateway.updateTask(options).then(function (response) {
-            console.log("updated task: " + JSON.stringify(response));
             return response;
         }).catch(function () {
             console.log("Error occurred updating task");
@@ -633,9 +601,7 @@ asanaModule.controller("tasksController", ["$scope", "AsanaGateway", "ChromeExte
     };
 
     tasksCtrl.addComment = function () {
-        console.log("Adding comment: " + tasksCtrl.commentText + " to task_id: " + tasksCtrl.selectedTaskId);
         AsanaGateway.addComment({task_id: tasksCtrl.selectedTaskId, commentText: tasksCtrl.commentText}).then(function (response) {
-            console.log("Added comment: " + JSON.stringify(response));
             tasksCtrl.comments.push({
                 id: response.id,
                 created_at: response.created_at,
