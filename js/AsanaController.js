@@ -231,9 +231,11 @@ asanaModule.controller("createTaskController", ['$scope', 'AsanaGateway', '$time
     createTaskCtrl.copyPage = function () {
         chrome.tabs.query({ currentWindow: true, active: true }, function (tabArray) {
             var tab = tabArray[0];
-            createTaskCtrl.taskName = tab.title;
-            createTaskCtrl.taskNotes = tab.url;
-            createTaskCtrl.taskNameRequired = false;
+            $timeout(function () {
+                createTaskCtrl.taskName = tab.title;
+                createTaskCtrl.taskNotes = tab.url;
+                createTaskCtrl.taskNameRequired = false;
+            });
         });
     };
 }]);
