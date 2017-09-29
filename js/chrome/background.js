@@ -36,10 +36,8 @@ asanaModule.run(['AsanaConstants', 'AsanaGateway', "ChromeExtensionService", "$t
     var workspaces;
     var workspacePromise;
     chrome.omnibox.onInputStarted.addListener(function (){
-        console.log("On input started");
         workspacePromise = AsanaGateway.getWorkspaces().then(function (response) {
             workspaces = response;
-            console.log("workspaces: " + JSON.stringify(workspaces));
         });
     });
 
@@ -54,9 +52,7 @@ asanaModule.run(['AsanaConstants', 'AsanaGateway', "ChromeExtensionService", "$t
                         search_text: text,
                         workspace_id: workspace.id
                     };
-                    console.log("Searching criteria: " + JSON.stringify(options));
                     var promise = AsanaGateway.search(options).then(function (response) {
-                        console.log("Search API response: " + type + " - " + JSON.stringify(response));
                         if (response && response.length) {
                             response.forEach(function (task) {
                                 var suggestion = {};
@@ -91,24 +87,18 @@ asanaModule.run(['AsanaConstants', 'AsanaGateway', "ChromeExtensionService", "$t
 
     var filterTextTimeout;
     chrome.omnibox.onInputChanged.addListener(function(text, suggest){
-        console.log("omnibox text: " + text);
-        console.log("scheduling search at: " + Date.now());
         var suggestions = [];
 
         if (filterTextTimeout)
             $timeout.cancel(filterTextTimeout);
 
         filterTextTimeout = $timeout(function() {
-            console.log("Searching at: " + Date.now());
             extracted(text, suggestions, suggest);
         }, 500);
     });
 
     chrome.omnibox.onInputEntered.addListener(function (url, disposition){
-        console.log("text: " + url);
-        console.log("disposition: " + JSON.stringify(disposition));
         ChromeExtensionService.getCurrentTab(function (tab) {
-            console.log("Opening in tab: " + JSON.stringify(tab));
             ChromeExtensionService.openLinkInTab(url, tab);
         });
     });
