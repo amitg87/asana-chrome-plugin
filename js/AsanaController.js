@@ -19,8 +19,8 @@ asanaModule.controller("userController", ["$scope", "AsanaGateway", "AsanaConsta
     };
 }]);
 
-asanaModule.controller("createTaskController", ['$scope', 'AsanaGateway', '$timeout', 'AsanaConstants', '$filter',
-    function ($scope, AsanaGateway, $timeout, AsanaConstants, $filter) {
+asanaModule.controller("createTaskController", ['$scope', 'AsanaGateway', '$timeout', 'AsanaConstants', '$filter', 'ChromeExtensionService',
+    function ($scope, AsanaGateway, $timeout, AsanaConstants, $filter, ChromeExtensionService) {
     var createTaskCtrl = this;
     createTaskCtrl.workspaceNotSelected = true;
     createTaskCtrl.projectRequired = false;
@@ -229,8 +229,7 @@ asanaModule.controller("createTaskController", ['$scope', 'AsanaGateway', '$time
     };
 
     createTaskCtrl.copyPage = function () {
-        chrome.tabs.query({ currentWindow: true, active: true }, function (tabArray) {
-            var tab = tabArray[0];
+        ChromeExtensionService.getCurrentTab(function (tab) {
             $timeout(function () {
                 createTaskCtrl.taskName = tab.title;
                 createTaskCtrl.taskNotes = tab.url;
