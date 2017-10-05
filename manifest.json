@@ -1,9 +1,9 @@
 {
   "manifest_version" : 2,
 
-  "name": "AsanaNG - Unofficial Asana Chrome Extension",
+  "name": "AsanaNG",
   "short_name": "AsanaNG",
-  "description": "Access Asana - quick and easy",
+  "description": "Unofficial Asana Chrome Extension",
   "version": "0.7",
 
   "icons": {

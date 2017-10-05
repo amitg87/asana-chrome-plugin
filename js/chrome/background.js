@@ -1,5 +1,5 @@
 asanaModule.run(['AsanaConstants', 'AsanaGateway', "ChromeExtensionService", "$timeout", "$q", function (AsanaConstants, AsanaGateway, ChromeExtensionService, $timeout, $q) {
-    chrome.browserAction.setBadgeText({text: "  NG"});
+    chrome.browserAction.setBadgeText({text: "NG"});
     chrome.browserAction.setBadgeBackgroundColor({color: "#FC636B"});
 
     chrome.cookies.get({
@@ -31,11 +31,11 @@ asanaModule.run(['AsanaConstants', 'AsanaGateway', "ChromeExtensionService", "$t
             description: "AsanaNG: Search your Asana task/section/project/user/tag"
         });
     }
-    resetDefaultSuggestion();
 
     var workspaces;
     var workspacePromise;
     chrome.omnibox.onInputStarted.addListener(function (){
+        resetDefaultSuggestion();
         workspacePromise = AsanaGateway.getWorkspaces().then(function (response) {
             workspaces = response;
         });
@@ -45,7 +45,9 @@ asanaModule.run(['AsanaConstants', 'AsanaGateway', "ChromeExtensionService", "$t
         var promises = [];
         workspacePromise.then(function () {
             workspaces.forEach(function (workspace) {
-                var categories = ["task", "project", "user", "tag"];
+                //@todo "user" - not supported due to Asana limitation
+                //https://community.asana.com/t/direct-link-to-users-tasks/9198/2
+                var categories = ["task", "project", "tag"];
                 categories.forEach(function (type) {
                     var options = {
                         type: type,
@@ -65,11 +67,10 @@ asanaModule.run(['AsanaConstants', 'AsanaGateway', "ChromeExtensionService", "$t
                                 if (task.projects && task.projects.length) {
                                     suggestion.content = AsanaConstants.getAsanaDomain() + "0/" + task.projects[0].id + "/" + task.id;
                                 } else {
-                                    //@todo - task without project - what should be the url?
+                                    //@todo task without project not supported - what should be the url?
                                     suggestion.content = AsanaConstants.getAsanaDomain() + "0/" + task.id + "/list";
                                 }
                                 suggestions.push(suggestion);
-                                console.log("Next suggestion: " + JSON.stringify(suggestion));
                             });
                         }
                     });
@@ -78,7 +79,6 @@ asanaModule.run(['AsanaConstants', 'AsanaGateway', "ChromeExtensionService", "$t
             });
         }).then(function () {
             $q.all(promises).then(function () {
-                console.log("All suggestions: " + JSON.stringify(suggestions));
                 resetDefaultSuggestion();
                 callback(suggestions);
             });

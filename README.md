@@ -13,8 +13,8 @@ MIT
 
 ## Motivation
 Asana's Official Chrome Extension hasn't seen any new features in years.
-But they have kept their plugin under MIT license and Asana offers rich set 
-of REST API. Onus is on us to develop something great out of it.
+
+Asana offers rich set of REST API. Onus is on us to develop something great out of it.
 
 
 ## Features
@@ -26,13 +26,15 @@ of REST API. Onus is on us to develop something great out of it.
     - apply tag(s) to task
     - set due date
 
-2. View Task (Todo)
+2. View Task
     - view my tasks
-    - view my tasks by due date
-    - view my tasks for today
     - view tasks in a workspace/project
     - view tasks assigned to another user
-    - mark tasks as done
+    - task manipulations - edit tasks title, description, followers, tags, comments, etc
+
+3. Search Task, Section, Project, Tag
+    - omnibox search with 'asana'
+    - search by text - clicking on the search result will open respective page in Asana.
     
 ## Usage
 ### Install as a User:
