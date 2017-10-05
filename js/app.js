@@ -17,6 +17,13 @@ asanaModule.config(function($routeProvider, $locationProvider) {
             controllerAs: "tasksCtrl",
             activeTab   : "manage"
         })
+        .when("/utilities", {
+            // utilities
+            templateUrl : "pages/utilities.html",
+            controller  : "utilitiesController",
+            controllerAs: "utilitiesCtrl",
+            activeTab   : "utilities"
+        })
         .when("/settings", {
             // settings
             templateUrl : "pages/settings.html",

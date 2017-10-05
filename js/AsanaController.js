@@ -623,6 +623,253 @@ asanaModule.controller("tasksController", ["$scope", "AsanaGateway", "ChromeExte
     };
 }]);
 
+asanaModule.controller("utilitiesController", ["$scope", "AsanaGateway", "$timeout", function($scope, AsanaGateway, $timeout) {
+    var utilitiesCtrl = this;
+
+    utilitiesCtrl.onPageLoad = function(){
+        chrome.tabs.query({ currentWindow: true, active: true }, function (tabArray) {
+            utilitiesCtrl.pageUrl = tabArray[0].url;
+
+            var asanaUrlMatch = /(https:\/\/app\.asana\.com\/0(?:\/inbox|\/search)?\/\d+\/)(\d+)(\/\d+)?/.exec(utilitiesCtrl.pageUrl);
+            utilitiesCtrl.containerUrl = asanaUrlMatch? asanaUrlMatch[1]: undefined;
+            utilitiesCtrl.taskId = asanaUrlMatch? asanaUrlMatch[2]: undefined;
+            utilitiesCtrl.taskStoryId = asanaUrlMatch? asanaUrlMatch[3]: undefined;
+
+            if (utilitiesCtrl.taskId) {
+                utilitiesCtrl.getWorkspaceParent();
+            }
+        });
+    };
+
+    utilitiesCtrl.onPageLoad();
+
+    utilitiesCtrl.getWorkspaceParent = function () {
+        AsanaGateway.getTaskWorkspaceParent({task_id: utilitiesCtrl.taskId})
+        .then(function (response) {
+            utilitiesCtrl.taskWorkspace = response.workspace;
+
+            if (response.parent) {
+                utilitiesCtrl.parentTask = response.parent;
+                utilitiesCtrl.getSiblings();
+            } else {
+                utilitiesCtrl.parentTask = undefined;
+                utilitiesCtrl.clearSubtasks();
+            }
+        });
+    };
+
+    utilitiesCtrl.getSiblings = function () {
+        AsanaGateway.getTaskSubtasks({task_id: utilitiesCtrl.parentTask.id})
+        .then(function(response){
+            if (response) {
+                utilitiesCtrl.subtasksArray = response;
+                utilitiesCtrl.shiftSubtasks();
+            }
+        });
+    };
+
+    utilitiesCtrl.shiftSubtasks = function () {
+        utilitiesCtrl.clearSubtasks();
+
+        var idx = -1, len = utilitiesCtrl.subtasksArray.length;
+        for (var i = 0; i < len; i ++) {
+            if (utilitiesCtrl.subtasksArray[i].id == utilitiesCtrl.taskId) {
+                idx = i;
+                break;
+            }
+        }
+        if (idx !== -1) {
+            utilitiesCtrl.currentSubtask = utilitiesCtrl.subtasksArray[idx];
+
+            for (var j = 1; idx - j >= 0; j ++) {
+                if (!utilitiesCtrl.subtasksArray[idx - j].name.endsWith(':')){
+                    utilitiesCtrl.previousSubtask = utilitiesCtrl.subtasksArray[idx - j];
+                    break;
+                }
+            }
+            for (var k = 1; idx + k <= len - 1; k ++) {
+                if (!utilitiesCtrl.subtasksArray[idx + k].name.endsWith(':')){
+                    utilitiesCtrl.nextSubtask = utilitiesCtrl.subtasksArray[idx + k];
+                    break;
+                }
+            }
+        }
+    };
+
+    utilitiesCtrl.clearSubtasks = function () {
+        utilitiesCtrl.currentSubtask = undefined;
+        utilitiesCtrl.previousSubtask = undefined;
+        utilitiesCtrl.nextSubtask = undefined;
+    };
+
+    utilitiesCtrl.executeFuncAfter100ms = function (func) {
+        $timeout(function () {
+            func();
+        }, 100);
+    };
+
+    utilitiesCtrl.openParentTask = function () {
+        // [array of string].join("") is slower but needed to exclude undefined when concatenating
+        chrome.tabs.update({url: [utilitiesCtrl.containerUrl, utilitiesCtrl.parentTask.id, utilitiesCtrl.taskStoryId].join("")}, function(){
+            utilitiesCtrl.taskId = utilitiesCtrl.parentTask.id;
+            utilitiesCtrl.executeFuncAfter100ms(utilitiesCtrl.onPageLoad);
+        });
+    };
+
+    utilitiesCtrl.openPreviousSubtask = function () {
+        chrome.tabs.update({url: [utilitiesCtrl.containerUrl, utilitiesCtrl.previousSubtask.id, utilitiesCtrl.taskStoryId].join("")}, function(){
+            utilitiesCtrl.taskId = utilitiesCtrl.previousSubtask.id;
+            utilitiesCtrl.executeFuncAfter100ms(utilitiesCtrl.shiftSubtasks);
+        });
+    };
+
+    utilitiesCtrl.openNextSubtask = function () {
+        chrome.tabs.update({url: [utilitiesCtrl.containerUrl, utilitiesCtrl.nextSubtask.id, utilitiesCtrl.taskStoryId].join("")}, function(){
+            utilitiesCtrl.taskId = utilitiesCtrl.nextSubtask.id;
+            utilitiesCtrl.executeFuncAfter100ms(utilitiesCtrl.shiftSubtasks);
+        });
+    };
+
+    utilitiesCtrl.openSelectedSubtask = function() {
+        chrome.tabs.update({url: [utilitiesCtrl.containerUrl, utilitiesCtrl.currentSubtask.id, utilitiesCtrl.taskStoryId].join("")}, function(){
+            utilitiesCtrl.taskId = utilitiesCtrl.currentSubtask.id;
+            utilitiesCtrl.executeFuncAfter100ms(utilitiesCtrl.shiftSubtasks);
+        });
+    };
+
+    utilitiesCtrl.setParent = function () {
+        var options = {
+            task_id: utilitiesCtrl.taskId,
+            parent_id: utilitiesCtrl.selectedParentTask.selected.id
+         };
+        AsanaGateway.setParent(options)
+        .then(function (response){
+            console.log("Added parent: " + JSON.stringify(response));
+            utilitiesCtrl.taskUpdateStatus = {
+                success: true,
+                message: "Task updated",
+                show: true,
+            };
+            utilitiesCtrl.hideUpdateStatusAfterFive();
+            utilitiesCtrl.parentTask = utilitiesCtrl.selectedParentTask.selected;
+            utilitiesCtrl.executeFuncAfter100ms(utilitiesCtrl.getSiblings);
+            utilitiesCtrl.selectedParentTask.selected = undefined;
+        }).catch(function (response) {
+            console.log('Error adding parent: ' + JSON.stringify(response));
+            utilitiesCtrl.taskUpdateStatus = {
+                success: false,
+                message: "Failed to set parent",
+                show: true,
+            };
+            utilitiesCtrl.hideUpdateStatusAfterFive();
+        });
+    };
+
+    utilitiesCtrl.updateTypeahead = function (string) {
+        var options = {
+            workspace_id: utilitiesCtrl.taskWorkspace.id,
+            query: string
+         };
+        AsanaGateway.tasksTypeahead(options)
+        .then(function (response){
+            utilitiesCtrl.tasksTypeaheadArray = response;
+        });
+    };
+
+    utilitiesCtrl.notEndsWithColon = function (task) {
+        return !task.name.endsWith(":");
+    };
+
+    utilitiesCtrl.notSameTask = function (task) {
+        return task.id != utilitiesCtrl.taskId;
+    };
+
+    utilitiesCtrl.replacePatterns = function () {
+        AsanaGateway.getTask({task_id: utilitiesCtrl.taskId})
+        .then(function (response) {
+            var updatedNote = response.notes;
+            for (var i = 0; i < utilitiesCtrl.patternsArray.length; i ++) {
+                //https://bugs.chromium.org/p/chromium/issues/detail?id=380964
+                var pattern = new RegExp(utilitiesCtrl.patternsArray[i][0], 'gm');
+                updatedNote = updatedNote.replace(pattern, utilitiesCtrl.patternsArray[i][1]);
+            }
+            AsanaGateway.updateTask({task_id: response.id, data: {notes: updatedNote}}
+            ).then(function (response) {
+                console.log("updated task note: " + JSON.stringify(response));
+                utilitiesCtrl.taskUpdateStatus = {
+                    success: true,
+                    message: "Task updated",
+                    show: true,
+                };
+                utilitiesCtrl.hideUpdateStatusAfterFive();
+            }).catch(function () {
+                console.log("Error updating task note:" + JSON.stringify(response));
+                utilitiesCtrl.taskUpdateStatus = {
+                    success: false,
+                    message: "Failed to update the task",
+                    show: true,
+                };
+                utilitiesCtrl.hideUpdateStatusAfterFive();
+            });
+        }).catch(function (response) {
+            console.log('Error fetching task details: ' + JSON.stringify(response));
+            utilitiesCtrl.taskUpdateStatus = {
+                success: false,
+                message: "Failed to get task data",
+                show: true,
+            };
+            utilitiesCtrl.hideUpdateStatusAfterFive();
+        });
+    };
+
+    utilitiesCtrl.hideUpdateStatusAfterFive = function () {
+        $timeout(function () {
+            utilitiesCtrl.taskUpdateStatus.show = false;
+        }, 5000);
+    };
+
+    utilitiesCtrl.defaultPatternArray = [
+        ['[<"]?([A-Za-z0-9\\-:;/._=+&%?!#@]+)[>"]?\\s[<\\[](mailto:|http://|https://)?\\1[/\\s]*[>\\]]', '$1'],
+        ['&b?[rl]?d?quot?;', '\"'],
+        ['&([rl]squo|apos);', "\'"],
+        ['&[mn]?dash;', "-"]
+    ];
+
+    utilitiesCtrl.saveReplacePatterns = function () {
+        // using chrome.storage instead of localStorage for easier handling of array
+        chrome.storage.local.set({'patternsArray': utilitiesCtrl.patternsArray});
+    };
+
+    utilitiesCtrl.setReplaceOnLoad = function () {
+        chrome.storage.local.get(null, function (value) {
+            utilitiesCtrl.patternsArray = value.patternsArray || utilitiesCtrl.defaultPatternArray;
+            utilitiesCtrl.saveReplacePatterns();
+        });
+    };
+
+    utilitiesCtrl.setReplaceOnLoad();
+
+    utilitiesCtrl.clearPatterns = function () {
+        utilitiesCtrl.patternsArray = [];
+        utilitiesCtrl.saveReplacePatterns();
+    };
+
+    utilitiesCtrl.resetToDefault = function () {
+        chrome.storage.local.remove("patternsArray");
+        utilitiesCtrl.setReplaceOnLoad();
+    };
+
+    utilitiesCtrl.addPattern = function(){
+        utilitiesCtrl.patternsArray.push(['', '']);
+        utilitiesCtrl.saveReplacePatterns();
+    };
+
+    utilitiesCtrl.delPattern = function(idx){
+        utilitiesCtrl.patternsArray.splice(idx, 1);
+        utilitiesCtrl.saveReplacePatterns();
+    };
+}]);
+
 asanaModule.controller("settingsController", ['$scope', 'AsanaConstants', function ($scope, AsanaConstants) {
     var settingsCtrl = this;
     settingsCtrl.hideArchivedProjects = AsanaConstants.getHideArchivedProjects();
@@ -638,5 +885,10 @@ asanaModule.controller("settingsController", ['$scope', 'AsanaConstants', functi
     settingsCtrl.projectOptional = AsanaConstants.getProjectOptional();
     settingsCtrl.changeProjectOptional = function () {
         AsanaConstants.setProjectOptional(settingsCtrl.projectOptional);
+    };
+
+    settingsCtrl.myTasksAlarmOn = AsanaConstants.getMyTasksAlarmOn();
+    settingsCtrl.changeMyTasksAlarmOn = function () {
+        AsanaConstants.setMyTasksAlarmOn(settingsCtrl.myTasksAlarmOn);
     };
 }]);

@@ -59,6 +59,16 @@ asanaModule.service("AsanaGateway", ["$http", "AsanaConstants", "$q", function (
         return deferred.promise;
     };
 
+    AsanaGateway.getWorkspaceMyTasks = function (options) {
+        if(typeof options === 'undefined' || typeof options.workspace_id === 'undefined')
+            failure({"error": "Missing Parameter", message: "Fix this"});
+        options.method = "GET";
+        options.path = "workspaces/" + options.workspace_id + "/tasks";
+        options.query = {assignee: "me", opt_fields: "name,due_on,due_at", completed_since: 'now'};
+
+        return AsanaGateway.api(options);
+    };
+
     AsanaGateway.getWorkspaceTags = function (options) {
         options = options || {};
         options.method = "GET";
@@ -129,7 +139,31 @@ asanaModule.service("AsanaGateway", ["$http", "AsanaConstants", "$q", function (
         options.query = {
             opt_fields: "type,text,created_at,created_by.name,created_by.email,created_by.photo.image_36x36"
         };
+        return AsanaGateway.api(options);
+    };
 
+    AsanaGateway.getTaskSubtasks = function (options) {
+        options = options || {};
+        options.method = "GET";
+        options.path = "tasks/" + options.task_id + "/subtasks";
+        return AsanaGateway.api(options);
+    };
+
+    AsanaGateway.getTaskWorkspaceParent = function (options) {
+        options = options || {};
+        options.method = "GET";
+        options.path = "tasks/" + options.task_id;
+        options.query = {opt_fields: "workspace, parent"};
+        return AsanaGateway.api(options);
+    };
+
+    AsanaGateway.setParent = function (options) {
+        options = options || {};
+        options.method = "POST";
+        options.path = "tasks/" + options.task_id + "/setParent";
+        options.data = {
+            parent: options.parent_id
+        };
         return AsanaGateway.api(options);
     };
 
@@ -210,6 +244,17 @@ asanaModule.service("AsanaGateway", ["$http", "AsanaConstants", "$q", function (
         return AsanaGateway.api(options);
     };
 
+    AsanaGateway.tasksTypeahead = function (options) {
+        options = options || {};
+        options.method = "GET";
+        options.path = "workspaces/" + options.workspace_id + "/typeahead";
+        options.query = {
+            type: 'task',
+            query: options.query
+        };
+        return AsanaGateway.api(options);
+    };
+
     //called by others
     AsanaGateway.api = function (options) {
         options.headers = {
@@ -271,5 +316,77 @@ asanaModule.service("ChromeExtensionService", [function () {
         chrome.tabs.create({url: url}, function () {
             window.close();
         });
+    };
+}]);
+
+asanaModule.service("AsanaAlarm", ["AsanaGateway", function (AsanaGateway) {
+
+    var AsanaAlarm = this;
+
+    AsanaAlarm.listenedTasks = [];
+    AsanaAlarm.reportedMin = -1;
+
+    AsanaAlarm.createNotification = function (message, taskId, title) {
+        // only message is the required argument
+        var messageString = message.toString() || 'null';
+        var notifcationIdString = (typeof(taskId) === 'number')? taskId.toString(): messageString;
+        var titleString = title? title.toString(): 'AsanaNG';
+        // Support Mac native notification from Chrome 59, the banner shows up every time
+        chrome.notifications.clear(notifcationIdString);
+        chrome.notifications.create(
+            notifcationIdString, {type: "basic", iconUrl: "img/icon128.png", title: titleString, message: messageString}
+        );
+        if ((typeof taskId === 'number') && (AsanaAlarm.listenedTasks.indexOf(taskId) === -1)) {
+            AsanaAlarm.listenedTasks.push(taskId);
+            chrome.notifications.onClicked.addListener(function (notifcationIdString){
+                chrome.tabs.create({url: "https://app.asana.com/0/0/" + notifcationIdString});
+                chrome.notifications.clear(notifcationIdString);
+            });
+        }
+    };
+
+    AsanaAlarm.playSound = function () {
+        var notificationSound = new Audio();
+        // sound taken from http://gallery.mobile9.com/f/4709233/
+        notificationSound.src = chrome.extension.getURL("sound/Cool Notification0.mp3");
+        notificationSound.play();
+    };
+
+    AsanaAlarm.compareDateTime = function (response) {
+        var dateNow = new Date();
+        for (var i = 0; i < response.length; i ++) {
+            if (response[i].due_at) {
+                var dateDueAt = new Date(response[i].due_at);
+                var minuteRemaining = Math.round((dateDueAt - dateNow)/60000);
+                if (0 < minuteRemaining && minuteRemaining < 24 * 60) {
+                    if ([1, 5, 15, 30, 60].indexOf(minuteRemaining) !== -1) {
+                        AsanaAlarm.createNotification(response[i].name, response[i].id, minuteRemaining.toString() + " min until");
+                        AsanaAlarm.playSound();
+                    }
+                }
+            }
+        }
+    };
+
+    AsanaAlarm.failureFunc = function (response) {
+        // Sometimes the ticket cookie expires and an error is displayed
+        // I have to come up with a workaround
+        AsanaAlarm.createNotification("AlarmNG Error: " + JSON.stringify(response), 0);
+    };
+
+    AsanaAlarm.checkTasksAndNotify = function (workspaces) {
+        var dateNow = new Date();
+        var reportingMin = dateNow.getUTCMinutes();
+        if (reportingMin === AsanaAlarm.reportedMin) {
+            return;
+        }
+        else {
+            AsanaAlarm.reportedMin = reportingMin;
+            for (var i = 0; i < workspaces.length; i ++) {
+                AsanaGateway.getWorkspaceMyTasks({workspace_id: workspaces[i].id})
+                .then(AsanaAlarm.compareDateTime)
+                .catch(AsanaAlarm.failureFunc);
+            }
+        }
     };
 }]);

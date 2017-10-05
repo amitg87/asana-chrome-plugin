@@ -35,6 +35,47 @@ body{
     color: #f00;
 }
 
+select.subtasks>option{
+    color: #333;
+}
+
+table.separate{
+    border-collapse: separate;
+    border-spacing: 1px;
+    font-size: 10px;
+}
+
+tr.form-tr>td{
+    padding: 2px;
+}
+
+tr.form-tr>td.with-border{
+    border-radius: 2px;
+    border: 1px solid #efefef;
+}
+
+input.no-border{
+    border: none;
+}
+
+input.width-220{
+    width: 220px;
+}
+
+tr.form-tr>td>textarea {
+    white-space: pre-wrap;
+    resize: none;
+    height: 15px;
+}
+
+textarea.no-border{
+    border: none;
+}
+
+textarea.width-100{
+    width: 100px;
+}
+
 /* profile image */
 img.profile-img{
     height: auto;
