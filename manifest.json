@@ -1,10 +1,10 @@
 {
   "manifest_version" : 2,
 
-  "name": "AsanaNG - Unofficial Asana Chrome Extension",
+  "name": "AsanaNG",
   "short_name": "AsanaNG",
-  "description": "Access Asana - quick and easy",
-  "version": "0.6.3",
+  "description": "Unofficial Asana Chrome Extension",
+  "version": "0.7",
 
   "icons": {
     "16": "img/icon16.png",
@@ -25,6 +25,11 @@
     },
     "default_title": "AsanaNG",
     "default_popup": "popup.html"
+  },
+
+  "omnibox": { "keyword" : "asana"},
+  "icons": {
+    "16": "img/icon16.png"
   },
 
   "permissions": ["cookies", "tabs", "*://*.asana.com/"],

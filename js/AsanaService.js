@@ -210,6 +210,18 @@ asanaModule.service("AsanaGateway", ["$http", "AsanaConstants", "$q", function (
         return AsanaGateway.api(options);
     };
 
+    AsanaGateway.search = function (options) {
+        options = options || {};
+        options.method = "GET";
+        options.query = {
+            type: options.type,
+            query: options.search_text,
+            opt_fields: "projects,name,id"
+        };
+        options.path = "workspaces/" + options.workspace_id + "/typeahead";
+        return AsanaGateway.api(options);
+    };
+
     //called by others
     AsanaGateway.api = function (options) {
         options.headers = {
@@ -270,6 +282,16 @@ asanaModule.service("ChromeExtensionService", [function () {
     ChromeExtension.openLink = function (url) {
         chrome.tabs.create({url: url}, function () {
             window.close();
+        });
+    };
+
+    ChromeExtension.openLinkInTab = function (url, tab) {
+        chrome.tabs.update(tab.id, {url: url});
+    };
+
+    ChromeExtension.getCurrentTab = function (callback) {
+        chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+            callback(tabs[0]);
         });
     };
 }]);
