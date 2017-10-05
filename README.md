@@ -1,6 +1,6 @@
-# The Unofficial Asana Chrome Plugin
+# Unofficial Asana Chrome Extension
 
-This is a free, open-source Chrome extension to allow quick and easy access 
+This is a free, open-source, unofficial Chrome extension to allow quick and easy access 
 to Asana. This extension uses Asana API to communicate with Asana.
 
 This extension is based on Asana's - Official Chrome Extension available here:
