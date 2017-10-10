@@ -238,8 +238,8 @@ asanaModule.controller("createTaskController", ['$scope', 'AsanaGateway', '$time
     };
 }]);
 
-asanaModule.controller("tasksController", ["$scope", "AsanaGateway", "ChromeExtensionService", "$filter", "AsanaConstants",
-    function ($scope, AsanaGateway, ChromeExtension, $filter, AsanaConstants) {
+asanaModule.controller("tasksController", ["$scope", "AsanaGateway", "ChromeExtensionService", "$filter", "AsanaConstants", "$q",
+    function ($scope, AsanaGateway, ChromeExtension, $filter, AsanaConstants, $q) {
     var tasksCtrl = this;
     tasksCtrl.selectedView = "My Tasks";
     tasksCtrl.filterTask = 'filterMyTasks';
@@ -268,16 +268,19 @@ asanaModule.controller("tasksController", ["$scope", "AsanaGateway", "ChromeExte
         tasksCtrl.selectedWorkspaceId = tasksCtrl.selectedWorkspace.selected.id;
         tasksCtrl.workspaceNotSelected = false;
 
-        AsanaGateway.getWorkspaceTags({workspace_id: tasksCtrl.selectedWorkspaceId}).then(function (response) {
+        var promise1 = AsanaGateway.getWorkspaceTags({workspace_id: tasksCtrl.selectedWorkspaceId}).then(function (response) {
             tasksCtrl.tags = response;
         });
 
-        AsanaGateway.getWorkspaceProjects({workspace_id: tasksCtrl.selectedWorkspaceId}).then(function (response) {
+        var promise2 = AsanaGateway.getWorkspaceProjects({workspace_id: tasksCtrl.selectedWorkspaceId}).then(function (response) {
             tasksCtrl.projects = response;
         });
 
-        AsanaGateway.getWorkspaceUsers({workspace_id: tasksCtrl.selectedWorkspaceId}).then(function (response) {
+        var promise3 = AsanaGateway.getWorkspaceUsers({workspace_id: tasksCtrl.selectedWorkspaceId}).then(function (response) {
             tasksCtrl.users = response;
+        });
+
+        $q.all([promise1, promise2, promise3]).then(function () {
             tasksCtrl.fetchTasks();
         });
     };
@@ -369,15 +372,6 @@ asanaModule.controller("tasksController", ["$scope", "AsanaGateway", "ChromeExte
                 break;
         }
         AsanaGateway.getTasks(options).then(function (response) {
-            response.forEach(function (element, index) {
-                tasksCtrl.users.forEach(function (element1, index1) {
-                    if(element.assignee !== null && element.assignee.id == element1.id){
-                        element.assignee.name = element1.name;
-                        element.assignee.photo = element1.photo;
-                    }
-                });
-            });
-
             tasksCtrl.tasks = response; //response[0].assignee.id -> tasksCtrl.users
         }).catch(function () {
             console.log("Error getting tasks");
@@ -498,11 +492,6 @@ asanaModule.controller("tasksController", ["$scope", "AsanaGateway", "ChromeExte
         });
 
         AsanaGateway.getTask({task_id: tasksCtrl.selectedTaskId}).then(function (response) {
-            tasksCtrl.users.forEach(function (element1, index1) {
-                if(response.assignee !== null && response.assignee.id == element1.id){
-                    response.assignee.photo = element1.photo;
-                }
-            });
             tasksCtrl.tasks[tasksCtrl.selectedTaskIndex] = response;
             tasksCtrl.taskDetails = tasksCtrl.tasks[tasksCtrl.selectedTaskIndex];
             tasksCtrl.taskDetails.due = {

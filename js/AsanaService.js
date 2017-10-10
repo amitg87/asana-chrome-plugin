@@ -1,4 +1,5 @@
-asanaModule.service("AsanaGateway", ["$http", "AsanaConstants", "$q", function ($http, AsanaConstants, $q) {
+asanaModule.service("AsanaGateway", ["$http", "AsanaConstants", "$q", "$filter",
+    function ($http, AsanaConstants, $q, $filter) {
 
     var AsanaGateway = this;
     
@@ -15,9 +16,8 @@ asanaModule.service("AsanaGateway", ["$http", "AsanaConstants", "$q", function (
         options.path = "workspaces/" + options.workspace_id + "/users";
         options.query = {opt_fields: "name,email,photo"};
 
-        var deferred = $q.defer();
-        AsanaGateway.api(options).then(function (response) {
-            response.forEach(function (user, index) {
+        return AsanaGateway.api(options).then(function (response) {
+            response.forEach(function (user) {
                 if(user.photo == null){
                     user.photo = {
                         "image_21x21": "../img/nopicture.png",
@@ -29,11 +29,8 @@ asanaModule.service("AsanaGateway", ["$http", "AsanaConstants", "$q", function (
                     };
                 }
             });
-            deferred.resolve(response);
-        }).catch(function (response) {
-            deferred.reject(response);
+            return response;
         });
-        return deferred.promise;
     };
 
     AsanaGateway.getWorkspaceProjects = function (options) {
@@ -42,21 +39,16 @@ asanaModule.service("AsanaGateway", ["$http", "AsanaConstants", "$q", function (
         options.path = "workspaces/" + options.workspace_id + "/projects";
         options.query = {opt_fields: "name,archived,notes,public"};
 
-        var deferred = $q.defer();
-        AsanaGateway.api(options).then(function (response) {
+        return AsanaGateway.api(options).then(function (response) {
             //filter - archived projects
             var hideArchivedProjects = AsanaConstants.getHideArchivedProjects();
             if(hideArchivedProjects){
-                deferred.resolve(response.filter(function (project) {
+                return response.filter(function (project) {
                     return !project.archived;
-                }));
-            } else {
-                deferred.resolve(response);
+                });
             }
-        }).catch(function (response) {
-            deferred.reject(response);
+            return response;
         });
-        return deferred.promise;
     };
 
     AsanaGateway.getWorkspaceTags = function (options) {
@@ -102,15 +94,35 @@ asanaModule.service("AsanaGateway", ["$http", "AsanaConstants", "$q", function (
         options = options || {};
         options.method = "GET";
         options.path = "tasks";
-        options.query.opt_fields = "name,completed,assignee";
+        options.query.opt_fields = "name,completed,assignee.name,assignee.photo,due_on,due_at";
         options.query.completed_since = "now";
-        return AsanaGateway.api(options);
+        var now = new Date().getTime(); // current time since epoch seconds
+        return AsanaGateway.api(options).then(function (response) {
+            response.forEach(function (element) {
+                if(element.due_at !== null){
+                    element.due = Date.parse(element.due_at);
+                    element.schedule = $filter('date')(new Date(element.due), 'MMM d hh:mm a');
+                    element.status = element.due < now? 'overdue':'upcoming';
+                } else if(element.due_on != null) {
+                    element.due = Date.parse(element.due_on);
+                    element.schedule = $filter('date')(new Date(element.due), 'MMM d');
+                    element.status = element.due < now? 'overdue':'upcoming';
+                } else {
+                    element.due = Number.MAX_VALUE;
+                    element.schedule = "";
+                }
+            });
+            return response;
+        });
     };
 
     AsanaGateway.getTask = function (options) {
         options = options || {};
         options.method = "GET";
         options.path = "tasks/" + options.task_id;
+        options.query = {
+            opt_fields: "assignee.name,assignee.photo,assignee_status,completed,completed_at,created_at,due_at,due_on,followers.name,hearted,hearts,memberships,modified_at,name,notes,num_hearts,projects.name,tags.name,workspace.name"
+        };
         return AsanaGateway.api(options);
     };
 
