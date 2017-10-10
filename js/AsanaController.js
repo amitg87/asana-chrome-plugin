@@ -258,7 +258,9 @@ asanaModule.controller("tasksController", ["$scope", "AsanaGateway", "ChromeExte
         if(angular.isDefined(response) && response.length > 0){
             tasksCtrl.selectedWorkspace = response[0];
             tasksCtrl.selectedWorkspace.selected = response[0];
-            tasksCtrl.onWorkspaceSelect(response[0], response[0]);
+            tasksCtrl.onWorkspaceSelect(response[0], response[0]).then(function () {
+                tasksCtrl.fetchTasks();
+            });
         }
     }).catch(function (response) {
         console.log("AsanaNG Error: "+JSON.stringify(response));
@@ -267,6 +269,10 @@ asanaModule.controller("tasksController", ["$scope", "AsanaGateway", "ChromeExte
     tasksCtrl.onWorkspaceSelect = function (item, model) {
         tasksCtrl.selectedWorkspaceId = tasksCtrl.selectedWorkspace.selected.id;
         tasksCtrl.workspaceNotSelected = false;
+
+        tasksCtrl.filterProject.selected = undefined;
+        tasksCtrl.filterTag.selected = undefined;
+        tasksCtrl.tasks = [];
 
         var promise1 = AsanaGateway.getWorkspaceTags({workspace_id: tasksCtrl.selectedWorkspaceId}).then(function (response) {
             tasksCtrl.tags = response;
@@ -280,9 +286,7 @@ asanaModule.controller("tasksController", ["$scope", "AsanaGateway", "ChromeExte
             tasksCtrl.users = response;
         });
 
-        $q.all([promise1, promise2, promise3]).then(function () {
-            tasksCtrl.fetchTasks();
-        });
+        return $q.all([promise1, promise2, promise3]);
     };
 
     tasksCtrl.tagHandler = function (input){
