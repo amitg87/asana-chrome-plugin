@@ -128,6 +128,14 @@ span.archived-project{
     color: #d2635b;
 }
 
+.overdue{
+    color: #ed4758;
+}
+
+.upcoming{
+    color: #95e0ff;
+}
+
 .overflow-ellipsis{
     overflow: hidden;
     text-overflow: ellipsis;
@@ -320,7 +328,7 @@ span:focus{
 
 .asana-ng-container .task-list .task-name {
     padding-left: 0;
-    max-width: calc(100% - 75px);
+    max-width: calc(100% - 76px);
     vertical-align: bottom;
 }
 
