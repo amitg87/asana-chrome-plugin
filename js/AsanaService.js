@@ -277,8 +277,8 @@ asanaModule.service("AsanaGateway", ["$http", "AsanaConstants", "$q", "$filter",
             data: {data: options.data, options: asanaOptions}
         }).success(function (response) {
             deferred.resolve(response.data);
-        }).error(function (response, status) {
-            if (response && response.hasOwnProperty(errors)) {
+        }).error(function (response) {
+            if (response && response.hasOwnProperty("errors")) {
                 deferred.reject(response.errors);
             } else {
                 deferred.reject(response);

@@ -35,13 +35,18 @@
             <img class="img-circle profile-img profile-img-md" data-ng-src="{{userCtrl.user.photo.image_36x36}}"
                  src="img/nopicture.png">
         </div>
-        <div class="col col-xs-10 padding-left-zero padding-right-zero">
+        <div class="col col-xs-8 padding-left-zero padding-right-zero overflow-ellipsis">
             <div class="col col-xs-12 padding-left-zero line-height-one">
                 <span class="text-primary font-size-12" data-ng-bind="userCtrl.user.name"></span>
             </div>
             <div class="col col-xs-12 padding-left-zero line-height-one">
                 <span class="text-gray font-size-10" data-ng-bind="userCtrl.user.email"></span>
             </div>
+        </div>
+        <div class="col col-xs-2 padding-left-zero text-center">
+            <a href="https://github.com/amitg87/asana-chrome-plugin/wiki/AsanaNG-Wiki" target="_blank" title="Help">
+                <i class="fa fa-question-circle font-size-30"></i>
+            </a>
         </div>
     </div>
     <ul class="nav nav-pills">

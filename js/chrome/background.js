@@ -32,9 +32,19 @@ asanaModule.run(['AsanaConstants', 'AsanaGateway', "ChromeExtensionService", "$t
         });
     }
 
+    function showLoginMessage() {
+        chrome.omnibox.setDefaultSuggestion({
+            description: "Asana: You are not logged in"
+        });
+    }
+
     var workspaces;
     var workspacePromise;
     chrome.omnibox.onInputStarted.addListener(function (){
+        if(!AsanaConstants.isLoggedIn()){
+            showLoginMessage();
+            return;
+        }
         resetDefaultSuggestion();
         workspacePromise = AsanaGateway.getWorkspaces().then(function (response) {
             workspaces = response;
@@ -87,6 +97,10 @@ asanaModule.run(['AsanaConstants', 'AsanaGateway', "ChromeExtensionService", "$t
 
     var filterTextTimeout;
     chrome.omnibox.onInputChanged.addListener(function(text, suggest){
+        if(!AsanaConstants.isLoggedIn()){
+            showLoginMessage();
+            return;
+        }
         var suggestions = [];
 
         if (filterTextTimeout)
@@ -97,7 +111,7 @@ asanaModule.run(['AsanaConstants', 'AsanaGateway', "ChromeExtensionService", "$t
         }, 500);
     });
 
-    chrome.omnibox.onInputEntered.addListener(function (url, disposition){
+    chrome.omnibox.onInputEntered.addListener(function (url){
         ChromeExtensionService.getCurrentTab(function (tab) {
             ChromeExtensionService.openLinkInTab(url, tab);
         });

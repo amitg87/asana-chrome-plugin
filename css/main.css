@@ -58,6 +58,10 @@ img.profile-img-sm {
     font-size: 10px;
 }
 
+.font-size-30{
+    font-size: 30px;
+}
+
 /* padding control */
 .padding-right-xs{
     padding-right: 5px !important;
