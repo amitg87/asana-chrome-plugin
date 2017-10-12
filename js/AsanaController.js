@@ -258,9 +258,7 @@ asanaModule.controller("tasksController", ["$scope", "AsanaGateway", "ChromeExte
         if(angular.isDefined(response) && response.length > 0){
             tasksCtrl.selectedWorkspace = response[0];
             tasksCtrl.selectedWorkspace.selected = response[0];
-            tasksCtrl.onWorkspaceSelect(response[0], response[0]).then(function () {
-                tasksCtrl.fetchTasks();
-            });
+            tasksCtrl.onWorkspaceSelect(response[0], response[0]);
         }
     }).catch(function (response) {
         console.log("AsanaNG Error: "+JSON.stringify(response));
@@ -286,7 +284,11 @@ asanaModule.controller("tasksController", ["$scope", "AsanaGateway", "ChromeExte
             tasksCtrl.users = response;
         });
 
-        return $q.all([promise1, promise2, promise3]);
+        $q.all([promise1, promise2, promise3]).then(function () {
+            if(tasksCtrl.filterTask == 'filterMyTasks'){
+                tasksCtrl.fetchTasks();
+            }
+        });
     };
 
     tasksCtrl.tagHandler = function (input){
@@ -347,6 +349,7 @@ asanaModule.controller("tasksController", ["$scope", "AsanaGateway", "ChromeExte
             tasksCtrl.tasks = [];
             tasksCtrl.selectedView = choice;
             tasksCtrl.filterTask = filter;
+            tasksCtrl.fetchTasks();
         }
     };
 
@@ -363,15 +366,24 @@ asanaModule.controller("tasksController", ["$scope", "AsanaGateway", "ChromeExte
         //fetch tasks here
         tasksCtrl.tasks = [];
         var options = { query: {} };
+        if(!tasksCtrl.selectedWorkspace.selected) {
+            return;
+        }
         switch (tasksCtrl.filterTask){
             case "filterMyTasks":
                 options.query.workspace = tasksCtrl.selectedWorkspace.selected.id;
                 options.query.assignee = "me";
                 break;
             case "filterProjectTasks":
+                if(!tasksCtrl.filterProject.selected) {
+                    return;
+                }
                 options.query.project = tasksCtrl.filterProject.selected.id;
                 break;
             case "filterTagsTasks":
+                if(!tasksCtrl.filterTag.selected){
+                    return;
+                }
                 options.query.tag = tasksCtrl.filterTag.selected.id;
                 break;
         }
