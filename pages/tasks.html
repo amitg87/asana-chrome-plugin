@@ -162,7 +162,8 @@
                    data-ng-disabled="tasksCtrl.workspaceNotSelected" on-select="tasksCtrl.onFollowerAdd($item, $model)"
                    on-remove="tasksCtrl.onFollowerRemove($item, $model)">
             <ui-select-match placeholder="Select Follower(s)" style="padding-left: 5px;">
-                <span data-ng-bind="$item.name | nameInitials" title="{{$item.name}}"></span>
+                <img class="img-circle profile-img profile-img-xs" data-ng-src="{{$item.photo.image_36x36}}" data-ng-attr-title="{{$item.name}}">
+                <span data-ng-bind="$item.name | nameInitials" data-ng-attr-title="{{$item.name}}"></span>
             </ui-select-match>
             <ui-select-choices repeat="follower in tasksCtrl.users | orderBy:'name' | propertyFilter: {name: $select.search, email: $select.search}">
                 <div class="overflow-ellipsis">

@@ -56,6 +56,34 @@ asanaModule.value("AsanaConstants", (function () {
         },
         setProjectOptional: function (value) {
             localStorage[this.PROJECT_OPTIONAL] = value;
+        },
+
+        setDefaultPictureUser: function (user) {
+            if(user.photo == null){
+                user.photo = {
+                    "image_21x21": "../img/nopicture.png",
+                    "image_27x27": "../img/nopicture.png",
+                    "image_36x36": "../img/nopicture.png",
+                    "image_60x60": "../img/nopicture.png",
+                    "image_128x128": "../img/nopicture.png",
+                    "image_1024x1024": "../img/nopicture.png"
+                };
+            }
+        },
+
+        setDefaultPicture: function (users) {
+            users.forEach(function (user) {
+                if(user.photo == null){
+                    user.photo = {
+                        "image_21x21": "../img/nopicture.png",
+                        "image_27x27": "../img/nopicture.png",
+                        "image_36x36": "../img/nopicture.png",
+                        "image_60x60": "../img/nopicture.png",
+                        "image_128x128": "../img/nopicture.png",
+                        "image_1024x1024": "../img/nopicture.png"
+                    };
+                }
+            });
         }
     };
 })());

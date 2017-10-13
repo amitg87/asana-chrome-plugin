@@ -17,18 +17,7 @@ asanaModule.service("AsanaGateway", ["$http", "AsanaConstants", "$q", "$filter",
         options.query = {opt_fields: "name,email,photo"};
 
         return AsanaGateway.api(options).then(function (response) {
-            response.forEach(function (user) {
-                if(user.photo == null){
-                    user.photo = {
-                        "image_21x21": "../img/nopicture.png",
-                        "image_27x27": "../img/nopicture.png",
-                        "image_36x36": "../img/nopicture.png",
-                        "image_60x60": "../img/nopicture.png",
-                        "image_128x128": "../img/nopicture.png",
-                        "image_1024x1024": "../img/nopicture.png"
-                    };
-                }
-            });
+            AsanaConstants.setDefaultPicture(response);
             return response;
         });
     };
@@ -99,6 +88,9 @@ asanaModule.service("AsanaGateway", ["$http", "AsanaConstants", "$q", "$filter",
         var now = new Date().getTime(); // current time since epoch seconds
         return AsanaGateway.api(options).then(function (response) {
             response.forEach(function (element) {
+                if(element.assignee != null){
+                    AsanaConstants.setDefaultPictureUser(element.assignee);
+                }
                 if(element.due_at !== null){
                     element.due = Date.parse(element.due_at);
                     element.schedule = $filter('date')(new Date(element.due), 'MMM d hh:mm a');
@@ -123,7 +115,11 @@ asanaModule.service("AsanaGateway", ["$http", "AsanaConstants", "$q", "$filter",
         options.query = {
             opt_fields: "assignee.name,assignee.photo,assignee_status,completed,completed_at,created_at,due_at,due_on,followers.name,hearted,hearts,memberships,modified_at,name,notes,num_hearts,projects.name,tags.name,workspace.name"
         };
-        return AsanaGateway.api(options);
+        return AsanaGateway.api(options).then(function (task) {
+            AsanaConstants.setDefaultPictureUser(task.assignee);
+            AsanaConstants.setDefaultPicture(task.followers);
+            return task;
+        });
     };
 
     AsanaGateway.taskDone = function (options) {
@@ -142,7 +138,12 @@ asanaModule.service("AsanaGateway", ["$http", "AsanaConstants", "$q", "$filter",
             opt_fields: "type,text,created_at,created_by.name,created_by.email,created_by.photo.image_36x36"
         };
 
-        return AsanaGateway.api(options);
+        return AsanaGateway.api(options).then(function (stories) {
+            stories.forEach(function (story) {
+                AsanaConstants.setDefaultPictureUser(story.created_by);
+            });
+            return stories;
+        });
     };
 
     AsanaGateway.addComment = function (options) {

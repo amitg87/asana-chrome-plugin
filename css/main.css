@@ -49,6 +49,11 @@ img.profile-img-sm {
     max-height: 24px;
 }
 
+img.profile-img-xs {
+    max-height: 14px;
+    max-width: 14px;
+}
+
 /* fonts */
 .font-size-12{
     font-size: 12px;
