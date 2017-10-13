@@ -56,7 +56,7 @@
             <ui-select-match placeholder="Select Tag(s)" style="padding-left: 5px;">
                 <i class="fa fa-tag"></i> {{$item.name}}
             </ui-select-match>
-            <ui-select-choices repeat="tag in createTaskCtrl.tags | orderBy:'name' | filter: {name: $select.search} track by tag.id" position="down">
+            <ui-select-choices repeat="tag in createTaskCtrl.tags | orderBy:'name' | filter: {name: $select.search}" position="down">
                 <div class="overflow-ellipsis" title="{{tag.notes}}">
                     <i class="fa fa-tag"></i>
                     <span data-ng-bind="tag.name"></span>

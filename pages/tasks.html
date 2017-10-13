@@ -46,7 +46,7 @@
             <ui-select-match placeholder="Select tag">
                 <span data-ng-bind="$select.selected.name"></span>
             </ui-select-match>
-            <ui-select-choices repeat="tag in tasksCtrl.tags | orderBy:'name' | filter: {name: $select.search} track by tag.id" position="down">
+            <ui-select-choices repeat="tag in tasksCtrl.tags | orderBy:'name' | filter: {name: $select.search}" position="down">
                 <div class="overflow-ellipsis" title="{{tag.notes}}">
                     <i class="fa fa-tag"></i>
                     <span data-ng-bind="tag.name"></span>
@@ -147,7 +147,7 @@
             <ui-select-match placeholder="Select tag(s)" style="padding-left: 5px;">
                 {{$item.name}}
             </ui-select-match>
-            <ui-select-choices repeat="tag in tasksCtrl.tags | orderBy:'name' | filter: {name: $select.search} track by tag.id" position="down">
+            <ui-select-choices repeat="tag in tasksCtrl.tags | orderBy:'name' | filter: {name: $select.search}" position="down">
                 <div class="overflow-ellipsis" title="{{tag.notes}}">
                     <i class="fa fa-tag"></i>
                     <span data-ng-bind="tag.name"></span>
@@ -164,7 +164,7 @@
             <ui-select-match placeholder="Select Follower(s)" style="padding-left: 5px;">
                 <span data-ng-bind="$item.name | nameInitials" title="{{$item.name}}"></span>
             </ui-select-match>
-            <ui-select-choices repeat="follower in tasksCtrl.users | orderBy:'name' | propertyFilter: {name: $select.search, email: $select.search} track by follower.id">
+            <ui-select-choices repeat="follower in tasksCtrl.users | orderBy:'name' | propertyFilter: {name: $select.search, email: $select.search}">
                 <div class="overflow-ellipsis">
                     <img class="img-circle profile-img profile-img-sm"
                          data-ng-src="{{follower.photo.image_36x36}}"
