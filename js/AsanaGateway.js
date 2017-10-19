@@ -1,5 +1,6 @@
-asanaModule.service("AsanaGateway", ["$http", "AsanaConstants", "$q", "$filter",
-    function ($http, AsanaConstants, $q, $filter) {
+angular.module("AsanaGateway", [])
+    .service("AsanaGateway", ["$http", "AsanaConstants", "$q", "$filter", "ChromeExtension",
+    function ($http, AsanaConstants, $q, $filter, ChromeExtension) {
 
     var AsanaGateway = this;
     
@@ -17,7 +18,7 @@ asanaModule.service("AsanaGateway", ["$http", "AsanaConstants", "$q", "$filter",
         options.query = {opt_fields: "name,email,photo"};
 
         return AsanaGateway.api(options).then(function (response) {
-            AsanaConstants.setDefaultPicture(response);
+            AsanaGateway.setDefaultPicture(response);
             return response;
         });
     };
@@ -30,7 +31,7 @@ asanaModule.service("AsanaGateway", ["$http", "AsanaConstants", "$q", "$filter",
 
         return AsanaGateway.api(options).then(function (response) {
             //filter - archived projects
-            var hideArchivedProjects = AsanaConstants.getHideArchivedProjects();
+            var hideArchivedProjects = AsanaSettings.getHideArchivedProjects();
             if(hideArchivedProjects){
                 return response.filter(function (project) {
                     return !project.archived;
@@ -89,7 +90,7 @@ asanaModule.service("AsanaGateway", ["$http", "AsanaConstants", "$q", "$filter",
         return AsanaGateway.api(options).then(function (response) {
             response.forEach(function (element) {
                 if(element.assignee != null){
-                    AsanaConstants.setDefaultPictureUser(element.assignee);
+                    AsanaGateway.setDefaultPictureUser(element.assignee);
                 }
                 if(element.due_at !== null){
                     element.due = Date.parse(element.due_at);
@@ -116,9 +117,37 @@ asanaModule.service("AsanaGateway", ["$http", "AsanaConstants", "$q", "$filter",
             opt_fields: "assignee.name,assignee.photo,assignee_status,completed,completed_at,created_at,due_at,due_on,followers.name,hearted,hearts,memberships,modified_at,name,notes,num_hearts,projects.name,tags.name,workspace.name"
         };
         return AsanaGateway.api(options).then(function (task) {
-            AsanaConstants.setDefaultPictureUser(task.assignee);
-            AsanaConstants.setDefaultPicture(task.followers);
+            AsanaGateway.setDefaultPictureUser(task.assignee);
+            AsanaGateway.setDefaultPicture(task.followers);
             return task;
+        });
+    };
+
+    AsanaGateway.setDefaultPictureUser = function (user) {
+        if(user.photo == null){
+            user.photo = {
+                "image_21x21": "../img/nopicture.png",
+                "image_27x27": "../img/nopicture.png",
+                "image_36x36": "../img/nopicture.png",
+                "image_60x60": "../img/nopicture.png",
+                "image_128x128": "../img/nopicture.png",
+                "image_1024x1024": "../img/nopicture.png"
+            };
+        }
+    };
+
+    AsanaGateway.setDefaultPicture = function (users) {
+        users.forEach(function (user) {
+            if(user.photo == null){
+                user.photo = {
+                    "image_21x21": "../img/nopicture.png",
+                    "image_27x27": "../img/nopicture.png",
+                    "image_36x36": "../img/nopicture.png",
+                    "image_60x60": "../img/nopicture.png",
+                    "image_128x128": "../img/nopicture.png",
+                    "image_1024x1024": "../img/nopicture.png"
+                };
+            }
         });
     };
 
@@ -140,7 +169,7 @@ asanaModule.service("AsanaGateway", ["$http", "AsanaConstants", "$q", "$filter",
 
         return AsanaGateway.api(options).then(function (stories) {
             stories.forEach(function (story) {
-                AsanaConstants.setDefaultPictureUser(story.created_by);
+                AsanaGateway.setDefaultPictureUser(story.created_by);
             });
             return stories;
         });
@@ -243,14 +272,7 @@ asanaModule.service("AsanaGateway", ["$http", "AsanaConstants", "$q", "$filter",
             "Asana-Fast-Api": true
         };
 
-        // Be polite to Asana API and tell them who we are.
-        var manifest = chrome.runtime.getManifest();
-        var client_name = [
-            "chrome-extension",
-            chrome.i18n.getMessage("@@extension_id"),
-            manifest.version,
-            manifest.name
-        ].join(":");
+        var client_name = ChromeExtension.getClientName();
 
         var asanaOptions = {};
         if (options.method === "PUT" || options.method === "POST"){
@@ -286,25 +308,5 @@ asanaModule.service("AsanaGateway", ["$http", "AsanaConstants", "$q", "$filter",
             }
         });
         return deferred.promise;
-    };
-}]);
-
-asanaModule.service("ChromeExtensionService", [function () {
-    var ChromeExtension = this;
-
-    ChromeExtension.openLink = function (url) {
-        chrome.tabs.create({url: url}, function () {
-            window.close();
-        });
-    };
-
-    ChromeExtension.openLinkInTab = function (url, tab) {
-        chrome.tabs.update(tab.id, {url: url});
-    };
-
-    ChromeExtension.getCurrentTab = function (callback) {
-        chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-            callback(tabs[0]);
-        });
     };
 }]);

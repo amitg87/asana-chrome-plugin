@@ -1,4 +1,4 @@
-var asanaModule = angular.module("asana", ["ngRoute", "ngSanitize", "ui.select", "ui.bootstrap", "ui.bootstrap.datetimepicker"]);
+var asanaModule = angular.module("asana", ["ngRoute", "ngSanitize", "ui.select", "ui.bootstrap", "ui.bootstrap.datetimepicker", "ChromeExtension"]);
 
 asanaModule.config(function($routeProvider, $locationProvider) {
     $locationProvider.html5Mode(true);
