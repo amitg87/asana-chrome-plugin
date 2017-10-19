@@ -1,0 +1,7 @@
+img.asanang-stats {
+    content: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAAP1BMVEUiKzcjLDglLjomLzsvN0MzPEdLUlxOVV9pb3dtc3uEiZCTl52UmJ6ZnaLCxcjFx8rNz9LX2dvv8PH4+Pn///+YnlFRAAAASElEQVQYlYXPSQ6AIBQEUcAJRxDr/mc1aRfqDwm1fKtu55pRA7+FPyzk8IUJHpk7QX8h8Tuj4ETlA1YBb8UCg4VoIdWWmtpnb5ZhCBJSN1/GAAAAAElFTkSuQmCC);
+}
+
+a.NavigationLink.SidebarItemRow.SidebarItemRow--colorNone:hover img.asanang-stats {
+    content: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAAP1BMVEVkb3llcHpmcXtncnxtd4FweoSBipKDjJSWnaSZoKepr7SzuL20ub63vMHU19rW2dzc3uHj5ef09fb6+vv///+4t9NaAAAASElEQVQYlYXPSQ6AIBQEUcAJRxDr/mc1aRfqDwm1fKtu55pRA7+FPyzk8IUJHpk7QX8h8Tuj4ETlA1YBb8UCg4VoIdWWmtpnb5ZhCBJSN1/GAAAAAElFTkSuQmCC)
+}
