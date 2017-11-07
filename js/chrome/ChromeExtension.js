@@ -63,6 +63,16 @@ angular.module("ChromeExtension", [])
         chrome.browserAction.enable();
     };
 
+    ChromeExtension.openPanel = function (url, height, width) {
+        var left = Math.floor(screen.width/2 - width/2);
+        var top = Math.floor(screen.height/2 - height/2);
+        chrome.windows.create({
+            url: url,
+            left: left, top: top, width: width, height: height,
+            focused: true, type: "panel"
+        });
+    };
+
     ChromeExtension.onInstall = function (callback) {
         chrome.runtime.onInstalled.addListener(function(details){
             if(details.reason === "install")

@@ -121,21 +121,11 @@ angular.module("asanabg").run(
         resetDefaultSuggestion();
     });
 
-    function showAnalytics(projectId){
-        var analyticsPage = chrome.runtime.getURL("analytics.html");
-        var height = 189;
-        var width = 411;
-        var left = Math.floor(screen.width/2 - width/2);
-        var top = Math.floor(screen.height/2 - height/2);
-        chrome.windows.create({ url: analyticsPage + "?projectId=" +projectId,
-            left: left, top: top, width: width, height: height, focused: true, type: "panel"
-        });
-    }
-
     chrome.runtime.onMessage.addListener(
         function (request, sender, sendResponse) {
             if(request.action == "projectAnalytics"){
-                showAnalytics(request.projectId);
+                var url = chrome.runtime.getURL("analytics.html") + "?projectId=" + request.projectId;
+                ChromeExtension.openPanel( url, 189, 411)
             }
         }
     );
