@@ -164,7 +164,7 @@ asanaModule.controller("createTaskController", ['$scope', 'AsanaGateway', '$time
             var containerId = (response.projects[0])? response.projects[0].id: (response.tags[0])? response.tags[0].id: (response.assignee)? response.assignee.id: 0;
             var taskId = response.id;
             createTaskCtrl.taskCreationStatus.success = true;
-            createTaskCtrl.taskCreationStatus.message = "Task created";
+            createTaskCtrl.taskCreationStatus.message = "Task Created";
             createTaskCtrl.taskCreationStatus.show = true;
             createTaskCtrl.taskCreationStatus.link = "https://app.asana.com/0/" + containerId + "/" + taskId;
             $timeout(function () {
@@ -235,6 +235,11 @@ asanaModule.controller("createTaskController", ['$scope', 'AsanaGateway', '$time
                 createTaskCtrl.taskNameRequired = false;
             });
         });
+    };
+
+    createTaskCtrl.successCopy = function () {
+        console.log("copied to clipboard");
+        createTaskCtrl.taskCreationStatus.message = "Task Copied";
     };
 }]);
 
