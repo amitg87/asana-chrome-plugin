@@ -110,5 +110,11 @@
            data-ng-show="createTaskCtrl.taskCreationStatus.show && createTaskCtrl.taskCreationStatus.success">
             View Task <i class="fa fa-external-link"></i>
         </a>
+        <a class="label asana-link"
+           data-ng-if="createTaskCtrl.taskCreationStatus.show && createTaskCtrl.taskCreationStatus.success"
+           clipboard text="createTaskCtrl.taskCreationStatus.link"
+           on-copied="createTaskCtrl.successCopy()">
+            Copy Task <i class="fa fa-clipboard"></i>
+        </a>
     </div>
 </form>
