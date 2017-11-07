@@ -1,6 +1,6 @@
-var asanaModule = angular.module("asana", ["ngRoute", "ngSanitize", "ui.select", "ui.bootstrap", "ui.bootstrap.datetimepicker", "ChromeExtension"]);
-
-asanaModule.config(function($routeProvider, $locationProvider) {
+angular.module("asanaApp",
+    ["ngRoute", "ngSanitize", "ui.select", "ui.bootstrap", "ui.bootstrap.datetimepicker", "Asana", "ChromeExtension"]
+).config(function($routeProvider, $locationProvider) {
     $locationProvider.html5Mode(true);
     $routeProvider
         .when("/create", {
@@ -31,9 +31,7 @@ asanaModule.config(function($routeProvider, $locationProvider) {
             //default
             redirectTo  : "/create"
         });
-});
-
-asanaModule.config([
+}).config([
     "$compileProvider",
     function ($compileProvider) {
         $compileProvider.imgSrcSanitizationWhitelist(/^\s*((https?|chrome-extension):|data:image\/)/);

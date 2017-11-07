@@ -1,6 +1,6 @@
-angular.module("AsanaGateway", [])
-    .service("AsanaGateway", ["$http", "AsanaConstants", "$q", "$filter", "ChromeExtension",
-    function ($http, AsanaConstants, $q, $filter, ChromeExtension) {
+angular.module("Asana").service("AsanaGateway",
+    ["$http", "AsanaConstants", "AsanaSettings", "$q", "$filter", "ChromeExtensionService",
+    function ($http, AsanaConstants, AsanaSettings, $q, $filter, ChromeExtension) {
 
     var AsanaGateway = this;
     

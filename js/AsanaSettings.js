@@ -1,4 +1,4 @@
-angular.module("AsanaSettings", ["AsanaConstants"]).value("AsanaSettings", (function () {
+angular.module("Asana").value("AsanaSettings", (function () {
     return {
         HIDE_ARCHIVED_PROJECTS: "hideArchivedProjects",
         getHideArchivedProjects: function () {

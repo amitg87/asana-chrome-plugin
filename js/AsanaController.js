@@ -1,4 +1,5 @@
-asanaModule.controller("userController", ["$scope", "AsanaGateway", "AsanaConstants", "ChromeExtension", "$route",
+angular.module("asanaApp").controller("userController",
+    ["$scope", "AsanaGateway", "AsanaConstants", "ChromeExtensionService", "$route",
     function ($scope, AsanaGateway, AsanaConstants, ChromeExtension, $route) {
     var userCtrl = this;
     userCtrl.$route = $route;
@@ -19,7 +20,8 @@ asanaModule.controller("userController", ["$scope", "AsanaGateway", "AsanaConsta
     };
 }]);
 
-asanaModule.controller("createTaskController", ['$scope', 'AsanaGateway', '$timeout', 'AsanaConstants', 'AsanaSettings', '$filter', 'ChromeExtension',
+angular.module("asanaApp").controller("createTaskController",
+    ['$scope', 'AsanaGateway', '$timeout', 'AsanaConstants', 'AsanaSettings', '$filter', 'ChromeExtensionService',
     function ($scope, AsanaGateway, $timeout, AsanaConstants, AsanaSettings, $filter, ChromeExtension) {
     var createTaskCtrl = this;
     createTaskCtrl.workspaceNotSelected = true;
@@ -238,7 +240,8 @@ asanaModule.controller("createTaskController", ['$scope', 'AsanaGateway', '$time
     };
 }]);
 
-asanaModule.controller("tasksController", ["$scope", "AsanaGateway", "ChromeExtension", "$filter", "AsanaConstants", "$q",
+angular.module("asanaApp").controller("tasksController",
+    ["$scope", "AsanaGateway", "ChromeExtensionService", "$filter", "AsanaConstants", "$q",
     function ($scope, AsanaGateway, ChromeExtension, $filter, AsanaConstants, $q) {
     var tasksCtrl = this;
     tasksCtrl.selectedView = "My Tasks";
@@ -626,7 +629,9 @@ asanaModule.controller("tasksController", ["$scope", "AsanaGateway", "ChromeExte
     };
 }]);
 
-asanaModule.controller("settingsController", ['$scope', 'AsanaSettings', function ($scope, AsanaSettings) {
+angular.module("asanaApp").controller("settingsController",
+    ['$scope', 'AsanaSettings',
+        function ($scope, AsanaSettings) {
     var settingsCtrl = this;
     settingsCtrl.hideArchivedProjects = AsanaSettings.getHideArchivedProjects();
     settingsCtrl.changeHideArchivedProjects = function () {

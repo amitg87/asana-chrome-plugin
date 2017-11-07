@@ -1,1 +1,1 @@
-angular.module("asanabg", ["ChromeExtension", "AsanaConstants", "AsanaGateway"]);
+angular.module("asanabg", ["ChromeExtension", "Asana"]);

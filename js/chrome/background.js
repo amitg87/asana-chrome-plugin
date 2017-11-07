@@ -1,5 +1,5 @@
 angular.module("asanabg").run(
-    ['AsanaConstants', 'AsanaGateway', "ChromeExtension", "$timeout", "$q",
+    ['AsanaConstants', 'AsanaGateway', "ChromeExtensionService", "$timeout", "$q",
         function (AsanaConstants, AsanaGateway, ChromeExtension, $timeout, $q) {
     ChromeExtension.setBrowserActionBadgeText("NG");
     ChromeExtension.setBrowserActionBadgeBGColor("#FC636B");

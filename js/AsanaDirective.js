@@ -1,4 +1,4 @@
-asanaModule.directive("datetime", function () {
+angular.module("asanaApp").directive("datetime", function () {
     return {
         restrict: 'E',
         scope: {
@@ -113,7 +113,7 @@ asanaModule.directive("datetime", function () {
     };
 });
 
-asanaModule.directive('uiSelectFocus', ['$timeout', function($timeout){
+angular.module("asanaApp").directive('uiSelectFocus', ['$timeout', function($timeout){
     return {
         require: 'uiSelect',
         restrict: 'A',
