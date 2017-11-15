@@ -28,9 +28,6 @@
   },
 
   "omnibox": { "keyword" : "asana"},
-  "icons": {
-    "16": "img/icon16.png"
-  },
 
   "content_scripts": [
     {
