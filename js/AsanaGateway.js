@@ -109,6 +109,28 @@ angular.module("Asana").service("AsanaGateway",
         });
     };
 
+    AsanaGateway.getProject = function (options) {
+        options = options || {};
+        options.method = "GET";
+        options.path = "projects/"+options.project_id;
+        return AsanaGateway.api(options);
+    };
+
+    AsanaGateway.getProjectTasks = function (options) {
+        options = options || {};
+        options.method = "GET";
+        options.path = "projects/" + options.project_id + "/tasks";
+        options.query = {
+            opt_fields:"name,completed,assignee.name,assignee.photo,due_on,due_at,completed_at,created_at,tags.name,followers,hearts.name,followers.name",
+            limit: 100
+        };
+        if(options.offset){
+            options.query.offset = options.offset;
+        }
+        //https://app.asana.com/api/1.0/projects/145619319717806/tasks?opt_fields=
+        return AsanaGateway.api(options);
+    };
+
     AsanaGateway.getTask = function (options) {
         options = options || {};
         options.method = "GET";
@@ -299,7 +321,10 @@ angular.module("Asana").service("AsanaGateway",
             params: options.params || {},
             data: {data: options.data, options: asanaOptions}
         }).success(function (response) {
-            deferred.resolve(response.data);
+            if(!angular.isDefined(response.next_page))
+                deferred.resolve(response.data);
+            else
+                deferred.resolve([response.data, response.next_page]);//destructuring - part of es6
         }).error(function (response) {
             if (response && response.hasOwnProperty("errors")) {
                 deferred.reject(response.errors);

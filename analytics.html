@@ -3,8 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <title>Project Analytics - Powered by AsanaNG</title>
+    <script src="js/lib/angular.min.js"></script>
+    <script src="js/chrome/ChromeExtension.js"></script>
+    <script src="js/Asana.js"></script>
+    <script src="js/AsanaSettings.js"></script>
+    <script src="js/AsanaConstants.js"></script>
+    <script src="js/AsanaGateway.js"></script>
+    <script src="js/Analytics.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-chart.js/1.1.1/angular-chart.min.js"></script>
+    <base href="/"/>
 </head>
-<body>
+<body data-ng-app="AsanaAnalytics" data-ng-controller="AsanaAnalyticsController as analyticsCtrl">
+    <div>
+        <p>Project Name: <span data-ng-bind="analyticsCtrl.projectDetails.name"></span></p>
+        <p>Project Description: <span data-ng-bind="analyticsCtrl.projectDetails.notes"></span></p>
+        <p>Project Owner: <span data-ng-bind="analyticsCtrl.projectDetails.owner.name"></span></p>
+    </div>
+    <p>Fetching task: <span data-ng-bind="analyticsCtrl.projects.length"></span></p>
 
+
+    <div data-ng-if="analyticsCtrl.chartsDone">
+        <p>Completed Chart</p>
+        <canvas id="ChartCompleted" class="chart chart-doughnut"
+                chart-data="analyticsCtrl.chartCompleted.data" chart-labels="analyticsCtrl.chartCompleted.labels"
+                chart-colors="analyticsCtrl.chartCompleted.colors">
+        </canvas>
+
+        <p>Assignee Chart</p>
+        <canvas id="ChartAssigned" class="chart chart-doughnut"
+                chart-data="analyticsCtrl.chartAssigned.data" chart-labels="analyticsCtrl.chartAssigned.labels"
+                chart-colors="analyticsCtrl.chartAssigned.colors">
+        </canvas>
+
+        <p>Schedule Chart</p>
+        <canvas id="ChartScheduled" class="chart chart-doughnut"
+                chart-data="analyticsCtrl.chartScheduled.data" chart-labels="analyticsCtrl.chartScheduled.labels"
+                chart-colors="analyticsCtrl.chartScheduled.colors">
+        </canvas>
+    </div>
 </body>
 </html>

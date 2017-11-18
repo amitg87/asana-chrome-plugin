@@ -36,16 +36,19 @@
             var secondLast = projectLink.lastIndexOf("/", last-1);
             var projectId = projectLink.substring(secondLast+1, last);
             var projectName = anchor.find("span.SidebarItemRow-name");
-            var element = '<div class="SidebarItemRow-statusIcon"><a class="asanang-stats"><img style="height: 16px; width:16px;vertical-align: middle;" class="asanang-graph"/></a></div>';
+            var element = '<div class="SidebarItemRow-statusIcon"><a class="asanang-stats"><img style="height: 16px; width:16px;vertical-align: middle;" class="asanang-graph" title="Project Stats"/></a></div>';
             var $element = $(element);
             $element.find("a.asanang-stats").attr("project-id", projectId);
             projectName.after($element);
         }
     }
 
-    $(document).on('click', 'a.asanang-stats', function () {
+    $(document).on('click', 'a.asanang-stats', function (e) {
         var projectId = $(this).attr("project-id");
         console.log("Analytics for: " + projectId);
         chrome.runtime.sendMessage({ action: 'projectAnalytics', projectId: projectId});
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
     })
 })();

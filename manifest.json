@@ -40,7 +40,7 @@
   ],
 
   "permissions": ["cookies", "tabs", "https://app.asana.com/*"],
-  "content_security_policy": "script-src 'self' https://maxcdn.bootstrapcdn.com; object-src 'self'",
+  "content_security_policy": "script-src 'self' https://cdnjs.cloudflare.com; object-src 'self'",
 
   "commands": {
     "_execute_browser_action": {
