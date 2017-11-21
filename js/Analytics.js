@@ -1,7 +1,7 @@
 angular.module("AsanaAnalytics", ["Asana", "chart.js"]
 ).controller("AsanaAnalyticsController",
-    ["$scope", "AsanaGateway", "$location",
-        function ($scope, AsanaGateway, $location) {
+    ["$scope", "AsanaGateway", "$location", "$filter",
+        function ($scope, AsanaGateway, $location, $filter) {
             var analyticsCtrl = this;
             analyticsCtrl.projectId = $location.search().projectId;
 
@@ -17,49 +17,84 @@ angular.module("AsanaAnalytics", ["Asana", "chart.js"]
                 console.log("fetched tasks: " + JSON.stringify(data));
             });
 
+            $scope.options = {
+                legend: {
+                    display: true,
+                    position: 'top',
+                    labels: {
+                        boxWidth: 12,
+
+                        generateLabels: function (chart) {
+                            var data = chart.data.datasets[0].data;
+                            var labels = chart.data.labels;
+                            var config = chart.config.data.datasets[0];
+                            if (labels.length && data.length) {
+                                return labels.map(function (label, i) {
+                                    return {
+                                        text: label + ": " + data[i] + " (" + $filter('number')(data[i] * 100/analyticsCtrl.tasks.length, 2) + "%)",
+                                        index: i,
+                                        fillStyle: config.backgroundColor[i]
+                                    }
+                                })
+                            }
+                            return [];
+                        }
+                    }
+                }
+            };
+
+            $scope.graphColors = [
+                { backgroundColor: "rgba(204,37,41,1)", pointBackgroundColor: "rgba(204,37,41,0.9)"},
+                { backgroundColor: "rgba(218,124,48,1)", pointBackgroundColor: "rgba(218,124,48,0.9)"}
+            ];
+
             $scope.$on("analytics:done", function (event, data) {
                 console.log("analytics done: " + JSON.stringify(data));
 
                 analyticsCtrl.chartCompleted = {
                     data: [analyticsCtrl.completed, analyticsCtrl.incomplete],
                     labels: ["Complete", "Incomplete"],
-                    colors: ["rgb(204,37,41)", "rgb(218,124,48)"]
+                    colors: $scope.graphColors,
+                    options: $scope.options
                 };
 
                 analyticsCtrl.chartAssigned = {
                     data: [analyticsCtrl.assigned, analyticsCtrl.unassigned],
                     labels: ["Assigned", "Unassigned"],
-                    colors: ["rgb(204,37,41)", "rgb(218,124,48)"]
+                    colors: $scope.graphColors,
+                    options: $scope.options
                 };
 
                 analyticsCtrl.chartScheduled = {
                     data: [analyticsCtrl.scheduled, analyticsCtrl.unscheduled],
                     labels: ["Scheduled", "Unscheduled"],
-                    colors: ["rgb(204,37,41)", "rgb(218,124,48)"]
+                    colors: $scope.graphColors,
+                    options: $scope.options
                 };
 
                 analyticsCtrl.chartsDone = true;
             });
 
-            analyticsCtrl.projects = [];
+            analyticsCtrl.tasks = [];
 
             AsanaGateway.getProject({project_id: analyticsCtrl.projectId}).then(function (project) {
                 analyticsCtrl.projectDetails = project;
+                analyticsCtrl.projectDetailsReady = true;
             });
 
             analyticsCtrl.getProjectTasks = function () {
-                $scope.$emit("task:fetching", {task: analyticsCtrl.projects.length});
+                $scope.$emit("task:fetching", {task: analyticsCtrl.tasks.length});
                 return analyticsCtrl.getNext100().then(function () {
                     if(angular.isDefined(analyticsCtrl.options.offset))
                         return analyticsCtrl.getProjectTasks();
                     else
-                        $scope.$emit("task:fetched", {task: analyticsCtrl.projects.length});
+                        $scope.$emit("task:fetched", {task: analyticsCtrl.tasks.length});
                 })
             };
 
             analyticsCtrl.getNext100 = function () {
                 return AsanaGateway.getProjectTasks(analyticsCtrl.options).then(function ([tasks, next_page]) {
-                    analyticsCtrl.projects = analyticsCtrl.projects.concat(tasks);
+                    analyticsCtrl.tasks = analyticsCtrl.tasks.concat(tasks);
                     if(next_page!=null && angular.isDefined(next_page)){
                         analyticsCtrl.options.offset = next_page.offset;
                     } else {
@@ -73,21 +108,23 @@ angular.module("AsanaAnalytics", ["Asana", "chart.js"]
             analyticsCtrl.unassigned = 0;
             analyticsCtrl.scheduled = 0;
             analyticsCtrl.unscheduled = 0;
+            analyticsCtrl.tagAnalysis = {};
+            analyticsCtrl.assigneeAnalysis = {};
             analyticsCtrl.getProjectTasks().then(function () {
-                console.log("done fetching task: " + analyticsCtrl.projects.length);
-                analyticsCtrl.projects.forEach(function (project) {
-                    //"{"id":480282915464284,"assignee":null,"completed":false,"completed_at":null,"created_at":"2017-11-15T15:09:05.904Z","due_at":null,"due_on":null,"followers":[{"id":42783910289791,"name":"Amit Gangrade"}],"hearts":[],"name":"Batch199","tags":[]}"
-                    if(project.completed){
+                console.log("done fetching task: " + analyticsCtrl.tasks.length);
+                analyticsCtrl.tasks.forEach(function (task) {
+                    //""
+                    if(task.completed){
                         analyticsCtrl.completed++;
                     } else {
                         analyticsCtrl.incomplete++;
                     }
-                    if(project.assignee==null){
+                    if(task.assignee==null){
                         analyticsCtrl.unassigned++;
                     } else {
                         analyticsCtrl.assigned++;
                     }
-                    if(project.due_on == null && project.due_at == null){
+                    if(task.due_on == null && task.due_at == null){
                         analyticsCtrl.unscheduled++;
                     } else {
                         analyticsCtrl.scheduled++;
@@ -95,7 +132,57 @@ angular.module("AsanaAnalytics", ["Asana", "chart.js"]
                     //overdue -
                     //possible - difference between due_on/due_at vs completed_at. ask for timezone
                     //count of due today and due in next 1-week
+
+                    //tag wise distribution
+                    if(task.tags != null){
+                        task.tags.forEach(function (tag) {
+                            if(analyticsCtrl.tagAnalysis.hasOwnProperty(tag.name)){
+                                incrComplementaryProperty(task.complete, analyticsCtrl.tagAnalysis[tag.name], "completed", "incomplete");
+                                incrComplementaryProperty(task.assignee == null, analyticsCtrl.tagAnalysis[tag.name], "unassigned", "assigned");
+                                incrComplementaryProperty(task.due_on == null && task.due_at == null, analyticsCtrl.tagAnalysis[tag.name], "scheduled", "unscheduled");
+                            } else {
+                                analyticsCtrl.tagAnalysis[tag.name] = {
+                                    completed: 0,
+                                    incomplete: 0,
+                                    assigned: 0,
+                                    unassigned: 0,
+                                    scheduled: 0,
+                                    unscheduled: 0
+                                };
+                            }
+                        });
+                    }
+
+                    //assignee wise distribution
+                    if(task.assignee != null){
+                        var assignee = task.assignee.name;
+                        if(analyticsCtrl.assigneeAnalysis.hasOwnProperty(assignee)){
+                            incrComplementaryProperty(task.complete, analyticsCtrl.assigneeAnalysis[assignee], "completed", "incomplete")
+                        } else {
+                            analyticsCtrl.assigneeAnalysis[assignee] = {
+                                completed: 0,
+                                incomplete: 0
+                            }
+                        }
+                    }
                 });
+
+                function incrComplementaryProperty(condition, object, property1, property2){
+                    if(condition){
+                        incrProperty(object, property1);
+                    } else {
+                        incrProperty(object, property2);
+                    }
+                }
+
+                function incrProperty(obj, property){
+                    if(obj.hasOwnProperty(property)){
+                        var count = obj[property];
+                        obj[property] = count+1;
+                    } else {
+                        throw Error("Invalid property")
+                    }
+                }
                 $scope.$emit("analytics:done", {});
             });
     }]

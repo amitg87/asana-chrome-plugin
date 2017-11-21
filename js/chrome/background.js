@@ -125,7 +125,7 @@ angular.module("asanabg").run(
         function (request, sender, sendResponse) {
             if(request.action == "projectAnalytics"){
                 var url = chrome.runtime.getURL("analytics.html") + "?projectId=" + request.projectId;
-                ChromeExtension.openPanel( url, 189, 411)
+                ChromeExtension.openPanel(url)
             }
         }
     );

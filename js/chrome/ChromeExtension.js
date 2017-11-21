@@ -64,6 +64,12 @@ angular.module("ChromeExtension", [])
     };
 
     ChromeExtension.openPanel = function (url, height, width) {
+        if(!angular.isDefined(height)){
+            height=screen.height;
+        }
+        if(!angular.isDefined(width)){
+            width=screen.width;
+        }
         var left = Math.floor(screen.width/2 - width/2);
         var top = Math.floor(screen.height/2 - height/2);
         chrome.windows.create({
