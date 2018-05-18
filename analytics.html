@@ -13,6 +13,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-chart.js/1.1.1/angular-chart.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="css/analytics.css" rel="stylesheet">
     <base href="/"/>
 </head>
 <body data-ng-app="AsanaAnalytics" data-ng-controller="AsanaAnalyticsController as analyticsCtrl">
@@ -46,7 +47,7 @@
 
         <div data-ng-if="analyticsCtrl.chartsDone">
             <div class="row">
-                <div class="col-xs-4">
+                <div class="col-xs-6">
                     <div class="panel panel-primary">
                         <div class="panel-heading">
                             <h4 class="panel-title">Completed Chart</h4>
@@ -59,7 +60,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-xs-4">
+                <div class="col-xs-6">
                     <div class="panel panel-primary">
                         <div class="panel-heading">
                             <h4 class="panel-title">Assignee Chart</h4>
@@ -72,7 +73,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-xs-4">
+                <div class="col-xs-6">
                     <div class="panel panel-primary">
                         <div class="panel-heading">
                             <h4 class="panel-title">Schedule Chart</h4>
@@ -81,6 +82,19 @@
                             <canvas id="ChartScheduled" class="chart chart-doughnut"
                                     chart-data="analyticsCtrl.chartScheduled.data" chart-labels="analyticsCtrl.chartScheduled.labels"
                                     chart-colors="analyticsCtrl.chartScheduled.colors" chart-options="analyticsCtrl.chartCompleted.options">
+                            </canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-6">
+                    <div class="panel panel-primary">
+                        <div class="panel-heading">
+                            <h4 class="panel-title">Due Date Distribution</h4>
+                        </div>
+                        <div class="panel-body">
+                            <canvas id="DueDistribution" class="chart chart-bar"
+                                    chart-data="analyticsCtrl.chartDue.data" chart-labels="analyticsCtrl.chartDue.labels"
+                                    chart-colors="analyticsCtrl.chartDue.colors" chart-options="analyticsCtrl.chartDue.options">
                             </canvas>
                         </div>
                     </div>

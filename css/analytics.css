@@ -1,0 +1,11 @@
+.table{
+    margin-bottom: 0;
+}
+
+.panel-body{
+    padding: 0;
+}
+
+canvas.chart {
+    width: 528px;
+}

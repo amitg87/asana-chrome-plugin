@@ -9,14 +9,6 @@ angular.module("AsanaAnalytics", ["Asana", "chart.js"]
                 project_id: analyticsCtrl.projectId
             };
 
-            $scope.$on("task:fetching", function (event, data) {
-                console.log("fetching tasks: " + JSON.stringify(data));
-            });
-
-            $scope.$on("task:fetched", function (event, data) {
-                console.log("fetched tasks: " + JSON.stringify(data));
-            });
-
             $scope.options = {
                 legend: {
                     display: true,
@@ -45,35 +37,9 @@ angular.module("AsanaAnalytics", ["Asana", "chart.js"]
 
             $scope.graphColors = [
                 { backgroundColor: "rgba(204,37,41,1)", pointBackgroundColor: "rgba(204,37,41,0.9)"},
+                { backgroundColor: "rgba(218,124,48,1)", pointBackgroundColor: "rgba(218,124,48,0.9)"},
                 { backgroundColor: "rgba(218,124,48,1)", pointBackgroundColor: "rgba(218,124,48,0.9)"}
             ];
-
-            $scope.$on("analytics:done", function (event, data) {
-                console.log("analytics done: " + JSON.stringify(data));
-
-                analyticsCtrl.chartCompleted = {
-                    data: [analyticsCtrl.completed, analyticsCtrl.incomplete],
-                    labels: ["Complete", "Incomplete"],
-                    colors: $scope.graphColors,
-                    options: $scope.options
-                };
-
-                analyticsCtrl.chartAssigned = {
-                    data: [analyticsCtrl.assigned, analyticsCtrl.unassigned],
-                    labels: ["Assigned", "Unassigned"],
-                    colors: $scope.graphColors,
-                    options: $scope.options
-                };
-
-                analyticsCtrl.chartScheduled = {
-                    data: [analyticsCtrl.scheduled, analyticsCtrl.unscheduled],
-                    labels: ["Scheduled", "Unscheduled"],
-                    colors: $scope.graphColors,
-                    options: $scope.options
-                };
-
-                analyticsCtrl.chartsDone = true;
-            });
 
             analyticsCtrl.tasks = [];
 
@@ -83,12 +49,9 @@ angular.module("AsanaAnalytics", ["Asana", "chart.js"]
             });
 
             analyticsCtrl.getProjectTasks = function () {
-                $scope.$emit("task:fetching", {task: analyticsCtrl.tasks.length});
                 return analyticsCtrl.getNext100().then(function () {
                     if(angular.isDefined(analyticsCtrl.options.offset))
                         return analyticsCtrl.getProjectTasks();
-                    else
-                        $scope.$emit("task:fetched", {task: analyticsCtrl.tasks.length});
                 })
             };
 
@@ -110,10 +73,17 @@ angular.module("AsanaAnalytics", ["Asana", "chart.js"]
             analyticsCtrl.unscheduled = 0;
             analyticsCtrl.tagAnalysis = {};
             analyticsCtrl.assigneeAnalysis = {};
+            analyticsCtrl.dueAnalysis = {
+                overdue: 0,
+                due_today: 0,
+                due_week: 0
+            };
             analyticsCtrl.getProjectTasks().then(function () {
                 console.log("done fetching task: " + analyticsCtrl.tasks.length);
+                var now = new Date();
+                var today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
                 analyticsCtrl.tasks.forEach(function (task) {
-                    //""
                     if(task.completed){
                         analyticsCtrl.completed++;
                     } else {
@@ -128,10 +98,20 @@ angular.module("AsanaAnalytics", ["Asana", "chart.js"]
                         analyticsCtrl.unscheduled++;
                     } else {
                         analyticsCtrl.scheduled++;
+                        var date = new Date(task.due_on == null?task.due_at:task.due_on);
+                        console.log(task.name);
+                        var day = Math.floor((date.getTime()-today.getTime())/(1000*60*60*24));
+                        if(day<0){
+                            analyticsCtrl.dueAnalysis.overdue++;
+                        }
+                        if(day<1){
+                            analyticsCtrl.dueAnalysis.due_today++;
+                        }
+                        if(day<=7){
+                            analyticsCtrl.dueAnalysis.due_week++;
+                        }
+                        console.log("overdue: " + (date.getTime()-today.getTime()))
                     }
-                    //overdue -
-                    //possible - difference between due_on/due_at vs completed_at. ask for timezone
-                    //count of due today and due in next 1-week
 
                     //tag wise distribution
                     if(task.tags != null){
@@ -165,6 +145,36 @@ angular.module("AsanaAnalytics", ["Asana", "chart.js"]
                             }
                         }
                     }
+
+                    analyticsCtrl.chartCompleted = {
+                        data: [analyticsCtrl.completed, analyticsCtrl.incomplete],
+                        labels: ["Complete", "Incomplete"],
+                        colors: $scope.graphColors,
+                        options: $scope.options
+                    };
+
+                    analyticsCtrl.chartAssigned = {
+                        data: [analyticsCtrl.assigned, analyticsCtrl.unassigned],
+                        labels: ["Assigned", "Unassigned"],
+                        colors: $scope.graphColors,
+                        options: $scope.options
+                    };
+
+                    analyticsCtrl.chartScheduled = {
+                        data: [analyticsCtrl.scheduled, analyticsCtrl.unscheduled],
+                        labels: ["Scheduled", "Unscheduled"],
+                        colors: $scope.graphColors,
+                        options: $scope.options
+                    };
+
+                    analyticsCtrl.chartDue = {
+                        data: [analyticsCtrl.dueAnalysis.overdue, analyticsCtrl.dueAnalysis.due_today, analyticsCtrl.dueAnalysis.due_week],
+                        labels: ["Overdue", "Due Today", "Due this week"],
+                        colors: $scope.graphColors,
+                        options: $scope.options
+                    };
+
+                    analyticsCtrl.chartsDone = true;
                 });
 
                 function incrComplementaryProperty(condition, object, property1, property2){
@@ -183,7 +193,6 @@ angular.module("AsanaAnalytics", ["Asana", "chart.js"]
                         throw Error("Invalid property")
                     }
                 }
-                $scope.$emit("analytics:done", {});
             });
     }]
 ).config([
