@@ -28,7 +28,7 @@ asanaModule.run(['AsanaConstants', 'AsanaGateway', "ChromeExtensionService", "$t
 
     function resetDefaultSuggestion() {
         chrome.omnibox.setDefaultSuggestion({
-            description: "AsanaNG: Search your Asana task/section/project/user/tag"
+            description: "AsanaNG: Search your Asana task/project/tag"
         });
     }
 

@@ -27,10 +27,7 @@
     "default_popup": "popup.html"
   },
 
-  "omnibox": { "keyword" : "asana"},
-  "icons": {
-    "16": "img/icon16.png"
-  },
+  "omnibox": { "keyword" : "asanang"},
 
   "permissions": ["cookies", "tabs", "*://*.asana.com/"],
   "content_security_policy": "script-src 'self' https://maxcdn.bootstrapcdn.com; object-src 'self'",
