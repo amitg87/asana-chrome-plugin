@@ -532,8 +532,6 @@ asanaModule.controller("tasksController", ["$scope", "AsanaGateway", "ChromeExte
             else {
                 tasksCtrl.taskDetails.deadlineType = AsanaConstants.DEADLINE_TYPE.NONE;
             }
-
-            console.dir("Task details: " + JSON.stringify(tasksCtrl.taskDetails));
         }).catch(function () {
             console.log("Error fetching task details");
         });
@@ -548,6 +546,21 @@ asanaModule.controller("tasksController", ["$scope", "AsanaGateway", "ChromeExte
         };
         tasksCtrl.updateTask(options);
     };
+
+    tasksCtrl.toggleLiked = function (current_liked) {
+        var option = {
+            task_id: tasksCtrl.selectedTaskId,
+            data: {
+                liked: !current_liked
+            }
+        };
+        tasksCtrl.updateTask(option).then(function(response) {
+            tasksCtrl.taskDetails.liked = response.liked;
+            tasksCtrl.taskDetails.likes = response.likes;
+        }).catch(function () {
+            console.log("Error hearting task");
+        });
+    }
 
     tasksCtrl.updateNotes = function () {
         var options = {

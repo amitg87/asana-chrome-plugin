@@ -113,7 +113,7 @@ asanaModule.service("AsanaGateway", ["$http", "AsanaConstants", "$q", "$filter",
         options.method = "GET";
         options.path = "tasks/" + options.task_id;
         options.query = {
-            opt_fields: "assignee.name,assignee.photo,assignee_status,completed,completed_at,created_at,due_at,due_on,followers.name,hearted,hearts,memberships,modified_at,name,notes,num_hearts,projects.name,tags.name,workspace.name"
+            opt_fields: "assignee.name,assignee.photo,assignee_status,completed,completed_at,created_at,due_at,due_on,followers.name,likes,liked,memberships,modified_at,name,notes,projects.name,tags.name,workspace.name"
         };
         return AsanaGateway.api(options).then(function (task) {
             AsanaConstants.setDefaultPictureUser(task.assignee);
@@ -129,6 +129,14 @@ asanaModule.service("AsanaGateway", ["$http", "AsanaConstants", "$q", "$filter",
         options.query = {completed: options.completed};
         return AsanaGateway.api(options);
     };
+
+    AsanaGateway.taskLiked = function (options) {
+        options = options || {};
+        options.method = "PUT";
+        options.path = "tasks/" + options.task_id;
+        options.query = {liked: options.liked};
+        return AsanaGateway.api(options);
+    }
 
     AsanaGateway.getTaskStories = function (options) {
         options = options || {};

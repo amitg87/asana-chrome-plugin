@@ -91,10 +91,12 @@
         <div class="checkbox checkbox-info checkbox-circle checkbox-asana" data-ng-model="tasksCtrl.taskDetails.id">
             <input id="{{tasksCtrl.selectedTaskId}}" class="styled" type="checkbox"
                    data-ng-checked="tasksCtrl.taskDetails.completed" title="{{tasksCtrl.task.completed?'Mark Not Done': 'Mark Done'}}"
-                   data-ng-click="tasksCtrl.toggleTaskDone(tasksCtrl.selectedTaskId, taskCtrl.taskDetails.completed)"/>
+                   data-ng-click="tasksCtrl.toggleTaskDone(tasksCtrl.selectedTaskId, tasksCtrl.taskDetails.completed)"/>
             <label for="{{tasksCtrl.selectedTaskId}}"></label>
             <textarea id="taskName" class="task-name" rows="1" data-ng-model="tasksCtrl.taskDetails.name" placeholder="Task Name"
-                      data-ng-change="tasksCtrl.updateName()" data-ng-model-options='{ debounce: 1000 }'> </textarea>
+                    data-ng-change="tasksCtrl.updateName()" data-ng-model-options='{ debounce: 1000 }'> </textarea>
+            <i class="fa fa-thumbs-up task-likes" data-ng-class="{'task-liked':tasksCtrl.taskDetails.liked}" 
+                    data-ng-click="tasksCtrl.toggleLiked(tasksCtrl.taskDetails.liked)">{{tasksCtrl.taskDetails.likes.length}}</i>
         </div>
 
     </div>
