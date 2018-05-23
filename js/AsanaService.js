@@ -118,7 +118,6 @@ asanaModule.service("AsanaGateway", ["$http", "AsanaConstants", "$q", "$filter",
         return AsanaGateway.api(options).then(function (task) {
             AsanaConstants.setDefaultPictureUser(task.assignee);
             AsanaConstants.setDefaultPicture(task.followers);
-            console.log(JSON.stringify(task));
             return task;
         });
     };
