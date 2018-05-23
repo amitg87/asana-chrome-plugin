@@ -367,10 +367,19 @@ span:focus{
 .asana-ng-container .task-details .task-name{
     border: 1px solid #efefef;
     border-radius: 5px;
-    width: calc(100% - 4px);
+    width: calc(100% - 36px);
     vertical-align: middle;
     padding-left: 5px;
     resize: none;
+}
+
+.asana-ng-container .task-details .task-liked {
+    cursor: pointer;
+    color: #14aaf5;
+}
+
+.asana-ng-container .task-details .task-liked:hover {
+    color: #178ee0;
 }
 
 .asana-ng-container .task-list .checkbox label,
