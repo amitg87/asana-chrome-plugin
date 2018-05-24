@@ -269,9 +269,16 @@ asanaModule.controller("tasksController", ["$scope", "AsanaGateway", "ChromeExte
     AsanaGateway.getWorkspaces().then(function (response) {
         tasksCtrl.workspaces = response;
         if(angular.isDefined(response) && response.length > 0){
-            tasksCtrl.selectedWorkspace = response[0];
-            tasksCtrl.selectedWorkspace.selected = response[0];
-            tasksCtrl.onWorkspaceSelect(response[0], response[0]);
+            var lastUsedWorkspaceId = Number.parseInt(StorageService.get("workspace")) || 0;
+            var lastUsedWorkspace = response.find(function(workspace){
+                return workspace.id == lastUsedWorkspaceId;
+            });
+            if(!angular.isDefined(lastUsedWorkspace)) {
+                lastUsedWorkspace = response[0];
+            }
+            tasksCtrl.selectedWorkspace = lastUsedWorkspace;
+            tasksCtrl.selectedWorkspace.selected = lastUsedWorkspace;
+            tasksCtrl.onWorkspaceSelect(lastUsedWorkspace, lastUsedWorkspace);
         }
     }).catch(function (response) {
         console.log("AsanaNG Error: "+JSON.stringify(response));
