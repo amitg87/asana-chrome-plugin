@@ -19,8 +19,8 @@ asanaModule.controller("userController", ["$scope", "AsanaGateway", "AsanaConsta
     };
 }]);
 
-asanaModule.controller("createTaskController", ['$scope', 'AsanaGateway', '$timeout', 'AsanaConstants', '$filter', 'ChromeExtensionService',
-    function ($scope, AsanaGateway, $timeout, AsanaConstants, $filter, ChromeExtensionService) {
+asanaModule.controller("createTaskController", ['$scope', 'AsanaGateway', '$timeout', 'AsanaConstants', '$filter', 'ChromeExtensionService', 'StorageService',
+    function ($scope, AsanaGateway, $timeout, AsanaConstants, $filter, ChromeExtensionService, StorageService) {
     var createTaskCtrl = this;
     createTaskCtrl.workspaceNotSelected = true;
     createTaskCtrl.projectRequired = false;
@@ -76,6 +76,7 @@ asanaModule.controller("createTaskController", ['$scope', 'AsanaGateway', '$time
 
     createTaskCtrl.onWorkspaceSelect = function (item, model) {
         createTaskCtrl.selectedWorkspaceId = createTaskCtrl.selectedWorkspace.selected.id;
+        StorageService.set('workspace', createTaskCtrl.selectedWorkspaceId);
         createTaskCtrl.clearFields();
         createTaskCtrl.workspaceNotSelected = false;
 
@@ -184,9 +185,16 @@ asanaModule.controller("createTaskController", ['$scope', 'AsanaGateway', '$time
     AsanaGateway.getWorkspaces().then(function (response) {
         createTaskCtrl.workspaces = response;
         if(angular.isDefined(response) && response.length > 0){
-            createTaskCtrl.selectedWorkspace = response[0];
-            createTaskCtrl.selectedWorkspace.selected = response[0];
-            createTaskCtrl.onWorkspaceSelect(response[0], response[0]);
+            var lastUsedWorkspaceId = Number.parseInt(StorageService.get("workspace")) || 0;
+            var lastUsedWorkspace = response.find(function(workspace){
+                return workspace.id == lastUsedWorkspaceId;
+            });
+            if(!angular.isDefined(lastUsedWorkspace)) {
+                lastUsedWorkspace = response[0];
+            }
+            createTaskCtrl.selectedWorkspace = lastUsedWorkspace;
+            createTaskCtrl.selectedWorkspace.selected = lastUsedWorkspace;
+            createTaskCtrl.onWorkspaceSelect(lastUsedWorkspace, lastUsedWorkspace);
         }
     }).catch(function (response) {
         console.log("AsanaNG Error: "+JSON.stringify(response));
