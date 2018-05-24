@@ -297,6 +297,16 @@ asanaModule.service("AsanaGateway", ["$http", "AsanaConstants", "$q", "$filter",
     };
 }]);
 
+asanaModule.service('StorageService', [function() {
+    var StorageService = this;
+    StorageService.get = function(key) {
+        return localStorage.getItem(key);
+    }
+    StorageService.set = function(key, data) {
+        localStorage.setItem(key, data);
+    }
+}]);
+
 asanaModule.service("ChromeExtensionService", [function () {
     var ChromeExtension = this;
 
