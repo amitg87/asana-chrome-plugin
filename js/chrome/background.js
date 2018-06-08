@@ -1,4 +1,5 @@
-asanaModule.run(['AsanaConstants', 'AsanaGateway', "ChromeExtensionService", "$timeout", "$q", function (AsanaConstants, AsanaGateway, ChromeExtensionService, $timeout, $q) {
+asanaModule.run(['AsanaConstants', 'AsanaGateway', "ChromeExtensionService", "$timeout", "$q", "StorageService",
+function (AsanaConstants, AsanaGateway, ChromeExtensionService, $timeout, $q, StorageService) {
     chrome.browserAction.setBadgeText({text: "NG"});
     chrome.browserAction.setBadgeBackgroundColor({color: "#FC636B"});
 
@@ -22,8 +23,13 @@ asanaModule.run(['AsanaConstants', 'AsanaGateway', "ChromeExtensionService", "$t
     });
 
     chrome.runtime.onInstalled.addListener(function(details){
-        if(details.reason === "install")
+        if(details.reason === "install") {
             ChromeExtensionService.openLink("info.html");
+        }
+        StorageService.setString("workspace", "");
+        StorageService.clearArray("project");
+        StorageService.setString("task-name", "");
+        StorageService.setString("task-description", "");
     });
 
     function resetDefaultSuggestion() {

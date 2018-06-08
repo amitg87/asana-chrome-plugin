@@ -141,3 +141,18 @@ asanaModule.directive('uiSelectFocus', ['$timeout', function($timeout){
         }
     };
 }]);
+
+asanaModule.directive('remember', ["StorageService", function(StorageService){
+    return {
+        restrict: 'A',
+        require: 'ngModel',
+        link: function(scope, element, attrs, ngModel) {
+            var key = attrs.remember;
+
+            ngModel.$viewChangeListeners.push(function() {
+                var value = ngModel.$viewValue;
+                StorageService.setString(key, value);
+            });
+        }
+    }
+}]);

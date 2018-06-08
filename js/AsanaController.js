@@ -55,12 +55,18 @@ asanaModule.controller("createTaskController", ['$scope', 'AsanaGateway', '$time
         createTaskCtrl.deadline = undefined;
         createTaskCtrl.deadlineType = AsanaConstants.DEADLINE_TYPE.NONE;
         createTaskCtrl.taskNameRequired = false;
+
+        StorageService.setString("task-name", "");
+        StorageService.setString("task-description", "");
     };
 
-    createTaskCtrl.clearFields();
+    createTaskCtrl.onProjectDeselected = function(item, model) {
+        StorageService.removeFromArray("project", item.id);
+    }
 
     createTaskCtrl.onProjectSelected = function (item, model) {
         createTaskCtrl.projectRequired = false;
+        StorageService.addToArray("project", item.id);
         if(item.isTag){
             var options = {data: {}};
             options.data.workspace = createTaskCtrl.selectedWorkspaceId;
@@ -76,8 +82,7 @@ asanaModule.controller("createTaskController", ['$scope', 'AsanaGateway', '$time
 
     createTaskCtrl.onWorkspaceSelect = function (item, model) {
         createTaskCtrl.selectedWorkspaceId = createTaskCtrl.selectedWorkspace.selected.id;
-        StorageService.set('workspace', createTaskCtrl.selectedWorkspaceId);
-        createTaskCtrl.clearFields();
+        StorageService.setString("workspace", createTaskCtrl.selectedWorkspaceId);
         createTaskCtrl.workspaceNotSelected = false;
 
         AsanaGateway.getWorkspaceTags({workspace_id: createTaskCtrl.selectedWorkspaceId}).then(function (response) {
@@ -97,6 +102,18 @@ asanaModule.controller("createTaskController", ['$scope', 'AsanaGateway', '$time
 
         AsanaGateway.getWorkspaceProjects({workspace_id: createTaskCtrl.selectedWorkspaceId}).then(function (response) {
             createTaskCtrl.projects = response;
+            createTaskCtrl.selectedProject = { list: [] };
+            var oldProjects = StorageService.getArray("project");
+            if(angular.isDefined(oldProjects)) {
+                createTaskCtrl.projects.forEach(project => {
+                    var found = oldProjects.find(oldProject => {
+                        return project.id == oldProject;
+                    });
+                    if(found) {
+                        createTaskCtrl.selectedProject.list.push(project);
+                    }
+                });
+            }
         });
     };
 
@@ -185,7 +202,7 @@ asanaModule.controller("createTaskController", ['$scope', 'AsanaGateway', '$time
     AsanaGateway.getWorkspaces().then(function (response) {
         createTaskCtrl.workspaces = response;
         if(angular.isDefined(response) && response.length > 0){
-            var lastUsedWorkspaceId = Number.parseInt(StorageService.get("workspace")) || 0;
+            var lastUsedWorkspaceId = StorageService.getString("workspace") || 0;
             var lastUsedWorkspace = response.find(function(workspace){
                 return workspace.id == lastUsedWorkspaceId;
             });
@@ -251,8 +268,8 @@ asanaModule.controller("createTaskController", ['$scope', 'AsanaGateway', '$time
     };
 }]);
 
-asanaModule.controller("tasksController", ["$scope", "AsanaGateway", "ChromeExtensionService", "$filter", "AsanaConstants", "$q",
-    function ($scope, AsanaGateway, ChromeExtension, $filter, AsanaConstants, $q) {
+asanaModule.controller("tasksController", ["$scope", "AsanaGateway", "ChromeExtensionService", "$filter", "AsanaConstants", "$q", "StorageService",
+    function ($scope, AsanaGateway, ChromeExtension, $filter, AsanaConstants, $q, StorageService) {
     var tasksCtrl = this;
     tasksCtrl.selectedView = "My Tasks";
     tasksCtrl.filterTask = 'filterMyTasks';
@@ -269,7 +286,7 @@ asanaModule.controller("tasksController", ["$scope", "AsanaGateway", "ChromeExte
     AsanaGateway.getWorkspaces().then(function (response) {
         tasksCtrl.workspaces = response;
         if(angular.isDefined(response) && response.length > 0){
-            var lastUsedWorkspaceId = Number.parseInt(StorageService.get("workspace")) || 0;
+            var lastUsedWorkspaceId = StorageService.getString("workspace") || 0;
             var lastUsedWorkspace = response.find(function(workspace){
                 return workspace.id == lastUsedWorkspaceId;
             });
