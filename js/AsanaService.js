@@ -299,7 +299,6 @@ asanaModule.service("AsanaGateway", ["$http", "AsanaConstants", "$q", "$filter",
 
 asanaModule.service('StorageService', [function() {
     var StorageService = this;
-
     StorageService.getString = function(key) {
         return localStorage.getItem(key);
     }
