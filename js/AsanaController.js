@@ -95,24 +95,30 @@ asanaModule.controller("createTaskController", ['$scope', 'AsanaGateway', '$time
         StorageService.setString("workspace", createTaskCtrl.selectedWorkspaceId);
         createTaskCtrl.workspaceNotSelected = false;
 
+        createTaskCtrl.taskName = StorageService.getString("name");
+        createTaskCtrl.taskNotes = StorageService.getString("description");
+
         AsanaGateway.getWorkspaceTags({workspace_id: createTaskCtrl.selectedWorkspaceId}).then(function (response) {
             createTaskCtrl.tags = response;
-            var oldTags = StorageService.getArray("tag");
-            if(angular.isDefined(oldTags)) {
-                createTaskCtrl.tags.forEach(tag => {
-                    var found = oldTags.find(oldTag => {
-                        return tag.id == oldTag;
+            if(AsanaConstants.getRememberTag()) {
+                var oldTags = StorageService.getArray("tag");
+                if(angular.isDefined(oldTags)) {
+                    createTaskCtrl.tags.forEach(tag => {
+                        var found = oldTags.find(oldTag => {
+                            return tag.id == oldTag;
+                        });
+                        if(found) {
+                            createTaskCtrl.selectedTags.list.push(tag);
+                        }
                     });
-                    if(found) {
-                        createTaskCtrl.selectedTags.list.push(tag);
-                    }
-                });
+                }
             }
         });
 
         AsanaGateway.getWorkspaceUsers({workspace_id: createTaskCtrl.selectedWorkspaceId}).then(function (response) {
             createTaskCtrl.users = response;
-            var oldFollowers = StorageService.getArray("follower");
+            if(AsanaConstants.getRememberFollower()) {
+                var oldFollowers = StorageService.getArray("follower");
                 if(angular.isDefined(oldFollowers)) {
                     createTaskCtrl.users.forEach(user => {
                         var found = oldFollowers.find(oldFollower => {
@@ -123,6 +129,7 @@ asanaModule.controller("createTaskController", ['$scope', 'AsanaGateway', '$time
                         }
                     });
                 }
+            }
         }).then(function () {
             AsanaGateway.getUserData().then(function (response) {
                 createTaskCtrl.user = response;
@@ -135,16 +142,18 @@ asanaModule.controller("createTaskController", ['$scope', 'AsanaGateway', '$time
         AsanaGateway.getWorkspaceProjects({workspace_id: createTaskCtrl.selectedWorkspaceId}).then(function (response) {
             createTaskCtrl.projects = response;
             createTaskCtrl.selectedProject = { list: [] };
-            var oldProjects = StorageService.getArray("project");
-            if(angular.isDefined(oldProjects)) {
-                createTaskCtrl.projects.forEach(project => {
-                    var found = oldProjects.find(oldProject => {
-                        return project.id == oldProject;
+            if(AsanaConstants.getRememberProject()) {
+                var oldProjects = StorageService.getArray("project");
+                if(angular.isDefined(oldProjects)) {
+                    createTaskCtrl.projects.forEach(project => {
+                        var found = oldProjects.find(oldProject => {
+                            return project.id == oldProject;
+                        });
+                        if(found) {
+                            createTaskCtrl.selectedProject.list.push(project);
+                        }
                     });
-                    if(found) {
-                        createTaskCtrl.selectedProject.list.push(project);
-                    }
-                });
+                }
             }
         });
     };
@@ -750,4 +759,20 @@ asanaModule.controller("settingsController", ['$scope', 'AsanaConstants', functi
     settingsCtrl.changeProjectOptional = function () {
         AsanaConstants.setProjectOptional(settingsCtrl.projectOptional);
     };
+
+    settingsCtrl.rememberProject = AsanaConstants.getRememberProject();
+    settingsCtrl.changeRememberProject = function () {
+        AsanaConstants.setRememberProject(settingsCtrl.rememberProject);
+    };
+
+    settingsCtrl.rememberTag = AsanaConstants.getRememberTag();
+    settingsCtrl.changeRememberTag = function () {
+        AsanaConstants.setRememberTag(settingsCtrl.rememberTag);
+    };
+
+    settingsCtrl.rememberFollower = AsanaConstants.getRememberFollower();
+    settingsCtrl.changeRememberFollower = function () {
+        AsanaConstants.setRememberFollower(settingsCtrl.rememberFollower);
+    };
+
 }]);
