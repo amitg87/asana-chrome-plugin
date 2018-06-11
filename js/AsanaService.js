@@ -299,11 +299,39 @@ asanaModule.service("AsanaGateway", ["$http", "AsanaConstants", "$q", "$filter",
 
 asanaModule.service('StorageService', [function() {
     var StorageService = this;
-    StorageService.get = function(key) {
+    StorageService.getString = function(key) {
         return localStorage.getItem(key);
     }
-    StorageService.set = function(key, data) {
-        localStorage.setItem(key, data);
+
+    StorageService.setString = function(key, value) {
+        localStorage.setItem(key, value)
+    }
+
+    StorageService.clearArray = function(key) {
+        localStorage.setItem(key, JSON.stringify([]));
+    }
+
+    StorageService.getArray = function(key) {
+        return JSON.parse(localStorage.getItem(key));
+    }
+
+    StorageService.addToArray = function(key, value) {
+        var current = StorageService.getArray(key);
+        current.push(value);
+        StorageService.initArray(key, current);
+    }
+
+    StorageService.removeFromArray = function(key, value) {
+        var current = StorageService.getArray(key);
+        var index = current.indexOf(value);
+        if(index > -1) {
+            current.splice(index, 1);
+        }
+        StorageService.initArray(key, current);
+    }
+
+    StorageService.initArray = function(key, value) {
+        localStorage.setItem(key, JSON.stringify(value));
     }
 }]);
 
