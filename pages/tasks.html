@@ -12,7 +12,7 @@
         </ul>
     </div>
     <div class="form-group">
-        <ui-select data-ng-model="tasksCtrl.selectedWorkspace.selected" on-select="tasksCtrl.onWorkspaceSelect($item, $model)">
+        <ui-select data-ng-model="tasksCtrl.selectedWorkspace.selected" on-select="tasksCtrl.onWorkspaceSelect($item, $model);tasksCtrl.clearSaved();">
             <ui-select-match placeholder="Select Workspace">
                 <span data-ng-bind="$select.selected.name"></span>
             </ui-select-match>

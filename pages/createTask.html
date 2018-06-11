@@ -1,7 +1,7 @@
 <form>
     <div class="form-group">
         <ui-select data-ng-model="createTaskCtrl.selectedWorkspace.selected"
-                   on-select="createTaskCtrl.onWorkspaceSelect($item, $model); createTaskCtrl.clearFields();">
+                   on-select="createTaskCtrl.onWorkspaceSelect($item, $model); createTaskCtrl.clearFields();createTaskCtrl.clearSaved();tasksCtrl.clearNameDescription();">
             <ui-select-match placeholder="Select Workspace">
                 <span data-ng-bind="$select.selected.name"></span>
             </ui-select-match>

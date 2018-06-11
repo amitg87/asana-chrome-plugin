@@ -55,10 +55,18 @@ asanaModule.controller("createTaskController", ['$scope', 'AsanaGateway', '$time
         createTaskCtrl.deadline = undefined;
         createTaskCtrl.deadlineType = AsanaConstants.DEADLINE_TYPE.NONE;
         createTaskCtrl.taskNameRequired = false;
+    };
 
+    createTaskCtrl.clearNameDescription = function () {
         StorageService.setString("name", "");
         StorageService.setString("description", "");
-    };
+    }
+
+    createTaskCtrl.clearSaved = function () {
+        StorageService.clearArray("project");
+        StorageService.clearArray("tag");
+        StorageService.clearArray("follower");
+    }
 
     createTaskCtrl.clearFields();
 
@@ -202,6 +210,7 @@ asanaModule.controller("createTaskController", ['$scope', 'AsanaGateway', '$time
 
         AsanaGateway.createTask(options).then(function (response) {
             createTaskCtrl.clearFields();
+            createTaskCtrl.clearNameDescription();
 
             var containerId = (response.projects[0])? response.projects[0].id: (response.tags[0])? response.tags[0].id: (response.assignee)? response.assignee.id: 0;
             var taskId = response.id;
@@ -365,6 +374,17 @@ asanaModule.controller("tasksController", ["$scope", "AsanaGateway", "ChromeExte
             }
         });
     };
+
+    tasksCtrl.clearNameDescription = function () {
+        StorageService.setString("name", "");
+        StorageService.setString("description", "");
+    }
+
+    tasksCtrl.clearSaved = function () {
+        StorageService.clearArray("project");
+        StorageService.clearArray("tag");
+        StorageService.clearArray("follower");
+    }
 
     tasksCtrl.tagHandler = function (input){
         var lowInput = input.toLowerCase();
