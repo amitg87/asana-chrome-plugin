@@ -1,7 +1,7 @@
 <form>
     <div class="form-group">
         <ui-select data-ng-model="createTaskCtrl.selectedWorkspace.selected"
-                   on-select="createTaskCtrl.onWorkspaceSelect($item, $model)">
+                   on-select="createTaskCtrl.onWorkspaceSelect($item, $model); createTaskCtrl.clearFields();">
             <ui-select-match placeholder="Select Workspace">
                 <span data-ng-bind="$select.selected.name"></span>
             </ui-select-match>
@@ -53,7 +53,8 @@
 
     <div class="form-group multi-select">
         <ui-select multiple tagging="createTaskCtrl.tagHandler"  data-ng-model="createTaskCtrl.selectedTags.list"
-                   data-ng-disabled="createTaskCtrl.workspaceNotSelected" on-select="createTaskCtrl.createNewTag($item, $model)">
+                   data-ng-disabled="createTaskCtrl.workspaceNotSelected" on-select="createTaskCtrl.onTagSelected($item, $model)"
+                   on-remove="createTaskCtrl.onTagDeselected($item, $model)">
             <ui-select-match placeholder="Select Tag(s)" style="padding-left: 5px;">
                 <i class="fa fa-tag"></i> {{$item.name}}
             </ui-select-match>
@@ -69,7 +70,8 @@
 
     <div class="form-group multi-select">
         <ui-select multiple data-ng-model="createTaskCtrl.selectedFollowers.list"
-                   data-ng-disabled="createTaskCtrl.workspaceNotSelected">
+                   data-ng-disabled="createTaskCtrl.workspaceNotSelected" on-select="createTaskCtrl.onFollowerSelected($item, $model)"
+                   on-remove="createTaskCtrl.onFollowerDeselected($item, $model)">
             <ui-select-match placeholder="Select Follower(s)" style="padding-left: 5px;">
                 <img class="img-circle profile-img profile-img-xs" data-ng-src="{{$item.photo.image_36x36}}" data-ng-attr-title="{{$item.name}}">
                 <span data-ng-bind="$item.name | nameInitials" data-ng-attr-title="{{$item.name}}"></span>
@@ -90,9 +92,9 @@
         <a class="copy-page" title="Insert Page title and URL" data-ng-click="createTaskCtrl.copyPage()"><i class="fa fa-copy"></i></a>
         <textarea data-ng-class="{requiredField:createTaskCtrl.taskNameRequired}" rows="1" id="taskName" name="taskName"
                   data-ng-model="createTaskCtrl.taskName" placeholder="Task Name" required
-                  style="font-weight:600;" data-ng-disabled="workspaceNotSelected" remember="task-name"></textarea>
+                  style="font-weight:600;" data-ng-disabled="workspaceNotSelected" remember="name"></textarea>
         <textarea id="taskDescription" name="taskNotes" data-ng-model="createTaskCtrl.taskNotes" placeholder="Task Description"
-               data-ng-disabled="createTaskCtrl.workspaceNotSelected" remember="task-description"></textarea>
+               data-ng-disabled="createTaskCtrl.workspaceNotSelected" remember="description"></textarea>
     </div>
 
     <div class="form-group">

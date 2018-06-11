@@ -28,8 +28,10 @@ function (AsanaConstants, AsanaGateway, ChromeExtensionService, $timeout, $q, St
         }
         StorageService.setString("workspace", "");
         StorageService.clearArray("project");
-        StorageService.setString("task-name", "");
-        StorageService.setString("task-description", "");
+        StorageService.clearArray("tag");
+        StorageService.clearArray("follower");
+        StorageService.setString("name", "");
+        StorageService.setString("description", "");
     });
 
     function resetDefaultSuggestion() {
