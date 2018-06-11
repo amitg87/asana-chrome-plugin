@@ -71,7 +71,7 @@
                         <i class="fa fa-comment-o"></i>
                         <i class="fa fa-chevron-right"></i>
                     </a>
-                    <img class="pull-right img-circle profile-img profile-img-sm" src="../img/nopicture.png"
+                    <img data-ng-if="task.assignee!=null" class="pull-right img-circle profile-img profile-img-sm" src="../img/nopicture.png"
                          data-ng-src="{{task.assignee.photo.image_36x36}}" title="{{task.assignee.name}}">
                 </div>
             </li>
