@@ -1,6 +1,6 @@
 <form>
     <div class="form-group">
-        <ui-select data-ng-model="createTaskCtrl.selectedWorkspace.selected"
+        <ui-select data-ng-model="createTaskCtrl.selectedWorkspace.selected" title="Select Workspace"
                    on-select="createTaskCtrl.onWorkspaceSelect($item, $model); createTaskCtrl.clearFields();createTaskCtrl.clearSaved();tasksCtrl.clearNameDescription();">
             <ui-select-match placeholder="Select Workspace">
                 <span data-ng-bind="$select.selected.name"></span>
@@ -16,7 +16,7 @@
     <div class="form-group multi-select">
         <ui-select multiple tagging="createTaskCtrl.projectTaggingHandler" data-ng-class="{requiredField:createTaskCtrl.projectRequired}" data-ng-model="createTaskCtrl.selectedProject.list"
                    data-ng-disabled="createTaskCtrl.workspaceNotSelected" on-select="createTaskCtrl.onProjectSelected($item, $model)"
-                   on-remove="createTaskCtrl.onProjectDeselected($item, $model)">
+                   on-remove="createTaskCtrl.onProjectDeselected($item, $model)" title="Select Project(s)">
             <ui-select-match placeholder="Select Project(s)" style="padding-left: 5px;">
                 {{$item.name}}
             </ui-select-match>
@@ -32,7 +32,7 @@
 
     <div class="form-group">
         <ui-select data-ng-model="createTaskCtrl.selectedUser.selected"
-                   data-ng-disabled="createTaskCtrl.workspaceNotSelected">
+                   data-ng-disabled="createTaskCtrl.workspaceNotSelected" title="Select Assignee">
             <ui-select-match allow-clear="true" placeholder="Select Assignee">
                 <img class="img-circle profile-img profile-img-sm"
                      data-ng-src="{{$select.selected.photo.image_21x21}}"
@@ -54,7 +54,7 @@
     <div class="form-group multi-select">
         <ui-select multiple tagging="createTaskCtrl.tagHandler"  data-ng-model="createTaskCtrl.selectedTags.list"
                    data-ng-disabled="createTaskCtrl.workspaceNotSelected" on-select="createTaskCtrl.onTagSelected($item, $model)"
-                   on-remove="createTaskCtrl.onTagDeselected($item, $model)">
+                   on-remove="createTaskCtrl.onTagDeselected($item, $model)" title="Select Tag(s)">
             <ui-select-match placeholder="Select Tag(s)" style="padding-left: 5px;">
                 <i class="fa fa-tag"></i> {{$item.name}}
             </ui-select-match>
@@ -71,7 +71,7 @@
     <div class="form-group multi-select">
         <ui-select multiple data-ng-model="createTaskCtrl.selectedFollowers.list"
                    data-ng-disabled="createTaskCtrl.workspaceNotSelected" on-select="createTaskCtrl.onFollowerSelected($item, $model)"
-                   on-remove="createTaskCtrl.onFollowerDeselected($item, $model)">
+                   on-remove="createTaskCtrl.onFollowerDeselected($item, $model)" title="Select Follower(s)">
             <ui-select-match placeholder="Select Follower(s)" style="padding-left: 5px;">
                 <img class="img-circle profile-img profile-img-xs" data-ng-src="{{$item.photo.image_36x36}}" data-ng-attr-title="{{$item.name}}">
                 <span data-ng-bind="$item.name | nameInitials" data-ng-attr-title="{{$item.name}}"></span>
@@ -92,19 +92,19 @@
         <a class="copy-page" title="Insert Page title and URL" data-ng-click="createTaskCtrl.copyPage()"><i class="fa fa-copy"></i></a>
         <textarea data-ng-class="{requiredField:createTaskCtrl.taskNameRequired}" rows="1" id="taskName" name="taskName"
                   data-ng-model="createTaskCtrl.taskName" placeholder="Task Name" required
-                  style="font-weight:600;" data-ng-disabled="workspaceNotSelected" remember="name"></textarea>
+                  style="font-weight:600;" data-ng-disabled="workspaceNotSelected" remember="name" title="Task Name"></textarea>
         <textarea id="taskDescription" name="taskNotes" data-ng-model="createTaskCtrl.taskNotes" placeholder="Task Description"
-               data-ng-disabled="createTaskCtrl.workspaceNotSelected" remember="description"></textarea>
+               data-ng-disabled="createTaskCtrl.workspaceNotSelected" remember="description" title="Task Description"></textarea>
     </div>
 
     <div class="form-group">
-        <datetime type="createTaskCtrl.deadlineType" date="createTaskCtrl.deadline">
+        <datetime type="createTaskCtrl.deadlineType" date="createTaskCtrl.deadline" title="Set Due Date and Time">
         </datetime>
     </div>
 
     <div class="form-group">
         <button type="button" class="btn btn-sm btn-asana"
-            data-ng-click="createTaskCtrl.createTask()">Create Task</button>
+            data-ng-click="createTaskCtrl.createTask()" title="Create Task">Create Task</button>
         <span class="status label" data-ng-show="createTaskCtrl.taskCreationStatus.show"
             data-ng-class="createTaskCtrl.taskCreationStatus.success?'label-success':'label-danger'"
             data-ng-bind="createTaskCtrl.taskCreationStatus.message">
