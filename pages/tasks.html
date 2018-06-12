@@ -59,13 +59,12 @@
 
     <div class="form-group task-list">
         <ul class="list-group">
-            <li class="list-group-item" data-ng-repeat="task in tasksCtrl.tasks | orderBy: 'due'" data-ng-if='tasksCtrl.isTask(task.name)'>
+            <li class="list-group-item" data-ng-repeat="task in tasksCtrl.tasks" data-ng-if='tasksCtrl.isTask(task.name)'>
                 <div class="checkbox checkbox-info checkbox-circle checkbox-asana" data-ng-model="task.id">
                     <input id="{{task.id}}" class="styled" type="checkbox" data-ng-checked="task.completed"
                            data-ng-click="tasksCtrl.toggleTaskDone(task.id, task.completed); task.completed = !task.completed;"
                            title="{{task.completed?'Mark Incomplete': 'Mark Complete'}}">
-                    <label for="{{task.id}}">
-                    </label>
+                    <label for="{{task.id}}"></label>
                     <span class="task-name" title="{{task.name}}" data-ng-bind="task.name"></span>
                     <i data-ng-if="task.schedule"  class="fa fa-clock-o {{task.status}}" title="{{task.schedule}}"></i>
                     <a class="pull-right task-details" data-ng-click="tasksCtrl.showTask(task.id, $index)" title="Show Details">
