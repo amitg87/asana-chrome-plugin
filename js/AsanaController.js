@@ -450,10 +450,6 @@ asanaModule.controller("tasksController", ["$scope", "AsanaGateway", "ChromeExte
         tasksCtrl.fetchTasks();
     };
 
-    tasksCtrl.onTagSelected = function (item, model) {
-        tasksCtrl.fetchTasks();
-    };
-
     tasksCtrl.fetchTasks = function () {
         //fetch tasks here
         tasksCtrl.tasks = [];
@@ -480,11 +476,42 @@ asanaModule.controller("tasksController", ["$scope", "AsanaGateway", "ChromeExte
                 break;
         }
         AsanaGateway.getTasks(options).then(function (response) {
-            tasksCtrl.tasks = response; //response[0].assignee.id -> tasksCtrl.users
+            tasksCtrl.tasks = response;
+            tasksCtrl.tasks.forEach(task => {
+                tasksCtrl.enrichTask(task);
+            });
         }).catch(function () {
             console.log("Error getting tasks");
         });
     };
+
+    tasksCtrl.enrichTask = function (task) {
+        task.link = "https://app.asana.com/0/" + task.workspace.id + "/" + task.id;
+        AsanaConstants.setDefaultPictureUser(task.assignee);
+        task.due = {
+            open: false
+        };
+        var now = new Date().getTime(); // current time since epoch seconds
+        if(task.due_at !== null){
+            task.deadline = new Date(Date.parse(task.due_at));
+            task.deadlineType = AsanaConstants.DEADLINE_TYPE.DUE_AT;
+            task.due = Date.parse(task.due_at);
+            task.schedule = $filter('date')(new Date(task.due), 'MMM d hh:mm a');
+            task.status = task.due < now? 'overdue':'upcoming';
+        }
+        else if(task.due_on !== null) {
+            task.deadline = new Date(Date.parse(task.due_on));
+            task.deadlineType = AsanaConstants.DEADLINE_TYPE.DUE_ON;
+            task.due = Date.parse(task.due_on);
+            task.schedule = $filter('date')(new Date(task.due), 'MMM d');
+            task.status = task.due < now? 'overdue':'upcoming';
+        }
+        else {
+            task.deadlineType = AsanaConstants.DEADLINE_TYPE.NONE;
+            task.due = Number.MAX_VALUE;
+            task.schedule = "";
+        }
+    }
 
     tasksCtrl.onProjectAdd = function (item, model) {
         tasksCtrl.createProject(item, model, function () {
@@ -601,24 +628,8 @@ asanaModule.controller("tasksController", ["$scope", "AsanaGateway", "ChromeExte
 
         AsanaGateway.getTask({task_id: tasksCtrl.selectedTaskId}).then(function (response) {
             tasksCtrl.tasks[tasksCtrl.selectedTaskIndex] = response;
-            tasksCtrl.taskDetails = tasksCtrl.tasks[tasksCtrl.selectedTaskIndex];
-            tasksCtrl.taskDetails.due = {
-                open: false
-            };
-            var workSpaceId = tasksCtrl.taskDetails.workspace.id;
-            var taskId = tasksCtrl.taskDetails.id;
-            tasksCtrl.taskDetails.link = "https://app.asana.com/0/" + workSpaceId + "/" + taskId;
-            if(response.due_at !== null){
-                tasksCtrl.taskDetails.deadline = new Date(Date.parse(response.due_at));
-                tasksCtrl.taskDetails.deadlineType = AsanaConstants.DEADLINE_TYPE.DUE_AT;
-            }
-            else if(response.due_on !== null) {
-                tasksCtrl.taskDetails.deadline = new Date(Date.parse(response.due_on));
-                tasksCtrl.taskDetails.deadlineType = AsanaConstants.DEADLINE_TYPE.DUE_ON;
-            }
-            else {
-                tasksCtrl.taskDetails.deadlineType = AsanaConstants.DEADLINE_TYPE.NONE;
-            }
+            tasksCtrl.taskDetails = tasksCtrl.tasks[tasksCtrl.selectedTaskIndex]; 
+            tasksCtrl.enrichTask(tasksCtrl.taskDetails);
         }).catch(function () {
             console.log("Error fetching task details");
         });
@@ -641,12 +652,7 @@ asanaModule.controller("tasksController", ["$scope", "AsanaGateway", "ChromeExte
                 liked: !current_liked
             }
         };
-        tasksCtrl.updateTask(option).then(function(response) {
-            tasksCtrl.taskDetails.liked = response.liked;
-            tasksCtrl.taskDetails.likes = response.likes;
-        }).catch(function () {
-            console.log("Error hearting task");
-        });
+        tasksCtrl.updateTask(option);
     }
 
     tasksCtrl.updateNotes = function () {
@@ -704,6 +710,12 @@ asanaModule.controller("tasksController", ["$scope", "AsanaGateway", "ChromeExte
 
     tasksCtrl.updateTask = function (options) {
         return AsanaGateway.updateTask(options).then(function (response) {
+            var keys = ["likes", "liked", "name", "notes", "assignee", "completed", "due_on", "due_at"];
+            keys.forEach(key => {
+                tasksCtrl.taskDetails[key] = response[key];
+            });
+
+            tasksCtrl.enrichTask(tasksCtrl.taskDetails);
             return response;
         }).catch(function () {
             console.log("Error occurred updating task");

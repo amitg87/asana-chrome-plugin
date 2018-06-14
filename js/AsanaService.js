@@ -83,29 +83,9 @@ asanaModule.service("AsanaGateway", ["$http", "AsanaConstants", "$q", "$filter",
         options = options || {};
         options.method = "GET";
         options.path = "tasks";
-        options.query.opt_fields = "name,completed,assignee.name,assignee.photo,due_on,due_at";
+        options.query.opt_fields = "name,completed,assignee.name,assignee.photo,due_on,due_at,workspace";
         options.query.completed_since = "now";
-        var now = new Date().getTime(); // current time since epoch seconds
-        return AsanaGateway.api(options).then(function (response) {
-            response.forEach(function (element) {
-                if(element.assignee != null){
-                    AsanaConstants.setDefaultPictureUser(element.assignee);
-                }
-                if(element.due_at !== null){
-                    element.due = Date.parse(element.due_at);
-                    element.schedule = $filter('date')(new Date(element.due), 'MMM d hh:mm a');
-                    element.status = element.due < now? 'overdue':'upcoming';
-                } else if(element.due_on != null) {
-                    element.due = Date.parse(element.due_on);
-                    element.schedule = $filter('date')(new Date(element.due), 'MMM d');
-                    element.status = element.due < now? 'overdue':'upcoming';
-                } else {
-                    element.due = Number.MAX_VALUE;
-                    element.schedule = "";
-                }
-            });
-            return response;
-        });
+        return AsanaGateway.api(options);
     };
 
     AsanaGateway.getTask = function (options) {
