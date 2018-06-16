@@ -43,7 +43,7 @@
 
     <div class="form-group multi-select">
         <ui-select tagging="tasksCtrl.tagHandler" data-ng-model="tasksCtrl.filterTag.selected" data-ng-show="tasksCtrl.filterTask==='filterTagsTasks'"
-                   on-select="tasksCtrl.onTagSelected($item, $model)" title="Select Tag">
+                   on-select="tasksCtrl.onTagSelectedTaskList($item, $model)" title="Select Tag">
             <ui-select-match placeholder="Select tag">
                 <span data-ng-bind="$select.selected.name"></span>
             </ui-select-match>

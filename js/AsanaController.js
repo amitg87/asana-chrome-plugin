@@ -125,20 +125,17 @@ asanaModule.controller("createTaskController", ['$scope', 'AsanaGateway', '$time
 
         var promise2 = AsanaGateway.getWorkspaceUsers({workspace_id: createTaskCtrl.selectedWorkspaceId}).then(function (response) {
             createTaskCtrl.users = response;
-        }).then(function () {
-            AsanaGateway.getUserData().then(function (response) {
-                createTaskCtrl.user = response;
-                createTaskCtrl.setDefaultAssignee();
-            }).catch(function (response) {
-                console.log("AsanaNG Error: "+response[0].message);
-            });
         });
 
         var promise3 = AsanaGateway.getWorkspaceProjects({workspace_id: createTaskCtrl.selectedWorkspaceId}).then(function (response) {
             createTaskCtrl.projects = response;
         });
 
-        Promise.all([promise1, promise2, promise3]).then(results => {
+        var promise4 = AsanaGateway.getUserData().then(function (response) {
+            createTaskCtrl.user = response;
+        });
+
+        Promise.all([promise1, promise2, promise3, promise4]).then(results => {
             createTaskCtrl.clearFields();
         });
     };
@@ -189,7 +186,7 @@ asanaModule.controller("createTaskController", ['$scope', 'AsanaGateway', '$time
             options.data.followers = followers;
         }
 
-        if(!angular.isDefined(createTaskCtrl.taskName)){
+        if(!angular.isDefined(createTaskCtrl.taskName) || createTaskCtrl.taskName.trim().length == 0){
             createTaskCtrl.taskCreationStatus.success = false;
             createTaskCtrl.taskCreationStatus.message = "Task name required";
             createTaskCtrl.taskCreationStatus.show = true;
@@ -391,6 +388,10 @@ asanaModule.controller("tasksController", ["$scope", "AsanaGateway", "ChromeExte
             }
         }
         return { id: 1, name: input, notes: '', prompt: "(new tag)" };
+    };
+
+    tasksCtrl.onTagSelectedTaskList = function (item, model) {
+        tasksCtrl.fetchTasks();
     };
 
     tasksCtrl.onTagSelected = function (item, model, callback) {
