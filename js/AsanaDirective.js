@@ -148,6 +148,9 @@ asanaModule.directive('remember', ["StorageService", function(StorageService){
         require: 'ngModel',
         link: function(scope, element, attrs, ngModel) {
             var key = attrs.remember;
+            var storedValue = StorageService.getString(key) || '';
+            ngModel.$setViewValue(storedValue);
+            ngModel.$render();
 
             ngModel.$viewChangeListeners.push(function() {
                 var value = ngModel.$viewValue;
