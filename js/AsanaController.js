@@ -19,8 +19,8 @@ asanaModule.controller("userController", ["$scope", "AsanaGateway", "AsanaConsta
     };
 }]);
 
-asanaModule.controller("createTaskController", ['$scope', 'AsanaGateway', '$timeout', 'AsanaConstants', '$filter', 'ChromeExtensionService', 'StorageService',
-    function ($scope, AsanaGateway, $timeout, AsanaConstants, $filter, ChromeExtensionService, StorageService) {
+asanaModule.controller("createTaskController", ['$scope', 'AsanaGateway', '$timeout', 'AsanaConstants', '$filter', 'ChromeExtensionService', '$q', 'StorageService',
+    function ($scope, AsanaGateway, $timeout, AsanaConstants, $filter, ChromeExtensionService, $q, StorageService) {
     var createTaskCtrl = this;
     createTaskCtrl.workspaceNotSelected = true;
     createTaskCtrl.projectRequired = false;
@@ -72,9 +72,6 @@ asanaModule.controller("createTaskController", ['$scope', 'AsanaGateway', '$time
 
         createTaskCtrl.selectedTags = {list: []};
         createTaskCtrl.init(AsanaConstants.getRememberTag(), "tag", createTaskCtrl.tags, createTaskCtrl.selectedTags.list);
-
-        createTaskCtrl.taskName = StorageService.getString("name");
-        createTaskCtrl.taskNotes = StorageService.getString("description");
 
         createTaskCtrl.deadline = undefined;
         createTaskCtrl.deadlineType = AsanaConstants.DEADLINE_TYPE.NONE;
@@ -135,7 +132,7 @@ asanaModule.controller("createTaskController", ['$scope', 'AsanaGateway', '$time
             createTaskCtrl.user = response;
         });
 
-        Promise.all([promise1, promise2, promise3, promise4]).then(results => {
+        $q.all([promise1, promise2, promise3, promise4]).then(results => {
             createTaskCtrl.clearFields();
         });
     };
