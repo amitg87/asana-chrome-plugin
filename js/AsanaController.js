@@ -73,6 +73,9 @@ asanaModule.controller("createTaskController", ['$scope', 'AsanaGateway', '$time
         createTaskCtrl.selectedTags = {list: []};
         createTaskCtrl.init(AsanaConstants.getRememberTag(), "tag", createTaskCtrl.tags, createTaskCtrl.selectedTags.list);
 
+        createTaskCtrl.taskName = StorageService.getString("name");
+        createTaskCtrl.taskNotes = StorageService.getString("description");
+
         createTaskCtrl.deadline = undefined;
         createTaskCtrl.deadlineType = AsanaConstants.DEADLINE_TYPE.NONE;
         createTaskCtrl.taskNameRequired = false;
@@ -584,18 +587,6 @@ asanaModule.controller("tasksController", ["$scope", "AsanaGateway", "ChromeExte
         });
     };
 
-    tasksCtrl.toggleTaskDone = function (task_id, task_completed) {
-        var taskNextStatus = !task_completed;
-        var option = {
-            task_id: task_id,
-            completed: taskNextStatus
-        };
-        AsanaGateway.taskDone(option).then(function (response) {
-        }).catch(function () {
-            console.log("Error marking task as done");
-        });
-    };
-
     tasksCtrl.isTask = function (taskName) {
         return !taskName.endsWith(":");
     };
@@ -704,6 +695,16 @@ asanaModule.controller("tasksController", ["$scope", "AsanaGateway", "ChromeExte
                 break;
         }
         tasksCtrl.updateTask(options);
+    };
+
+    tasksCtrl.setCompleted = function (task_id, task_completed) {
+        var option = {
+            task_id: task_id,
+            query: {
+                completed: task_completed
+            } 
+        };
+        AsanaGateway.updateTask(option);
     };
 
     tasksCtrl.updateTask = function (options) {

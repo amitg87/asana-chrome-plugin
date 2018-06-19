@@ -102,22 +102,6 @@ asanaModule.service("AsanaGateway", ["$http", "AsanaConstants", "$q", "$filter",
         });
     };
 
-    AsanaGateway.taskDone = function (options) {
-        options = options || {};
-        options.method = "PUT";
-        options.path = "tasks/" + options.task_id;
-        options.query = {completed: options.completed};
-        return AsanaGateway.api(options);
-    };
-
-    AsanaGateway.taskLiked = function (options) {
-        options = options || {};
-        options.method = "PUT";
-        options.path = "tasks/" + options.task_id;
-        options.query = {liked: options.liked};
-        return AsanaGateway.api(options);
-    }
-
     AsanaGateway.getTaskStories = function (options) {
         options = options || {};
         options.method = "GET";

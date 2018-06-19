@@ -62,7 +62,7 @@
             <li class="list-group-item" data-ng-repeat="task in tasksCtrl.tasks" data-ng-if='tasksCtrl.isTask(task.name)'>
                 <div class="checkbox checkbox-info checkbox-circle checkbox-asana" data-ng-model="task.id">
                     <input id="{{task.id}}" class="styled" type="checkbox" data-ng-checked="task.completed"
-                           data-ng-click="tasksCtrl.toggleTaskDone(task.id, task.completed); task.completed = !task.completed;"
+                    data-ng-click="task.completed = !task.completed; tasksCtrl.setCompleted(task.id, task.completed);"
                            title="{{task.completed?'Mark Incomplete': 'Mark Complete'}}">
                     <label for="{{task.id}}"></label>
                     <span class="task-name" title="{{task.name}}" data-ng-bind="task.name"></span>
@@ -91,7 +91,7 @@
         <div class="checkbox checkbox-info checkbox-circle checkbox-asana" data-ng-model="tasksCtrl.taskDetails.id">
             <input id="{{tasksCtrl.selectedTaskId}}" class="styled" type="checkbox"
                    data-ng-checked="tasksCtrl.taskDetails.completed" title="{{tasksCtrl.taskDetails.completed?'Mark Incomplete': 'Mark Complete'}}"
-                   data-ng-click="tasksCtrl.toggleTaskDone(tasksCtrl.selectedTaskId, tasksCtrl.taskDetails.completed)"/>
+                   data-ng-click="tasksCtrl.taskDetails.completed=!tasksCtrl.taskDetails.completed; tasksCtrl.setCompleted(tasksCtrl.selectedTaskId, tasksCtrl.taskDetails.completed)"/>
             <label for="{{tasksCtrl.selectedTaskId}}"></label>
             <textarea id="taskName" class="task-name" rows="1" data-ng-model="tasksCtrl.taskDetails.name" placeholder="Task Name"
                     data-ng-change="tasksCtrl.updateName()" data-ng-model-options='{ debounce: 1000 }' title="Task Name"> </textarea>
