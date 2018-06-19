@@ -240,17 +240,24 @@ asanaModule.service("AsanaGateway", ["$http", "AsanaConstants", "$q", "$filter",
         queryParams = encodeURI(queryParams.substr(0, queryParams.length-1));
 
         var url = AsanaConstants.getBaseApiUrl() + options.path + "?" + queryParams;
+        var dataParam = {data: options.data, options: asanaOptions}
         var deferred = $q.defer();
         $http({
             method: options.method,
             url: url,
             respondType: 'json',
             headers: options.headers || {},
-            params: options.params || {},
-            data: {data: options.data, options: asanaOptions}
+            data: dataParam
         }).success(function (response) {
             deferred.resolve(response.data);
         }).error(function (response) {
+            console.log("API Failure: ", response.status);
+            console.log("API call details: ");
+            console.log("URL: ", url);
+            console.log("Method: ", options.method);
+            console.log("Headers: ", options.headers);
+            console.log("Data: ", JSON.stringify(dataParam));
+            console.log("Response: ", JSON.stringify(response));
             if (response && response.hasOwnProperty("errors")) {
                 deferred.reject(response.errors);
             } else {

@@ -6,8 +6,6 @@ asanaModule.controller("userController", ["$scope", "AsanaGateway", "AsanaConsta
 
     AsanaGateway.getUserData().then(function (response) {
         userCtrl.user = response;
-    }).catch(function (response) {
-        console.log("AsanaNG Error: "+response[0].message);
     });
 
     userCtrl.createTab = function (url) {
@@ -108,8 +106,6 @@ asanaModule.controller("createTaskController", ['$scope', 'AsanaGateway', '$time
 
             AsanaGateway.createNewProject(options).then(function (response) {
                 item.id = response.id;
-            }).catch(function (response) {
-                console.log("New project create failed: " + JSON.stringify(response));
             });
         }
     };
@@ -237,8 +233,6 @@ asanaModule.controller("createTaskController", ['$scope', 'AsanaGateway', '$time
             createTaskCtrl.selectedWorkspace.selected = lastUsedWorkspace;
             createTaskCtrl.onWorkspaceSelect(lastUsedWorkspace, lastUsedWorkspace);
         }
-    }).catch(function (response) {
-        console.log("AsanaNG Error: "+JSON.stringify(response));
     });
 
     createTaskCtrl.tagHandler = function (input){
@@ -260,11 +254,8 @@ asanaModule.controller("createTaskController", ['$scope', 'AsanaGateway', '$time
             var options = {data: {}};
             options.data.workspace = createTaskCtrl.selectedWorkspaceId;
             options.data.name = item.name;
-            AsanaGateway.onTagSelected(options).then(function (response) {
-                tagRef.id = response.id; //update created tag with new id
-                //tags.push({"id": response.id, "name": response.name, "notes": response.notes}); //update taglist
-            }).catch(function (response) {
-                console.log("Create tag failed: " + JSON.stringify(response));
+            AsanaGateway.createNewTag(options).then(function (response) {
+                tagRef.id = response.id;
             });
         }
     };
@@ -319,8 +310,6 @@ asanaModule.controller("tasksController", ["$scope", "AsanaGateway", "ChromeExte
 
     AsanaGateway.getUserData().then(function (response) {
         tasksCtrl.user = response;
-    }).catch(function (response) {
-        console.log("AsanaNG Error: "+response[0].message);
     });
 
     AsanaGateway.getWorkspaces().then(function (response) {
@@ -337,8 +326,6 @@ asanaModule.controller("tasksController", ["$scope", "AsanaGateway", "ChromeExte
             tasksCtrl.selectedWorkspace.selected = lastUsedWorkspace;
             tasksCtrl.onWorkspaceSelect(lastUsedWorkspace, lastUsedWorkspace);
         }
-    }).catch(function (response) {
-        console.log("AsanaNG Error: "+JSON.stringify(response));
     });
 
     tasksCtrl.onWorkspaceSelect = function (item, model) {
@@ -402,8 +389,6 @@ asanaModule.controller("tasksController", ["$scope", "AsanaGateway", "ChromeExte
             AsanaGateway.onTagSelected(options).then(function (response) {
                 item.id = response.id; //update created tag with new id
                 callback();
-            }).catch(function (response) {
-                console.log("Create tag failed: " + JSON.stringify(response));
             });
         } else {
             callback();
@@ -429,8 +414,6 @@ asanaModule.controller("tasksController", ["$scope", "AsanaGateway", "ChromeExte
             AsanaGateway.createNewProject(options).then(function (response) {
                 item.id = response.id;
                 callback();
-            }).catch(function (response) {
-                console.log("New project failed: " + JSON.stringify(response));
             });
         } else {
             callback();
@@ -481,8 +464,6 @@ asanaModule.controller("tasksController", ["$scope", "AsanaGateway", "ChromeExte
             tasksCtrl.tasks.forEach(task => {
                 tasksCtrl.enrichTask(task);
             });
-        }).catch(function () {
-            console.log("Error getting tasks");
         });
     };
 
@@ -522,8 +503,6 @@ asanaModule.controller("tasksController", ["$scope", "AsanaGateway", "ChromeExte
             };
             AsanaGateway.addProjectToTask(options).then(function () {
 
-            }).catch(function () {
-                console.log("could not add project to task");
             });
         });
     };
@@ -535,8 +514,6 @@ asanaModule.controller("tasksController", ["$scope", "AsanaGateway", "ChromeExte
         };
         AsanaGateway.removeProjectFromTask(options).then(function () {
 
-        }).catch(function () {
-            console.log("project could not be removed from task");
         });
     };
 
@@ -547,8 +524,7 @@ asanaModule.controller("tasksController", ["$scope", "AsanaGateway", "ChromeExte
                 tag_id: item.id
             };
             AsanaGateway.addTag(options).then(function () {
-            }).catch(function () {
-                console.log("Tag add failed");
+
             });
         });
     };
@@ -560,8 +536,7 @@ asanaModule.controller("tasksController", ["$scope", "AsanaGateway", "ChromeExte
         };
 
         AsanaGateway.removeTag(options).then(function () {
-        }).catch(function () {
-            console.log("Tag could not be removed");
+
         });
     };
 
@@ -571,8 +546,7 @@ asanaModule.controller("tasksController", ["$scope", "AsanaGateway", "ChromeExte
             follower_id: item.id
         };
         AsanaGateway.addFollowerToTask(options).then(function () {
-        }).catch(function () {
-            console.log("failed to add follower");
+
         });
     };
 
@@ -582,8 +556,7 @@ asanaModule.controller("tasksController", ["$scope", "AsanaGateway", "ChromeExte
             follower_id: item.id
         };
         AsanaGateway.removeFollowersFromTask(options).then(function () {
-        }).catch(function () {
-            console.log("failed to remove follower");
+
         });
     };
 
@@ -611,16 +584,12 @@ asanaModule.controller("tasksController", ["$scope", "AsanaGateway", "ChromeExte
             tasksCtrl.comments = response.filter(function (comment) {
                 return comment.type === "comment";
             });
-        }).catch(function () {
-            console.log("Error fetching task stories");
         });
 
         AsanaGateway.getTask({task_id: tasksCtrl.selectedTaskId}).then(function (response) {
             tasksCtrl.tasks[tasksCtrl.selectedTaskIndex] = response;
             tasksCtrl.taskDetails = tasksCtrl.tasks[tasksCtrl.selectedTaskIndex]; 
             tasksCtrl.enrichTask(tasksCtrl.taskDetails);
-        }).catch(function () {
-            console.log("Error fetching task details");
         });
     };
 
@@ -716,8 +685,6 @@ asanaModule.controller("tasksController", ["$scope", "AsanaGateway", "ChromeExte
 
             tasksCtrl.enrichTask(tasksCtrl.taskDetails);
             return response;
-        }).catch(function () {
-            console.log("Error occurred updating task");
         });
     };
 
@@ -736,8 +703,6 @@ asanaModule.controller("tasksController", ["$scope", "AsanaGateway", "ChromeExte
                 type: "comment"
             });
             tasksCtrl.commentText = "";
-        }).catch(function (response) {
-            console.log("Failed to add comment.");
         });
     };
 }]);
