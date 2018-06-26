@@ -1,10 +1,11 @@
 <form>
     <div class="form-group">
-        <ui-select data-ng-model="selectedWorkspace.selected" on-select="onWorkspaceSelect($item, $model)">
+        <ui-select data-ng-model="createTaskCtrl.selectedWorkspace.selected" title="Select Workspace"
+                   on-select="createTaskCtrl.clearSaved();tasksCtrl.clearNameDescription();createTaskCtrl.onWorkspaceSelect($item, $model);">
             <ui-select-match placeholder="Select Workspace">
                 <span data-ng-bind="$select.selected.name"></span>
             </ui-select-match>
-            <ui-select-choices repeat="workspace in (workspaces | filter: $select.search)">
+            <ui-select-choices repeat="workspace in createTaskCtrl.workspaces | orderBy:'name' | filter: {name: $select.search}" position="down">
                 <div class="overflow-ellipsis">
                     <span data-ng-bind="workspace.name"></span>
                 </div>
@@ -13,33 +14,35 @@
     </div>
 
     <div class="form-group multi-select">
-        <ui-select multiple tagging="projectTaggingHandler" data-ng-class="{requiredField:projectRequired}" data-ng-model="selectedProject.list"
-                   data-ng-disabled="workspaceNotSelected" on-select="onProjectSelected($item, $model)">
+        <ui-select multiple tagging="createTaskCtrl.projectTaggingHandler" data-ng-class="{requiredField:createTaskCtrl.projectRequired}" data-ng-model="createTaskCtrl.selectedProject.list"
+                   data-ng-disabled="createTaskCtrl.workspaceNotSelected" on-select="createTaskCtrl.onProjectSelected($item, $model)"
+                   on-remove="createTaskCtrl.onProjectDeselected($item, $model)" title="Select Project(s)">
             <ui-select-match placeholder="Select Project(s)" style="padding-left: 5px;">
                 {{$item.name}}
             </ui-select-match>
-            <ui-select-choices repeat="project in (projects | filter: $select.search)">
+            <ui-select-choices repeat="project in createTaskCtrl.projects | orderBy:'name' | filter: {name: $select.search}" position="down">
                 <div class="overflow-ellipsis">
                     <span data-ng-class="{'archived-project':project.archived}" data-ng-bind="project.name" title="{{project.notes}}"></span>
                     <span data-ng-bind="project.prompt"></span>
-                    <i class="fa fa-lock private-project" data-ng-hide="{{project.public}}" title="Private to me"></i>
+                    <i class="fa fa-lock private-project" data-ng-hide="project.public" title="Private to me"></i>
                 </div>
             </ui-select-choices>
         </ui-select>
     </div>
 
     <div class="form-group">
-        <ui-select data-ng-model="selectedUser.selected" data-ng-disabled="workspaceNotSelected">
-            <ui-select-match placeholder="Select User">
+        <ui-select data-ng-model="createTaskCtrl.selectedUser.selected"
+                   data-ng-disabled="createTaskCtrl.workspaceNotSelected" title="Select Assignee">
+            <ui-select-match allow-clear="true" placeholder="Select Assignee">
                 <img class="img-circle profile-img profile-img-sm"
                      data-ng-src="{{$select.selected.photo.image_21x21}}"
                      src="../img/nopicture.png">
                 <span data-ng-bind="$select.selected.name"></span>
             </ui-select-match>
-            <ui-select-choices repeat="user in (users | filter: $select.search)">
+            <ui-select-choices repeat="user in createTaskCtrl.users | orderBy:'name' | propertyFilter: {name: $select.search, email: $select.search}" position="down">
                 <div class="overflow-ellipsis">
-                    <img class="img-circle profile-img profile-img-md"
-                         data-ng-src="{{user.photo.image_128x128}}"
+                    <img class="img-circle profile-img profile-img-sm"
+                         data-ng-src="{{user.photo.image_36x36}}"
                             src="../img/nopicture.png">
                     <span data-ng-bind="user.name" class="font-size-12"></span>
                     <span data-ng-bind="user.email" class="font-size-10"></span>
@@ -49,12 +52,13 @@
     </div>
 
     <div class="form-group multi-select">
-        <ui-select multiple tagging="tagHandler"  data-ng-model="selectedTags.list" data-ng-disabled="workspaceNotSelected"
-                   on-select="createNewTag($item, $model)">
-            <ui-select-match placeholder="Select tag(s)" style="padding-left: 5px;">
-                {{$item.name}}
+        <ui-select multiple tagging="createTaskCtrl.tagHandler"  data-ng-model="createTaskCtrl.selectedTags.list"
+                   data-ng-disabled="createTaskCtrl.workspaceNotSelected" on-select="createTaskCtrl.onTagSelected($item, $model)"
+                   on-remove="createTaskCtrl.onTagDeselected($item, $model)" title="Select Tag(s)">
+            <ui-select-match placeholder="Select Tag(s)" style="padding-left: 5px;">
+                <i class="fa fa-tag"></i> {{$item.name}}
             </ui-select-match>
-            <ui-select-choices repeat="tag in (tags | filter: $select.search) track by tag.id">
+            <ui-select-choices repeat="tag in createTaskCtrl.tags | orderBy:'name' | filter: {name: $select.search}" position="down">
                 <div class="overflow-ellipsis" title="{{tag.notes}}">
                     <i class="fa fa-tag"></i>
                     <span data-ng-bind="tag.name"></span>
@@ -64,46 +68,56 @@
         </ui-select>
     </div>
 
+    <div class="form-group multi-select">
+        <ui-select multiple data-ng-model="createTaskCtrl.selectedFollowers.list"
+                   data-ng-disabled="createTaskCtrl.workspaceNotSelected" on-select="createTaskCtrl.onFollowerSelected($item, $model)"
+                   on-remove="createTaskCtrl.onFollowerDeselected($item, $model)" title="Select Follower(s)">
+            <ui-select-match placeholder="Select Follower(s)" style="padding-left: 5px;">
+                <img class="img-circle profile-img profile-img-xs" data-ng-src="{{$item.photo.image_36x36}}" data-ng-attr-title="{{$item.name}}">
+                <span data-ng-bind="$item.name | nameInitials" data-ng-attr-title="{{$item.name}}"></span>
+            </ui-select-match>
+            <ui-select-choices repeat="follower in createTaskCtrl.users | orderBy:'name' | propertyFilter: {name: $select.search, email: $select.search}">
+                <div class="overflow-ellipsis">
+                    <img class="img-circle profile-img profile-img-sm"
+                         data-ng-src="{{follower.photo.image_36x36}}"
+                         src="../img/nopicture.png">
+                    <span data-ng-bind="follower.name" class="font-size-12"></span>
+                    <span data-ng-bind="follower.email" class="font-size-10"></span>
+                </div>
+            </ui-select-choices>
+        </ui-select>
+    </div>
+
     <div class="form-group form-group-box">
-        <a class="copy-page" title="Insert Page title and URL" data-ng-click="copyPage()"><i class="fa fa-copy"></i></a>
-        <textarea data-ng-class="{requiredField:taskNameRequired}" rows="1" id="taskName" name="taskName" data-ng-model="taskName" placeholder="Task Name" required
-               style="font-weight:600;" data-ng-disabled="workspaceNotSelected"></textarea>
-        <textarea id="taskDescription" name="taskNotes" data-ng-model="taskNotes" placeholder="Task Description"
-               data-ng-disabled="workspaceNotSelected"></textarea>
+        <a class="copy-page" title="Insert Page title and URL" data-ng-click="createTaskCtrl.copyPage()"><i class="fa fa-copy"></i></a>
+        <textarea data-ng-class="{requiredField:createTaskCtrl.taskNameRequired}" rows="1" id="taskName" name="taskName"
+                  data-ng-model="createTaskCtrl.taskName" placeholder="Task Name" required
+                  style="font-weight:600;" data-ng-disabled="workspaceNotSelected" remember="name" title="Task Name"></textarea>
+        <textarea id="taskDescription" name="taskNotes" data-ng-model="createTaskCtrl.taskNotes" placeholder="Task Description"
+               data-ng-disabled="createTaskCtrl.workspaceNotSelected" remember="description" title="Task Description"></textarea>
     </div>
 
     <div class="form-group">
-        <p class="input-group">
-            <input type="text" class="form-control" placeholder="Due date and time"
-                   data-ng-click="dueDate.open=!dueDate.open"
-                   data-ng-model="deadlinevalue"/>
-            <input type="text" class="form-control"
-                   datetime-picker enable-time="false" data-ng-model="dueDate.date" data-ng-change="dateSet()"
-                   is-open="dueDate.open" data-ng-click="dueDate.open=!dueDate.open" style="display: none;"/>
-            <input type="text" class="form-control"
-                   datetime-picker enable-date="false" data-ng-model="dueTime.date" data-ng-change="timeSet()"
-                   is-open="dueTime.open" data-ng-click="dueTime.open=!dueTime.open" style="display: none;"/>
-            <span class="input-group-btn">
-                <button type="button" class="btn btn-default selectDueDate" data-ng-click="dueDate.open=!dueDate.open">
-                    <i class="fa fa-calendar"></i>
-                </button>
-                <button type="button" class="btn btn-default" data-ng-click="timeClick()">
-                    <i class="fa fa-clock-o"></i>
-                </button>
-            </span>
-        </p>
+        <datetime type="createTaskCtrl.deadlineType" date="createTaskCtrl.deadline" title="Set Due Date and Time">
+        </datetime>
     </div>
 
     <div class="form-group">
-        <button type="button" class="btn btn-asana"
-            data-ng-click="createTask()">Create Task</button>
-        <span class="status label" data-ng-show="taskCreationStatus.show"
-            data-ng-class="taskCreationStatus.success?'label-success':'label-danger'">
-            {{taskCreationStatus.message}}
+        <button type="button" class="btn btn-sm btn-asana"
+            data-ng-click="createTaskCtrl.createTask()" title="Create Task">Create Task</button>
+        <span class="status label" data-ng-show="createTaskCtrl.taskCreationStatus.show"
+            data-ng-class="createTaskCtrl.taskCreationStatus.success?'label-success':'label-danger'"
+            data-ng-bind="createTaskCtrl.taskCreationStatus.message">
         </span>
-        <a target="_blank" class="label asana-link" data-ng-href="{{taskCreationStatus.link}}"
-           data-ng-show="taskCreationStatus.show && taskCreationStatus.success">
+        <a target="_blank" class="label asana-link" data-ng-href="{{createTaskCtrl.taskCreationStatus.link}}"
+           data-ng-show="createTaskCtrl.taskCreationStatus.show && createTaskCtrl.taskCreationStatus.success">
             View Task <i class="fa fa-external-link"></i>
+        </a>
+        <a class="label asana-link"
+           data-ng-if="createTaskCtrl.taskCreationStatus.show && createTaskCtrl.taskCreationStatus.success"
+           clipboard text="createTaskCtrl.taskCreationStatus.link"
+           on-copied="createTaskCtrl.successCopy()">
+            Copy Task <i class="fa fa-clipboard"></i>
         </a>
     </div>
 </form>

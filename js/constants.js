@@ -1,14 +1,19 @@
-asanaModule.constant("AsanaConstants", (function () {
+asanaModule.value("AsanaConstants", (function () {
     return {
-        API_VERSION          : "1.0",
-        ASANA_HOST           : "app.asana.com",
-        ASANA_LOGIN_COOKIE_NAME : "ticket",
+        API_VERSION: "1.0",
+        ASANA_HOST: "app.asana.com",
+        ASANA_LOGIN_COOKIE_NAME: "ticket",
+        DEADLINE_TYPE: {
+            NONE: 0,
+            DUE_ON: 1,
+            DUE_AT: 2
+        },
 
-        getBaseApiUrl        : function () {
+        getBaseApiUrl: function () {
             return "https://" + this.ASANA_HOST + '/api/' + this.API_VERSION + "/";
         },
 
-        getAsanaDomain       : function() {
+        getAsanaDomain: function() {
             return "https://" + this.ASANA_HOST + "/";
         },
 
@@ -59,6 +64,61 @@ asanaModule.constant("AsanaConstants", (function () {
         },
         setNotificationsEnabled: function (value) {
             localStorage[this.NOTIFICATIONS_ENABLED] = value;
+        },
+
+        REMEMBER_PROJECT: "rememberProject",
+        getRememberProject: function () {
+            return localStorage[this.REMEMBER_PROJECT] === 'true';
+        },
+
+        setRememberProject: function (value) {
+            localStorage[this.REMEMBER_PROJECT] = value;
+        },
+
+        REMEMBER_TAG: "rememberTag",
+        getRememberTag: function () {
+            return localStorage[this.REMEMBER_TAG] === 'true';
+        },
+
+        setRememberTag: function (value) {
+            localStorage[this.REMEMBER_TAG] = value;
+        },
+
+        REMEMBER_FOLLOWER: "rememberFollower",
+        getRememberFollower: function () {
+            return localStorage[this.REMEMBER_FOLLOWER] === 'true';
+        },
+
+        setRememberFollower: function (value) {
+            localStorage[this.REMEMBER_FOLLOWER] = value;
+        },
+
+        setDefaultPictureUser: function (user) {
+            if(user && user.photo == null){
+                user.photo = {
+                    "image_21x21": "../img/nopicture.png",
+                    "image_27x27": "../img/nopicture.png",
+                    "image_36x36": "../img/nopicture.png",
+                    "image_60x60": "../img/nopicture.png",
+                    "image_128x128": "../img/nopicture.png",
+                    "image_1024x1024": "../img/nopicture.png"
+                };
+            }
+        },
+
+        setDefaultPicture: function (users) {
+            users.forEach(function (user) {
+                if(user.photo == null){
+                    user.photo = {
+                        "image_21x21": "../img/nopicture.png",
+                        "image_27x27": "../img/nopicture.png",
+                        "image_36x36": "../img/nopicture.png",
+                        "image_60x60": "../img/nopicture.png",
+                        "image_128x128": "../img/nopicture.png",
+                        "image_1024x1024": "../img/nopicture.png"
+                    };
+                }
+            });
         }
     };
 })());

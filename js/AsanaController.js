@@ -1,83 +1,30 @@
-asanaModule.controller("userController", ['$scope', 'AsanaGateway', 'AsanaConstants', function ($scope, AsanaGateway, AsanaConstants) {
-    $scope.loggedIn = AsanaConstants.isLoggedIn();
+asanaModule.controller("userController", ["$scope", "AsanaGateway", "AsanaConstants", "ChromeExtensionService", "$route",
+    function ($scope, AsanaGateway, AsanaConstants, ChromeExtension, $route) {
+    var userCtrl = this;
+    userCtrl.$route = $route;
+    userCtrl.loggedIn = AsanaConstants.isLoggedIn();
 
-    AsanaGateway.getUserData(function (response) {
-        $scope.user = response;
-    }, function (response) {
-        console.log("AsanaNG Error: "+JSON.stringify(response));
+    AsanaGateway.getUserData().then(function (response) {
+        userCtrl.user = response;
     });
 
-    $scope.createTab = function (url) {
-        chrome.tabs.create({url: url}, function () {
-            window.close();
-        });
-    }
+    userCtrl.createTab = function (url) {
+        ChromeExtension.openLink(url);
+    };
+
+    userCtrl.isActive = function (path) {
+        return angular.isDefined(userCtrl.$route.current) && userCtrl.$route.current.activeTab === path;
+    };
 }]);
 
-asanaModule.controller("createTaskController", ['$scope', 'AsanaGateway', '$timeout', 'AsanaConstants', '$filter', function ($scope, AsanaGateway, $timeout, AsanaConstants, $filter) {
-    $scope.loggedIn = AsanaConstants.isLoggedIn();
-    $scope.workspaceNotSelected = true;
-    $scope.projectRequired = false;
-    $scope.taskNameRequired = false;
-    $scope.deadlineType = "due_on";
-    //"dd MMM yyyy HH:mm"
-    //"dd MMM yyyy"
-    //-d "due_on=2016-06-25" - yyyy-dd-MM
-    //-d "due_at=2016-06-25T13:01:00.000Z"
+asanaModule.controller("createTaskController", ['$scope', 'AsanaGateway', '$timeout', 'AsanaConstants', '$filter', 'ChromeExtensionService', '$q', 'StorageService',
+    function ($scope, AsanaGateway, $timeout, AsanaConstants, $filter, ChromeExtensionService, $q, StorageService) {
+    var createTaskCtrl = this;
+    createTaskCtrl.workspaceNotSelected = true;
+    createTaskCtrl.projectRequired = false;
+    createTaskCtrl.taskNameRequired = false;
 
-    $scope.dateSet = function () {
-        if($scope.dueDate.date === null){
-            $scope.deadline = undefined;
-            $scope.deadlinevalue = undefined;
-            return;
-        }
-        console.log("date set");
-        $timeout(function () {
-            $scope.$apply(function () {
-                $scope.deadline = new Date();
-                $scope.deadline.setDate($scope.dueDate.date.getDate());
-                $scope.deadline.setMonth($scope.dueDate.date.getMonth());
-                $scope.deadline.setYear($scope.dueDate.date.getFullYear());
-                $scope.deadlineType = "due_on";
-                $scope.deadlinevalue = $filter('date')($scope.deadline, "dd MMM yyyy");
-                $scope.dueTime = {
-                    date: $scope.deadline,
-                    open: false
-                };
-            })
-        }, 0);
-    };
-
-    $scope.timeSet = function () {
-        console.log("time set");
-        console.log("New date: " + $scope.dueTime.date);
-        $timeout(function () {
-            $scope.$apply(function () {
-                if($scope.dueTime.date === null){
-                    $scope.dueTime.date = new Date();
-                    $scope.deadlineType = "due_on";
-                    $scope.deadlinevalue = $filter('date')($scope.deadline, "dd MMM yyyy");
-                } else {
-                    $scope.deadlineType = "due_at";
-                    $scope.deadline = $scope.dueTime.date;
-                    $scope.deadlinevalue = $filter('date')($scope.deadline, "dd MMM yyyy hh:mm a");
-                }
-            });
-        }, 0);
-    };
-
-    $scope.timeClick = function () {
-        console.log("time click");
-        if(angular.isDefined($scope.deadline)){
-            //if date set - open time calendar
-            $scope.dueTime.open=!$scope.dueTime.open;
-        } else {
-            //if date not set open date calendar
-            $scope.dueDate.open = !$scope.dueDate.open;
-        }
-    };
-
-    $scope.taskCreationStatus = {
+    createTaskCtrl.taskCreationStatus = {
         success: false,
         message: "",
         show: false,
@@ -85,88 +32,137 @@ asanaModule.controller("createTaskController", ['$scope', 'AsanaGateway', '$time
         task_id: null
     };
 
-    $scope.setDefaultAssignee = function () {
-        if(AsanaConstants.getDefaultAssigneeMe() && angular.isDefined($scope.users)){
-            var currentUser = $scope.users.filter(function (user) {
-                return user.id == $scope.user.id;
+    createTaskCtrl.setDefaultAssignee = function () {
+        if(AsanaConstants.getDefaultAssigneeMe() && angular.isDefined(createTaskCtrl.users)){
+            var currentUser = createTaskCtrl.users.filter(function (user) {
+                return user.id == createTaskCtrl.user.id;
             });
             if(currentUser.length == 1)
-                $scope.selectedUser.selected = currentUser[0];
+                createTaskCtrl.selectedUser.selected = currentUser[0];
         }
     };
 
-    $scope.clearFields = function () {
-        $scope.selectedProject = { list: [] };
-        $scope.selectedUser = { selected : undefined};
-        $scope.setDefaultAssignee();
-        $scope.selectedTags = {list: []};
-        $scope.taskName = undefined;
-        $scope.taskNotes = undefined;
-        $scope.deadline = undefined;
-        $scope.deadlinevalue = "";
-        $scope.taskNameRequired = false;
+    createTaskCtrl.init = function (check, storageProperty, allResource, selectedResource) {
+        if(check) {
+            var saved = StorageService.getArray(storageProperty);
+            if(angular.isDefined(saved)) {
+                allResource.forEach(item => {
+                    var found = saved.find(oldItem => {
+                        return item.id == oldItem;
+                    });
+                    if(found) {
+                        selectedResource.push(item);
+                    }
+                });
+                var toSave = saved.filter(item => {
+                    return selectedResource.find(selected => {
+                        return selected.id == item;
+                    });
+                });
+                StorageService.initArray(storageProperty, toSave);
+            }
+        }
+    }
+
+    createTaskCtrl.clearFields = function () {
+        createTaskCtrl.selectedProject = { list: [] };
+        createTaskCtrl.init(AsanaConstants.getRememberProject(), "project", createTaskCtrl.projects, createTaskCtrl.selectedProject.list);
+
+        createTaskCtrl.selectedUser = { selected : undefined};
+        createTaskCtrl.setDefaultAssignee();
+
+        createTaskCtrl.selectedFollowers = { list : [] };
+        createTaskCtrl.init(AsanaConstants.getRememberFollower(), "follower", createTaskCtrl.users, createTaskCtrl.selectedFollowers.list);
+
+        createTaskCtrl.selectedTags = {list: []};
+        createTaskCtrl.init(AsanaConstants.getRememberTag(), "tag", createTaskCtrl.tags, createTaskCtrl.selectedTags.list);
+
+        createTaskCtrl.taskName = StorageService.getString("name");
+        createTaskCtrl.taskNotes = StorageService.getString("description");
+
+        createTaskCtrl.deadline = undefined;
+        createTaskCtrl.deadlineType = AsanaConstants.DEADLINE_TYPE.NONE;
+        createTaskCtrl.taskNameRequired = false;
     };
 
-    $scope.clearFields();
+    createTaskCtrl.clearNameDescription = function () {
+        StorageService.setString("name", "");
+        StorageService.setString("description", "");
+    }
 
-    $scope.onProjectSelected = function (item, model) {
-        $scope.projectRequired = false;
+    createTaskCtrl.clearSaved = function () {
+        StorageService.clearArray("project");
+        StorageService.clearArray("tag");
+        StorageService.clearArray("follower");
+    }
+
+    createTaskCtrl.onProjectDeselected = function(item, model) {
+        StorageService.removeFromArray("project", item.id);
+    }
+
+    createTaskCtrl.onProjectSelected = function (item, model) {
+        createTaskCtrl.projectRequired = false;
+        if(AsanaConstants.getRememberProject()) {
+            StorageService.addToArray("project", item.id);
+        }
         if(item.isTag){
-            console.log("Creating new project: " + JSON.stringify(item));
-            var projRef = item;
             var options = {data: {}};
-            options.data.workspace = $scope.selectedWorkspaceId;
+            options.data.workspace = createTaskCtrl.selectedWorkspaceId;
             options.data.name = item.name;
 
-            AsanaGateway.createNewProject(function (response) {
-                console.log("New project created: " + JSON.stringify(response));
-                projRef.id = response.id;
-            }, function (response) {
-                console.log("New project create failed: " + JSON.stringify(response));
-            }, options);
+            AsanaGateway.createNewProject(options).then(function (response) {
+                item.id = response.id;
+            });
         }
     };
 
-    $scope.onWorkspaceSelect = function (item, model) {
-        $scope.selectedWorkspaceId = $scope.selectedWorkspace.selected.id;
-        $scope.clearFields();
-        $scope.workspaceNotSelected = false;
+    createTaskCtrl.onWorkspaceSelect = function (item, model) {
+        createTaskCtrl.selectedWorkspaceId = createTaskCtrl.selectedWorkspace.selected.id;
+        StorageService.setString("workspace", createTaskCtrl.selectedWorkspaceId);
+        createTaskCtrl.workspaceNotSelected = false;
 
-        AsanaGateway.getWorkspaceTags(function (response) {
-            $scope.tags = response;
-        }, null, {workspace_id: $scope.selectedWorkspaceId});
+        var promise1 = AsanaGateway.getWorkspaceTags({workspace_id: createTaskCtrl.selectedWorkspaceId}).then(function (response) {
+            createTaskCtrl.tags = response;
+        });
 
-        AsanaGateway.getWorkspaceUsers(function (response) {
-            $scope.users = response;
-            $scope.setDefaultAssignee();
-        }, null, {workspace_id: $scope.selectedWorkspaceId});
+        var promise2 = AsanaGateway.getWorkspaceUsers({workspace_id: createTaskCtrl.selectedWorkspaceId}).then(function (response) {
+            createTaskCtrl.users = response;
+        });
 
-        AsanaGateway.getWorkspaceProjects(function (response) {
-            $scope.projects = response;
-        }, null, {workspace_id: $scope.selectedWorkspaceId});
+        var promise3 = AsanaGateway.getWorkspaceProjects({workspace_id: createTaskCtrl.selectedWorkspaceId}).then(function (response) {
+            createTaskCtrl.projects = response;
+        });
+
+        var promise4 = AsanaGateway.getUserData().then(function (response) {
+            createTaskCtrl.user = response;
+        });
+
+        $q.all([promise1, promise2, promise3, promise4]).then(results => {
+            createTaskCtrl.clearFields();
+        });
     };
 
-    $scope.createTask = function () {
+    createTaskCtrl.createTask = function () {
         var options = {data: {}};
-        options.data.workspace = $scope.selectedWorkspaceId;
-        if(angular.isDefined($scope.selectedUser.selected))
-            options.data.assignee = $scope.selectedUser.selected.id;
-        if(angular.isDefined($scope.deadline)){
-            if($scope.deadlineType === 'due_at')
-                options.data.due_at = $scope.deadline;
-            else
-                options.data.due_on = $filter('date')($scope.deadline, 'yyyy-MM-dd');
+        options.data.workspace = createTaskCtrl.selectedWorkspaceId;
+        if(angular.isDefined(createTaskCtrl.selectedUser.selected))
+            options.data.assignee = createTaskCtrl.selectedUser.selected.id;
+        if(angular.isDefined(createTaskCtrl.deadline)){
+            if(createTaskCtrl.deadlineType === AsanaConstants.DEADLINE_TYPE.DUE_AT  )
+                options.data.due_at = createTaskCtrl.deadline;
+            else if(createTaskCtrl.deadlineType === AsanaConstants.DEADLINE_TYPE.DUE_ON)
+                options.data.due_on = $filter('date')(createTaskCtrl.deadline, 'yyyy-MM-dd');
         }
 
-        var projectList = $scope.selectedProject.list;
-        if($scope.selectedProject.list.length == 0 && !AsanaConstants.getProjectOptional()){
-            $scope.taskCreationStatus.success = false;
-            $scope.taskCreationStatus.message = "Missing Project";
-            $scope.taskCreationStatus.show = true;
+        var projectList = createTaskCtrl.selectedProject.list;
+        if(createTaskCtrl.selectedProject.list.length === 0 && !AsanaConstants.getProjectOptional()){
+            createTaskCtrl.taskCreationStatus.success = false;
+            createTaskCtrl.taskCreationStatus.message = "Missing Project";
+            createTaskCtrl.taskCreationStatus.show = true;
             $timeout(function () {
-                $scope.taskCreationStatus.show = false;
+                createTaskCtrl.taskCreationStatus.show = false;
             }, 5000);
-            $scope.projectRequired = true;
+            createTaskCtrl.projectRequired = true;
             return;
         }
         var projectIds = projectList.map(function (element) {
@@ -176,7 +172,7 @@ asanaModule.controller("createTaskController", ['$scope', 'AsanaGateway', '$time
             options.data.projects = projectIds;
         }
 
-        var taglist = $scope.selectedTags.list;
+        var taglist = createTaskCtrl.selectedTags.list;
         var tags = taglist.map(function (element) {
             return element.id;
         });
@@ -184,140 +180,573 @@ asanaModule.controller("createTaskController", ['$scope', 'AsanaGateway', '$time
             options.data.tags = tags;
         }
 
-        if(!angular.isDefined($scope.taskName)){
-            $scope.taskCreationStatus.success = false;
-            $scope.taskCreationStatus.message = "Task name required";
-            $scope.taskCreationStatus.show = true;
+        var followersList = createTaskCtrl.selectedFollowers.list;
+        var followers = followersList.map(function (element) {
+            return element.id;
+        });
+        if(followers.length > 0){
+            options.data.followers = followers;
+        }
+
+        if(!angular.isDefined(createTaskCtrl.taskName) || createTaskCtrl.taskName.trim().length == 0){
+            createTaskCtrl.taskCreationStatus.success = false;
+            createTaskCtrl.taskCreationStatus.message = "Task name required";
+            createTaskCtrl.taskCreationStatus.show = true;
             $timeout(function () {
-                $scope.taskCreationStatus.show = false;
+                createTaskCtrl.taskCreationStatus.show = false;
             }, 5000);
-            $scope.taskNameRequired = true;
+            createTaskCtrl.taskNameRequired = true;
             return;
         }
-        options.data.name = $scope.taskName;
-        options.data.notes = $scope.taskNotes;
+        options.data.name = createTaskCtrl.taskName;
+        options.data.notes = createTaskCtrl.taskNotes;
 
-        AsanaGateway.createTask(function (response) {
-            console.log("Success: creating task: " + JSON.stringify(response));
-            //$scope.selectedWorkspace = {};
-            $scope.clearFields();
+        AsanaGateway.createTask(options).then(function (response) {
+            createTaskCtrl.clearNameDescription();
+            createTaskCtrl.clearFields();
 
             var containerId = (response.projects[0])? response.projects[0].id: (response.tags[0])? response.tags[0].id: (response.assignee)? response.assignee.id: 0;
             var taskId = response.id;
-            $scope.taskCreationStatus.success = true;
-            $scope.taskCreationStatus.message = "Task created";
-            $scope.taskCreationStatus.show = true;
-            $scope.taskCreationStatus.link = "https://app.asana.com/0/" + containerId + "/" + taskId;
+            createTaskCtrl.taskCreationStatus.success = true;
+            createTaskCtrl.taskCreationStatus.message = "Task Created";
+            createTaskCtrl.taskCreationStatus.show = true;
+            createTaskCtrl.taskCreationStatus.link = "https://app.asana.com/0/" + containerId + "/" + taskId;
             $timeout(function () {
-                $scope.taskCreationStatus.show = false;
+                createTaskCtrl.taskCreationStatus.show = false;
             }, 5000);
-        }, function (response) {
+        }).catch(function (response) {
             console.log("Error: creating task: " + JSON.stringify(response));
-            $scope.taskCreationStatus.success = false;
-            $scope.taskCreationStatus.message = "Failed to create task";
-            $scope.taskCreationStatus.show = true;
+            createTaskCtrl.taskCreationStatus.success = false;
+            createTaskCtrl.taskCreationStatus.message = "Failed to create task";
+            createTaskCtrl.taskCreationStatus.show = true;
             $timeout(function () {
-                $scope.taskCreationStatus.show = false;
+                createTaskCtrl.taskCreationStatus.show = false;
             }, 5000);
-        }, options);
+        });
     };
 
-    AsanaGateway.getWorkspaces(function (response) {
-        $scope.workspaces = response;
+    AsanaGateway.getWorkspaces().then(function (response) {
+        createTaskCtrl.workspaces = response;
         if(angular.isDefined(response) && response.length > 0){
-            $scope.selectedWorkspace = response[0];
-            $scope.selectedWorkspace.selected = response[0];
-            $scope.onWorkspaceSelect(response[0], response[0]);
+            var lastUsedWorkspaceId = StorageService.getString("workspace") || 0;
+            var lastUsedWorkspace = response.find(function(workspace){
+                return workspace.id == lastUsedWorkspaceId;
+            });
+            if(!angular.isDefined(lastUsedWorkspace)) {
+                lastUsedWorkspace = response[0];
+            }
+            createTaskCtrl.selectedWorkspace = lastUsedWorkspace;
+            createTaskCtrl.selectedWorkspace.selected = lastUsedWorkspace;
+            createTaskCtrl.onWorkspaceSelect(lastUsedWorkspace, lastUsedWorkspace);
         }
-    }, function (response) {
-        console.log("AsanaNG Error: "+JSON.stringify(response));
     });
 
-    $scope.tagHandler = function (input){
+    createTaskCtrl.tagHandler = function (input){
         var lowInput = input.toLowerCase();
-        for(var i=0; i<$scope.tags.length; i++){
-            if($scope.tags[i].name.toLowerCase().indexOf(lowInput)>=0){
-                return $scope.tags[i];
+        for(var i=0; i<createTaskCtrl.tags.length; i++){
+            if(createTaskCtrl.tags[i].name.toLowerCase().indexOf(lowInput)>=0){
+                return createTaskCtrl.tags[i];
             }
         }
-        return { id: 1, name: input, notes: '', prompt: "(new tag)" }
+        return { id: 1, name: input, notes: '', prompt: "(new tag)" };
     };
 
-    $scope.createNewTag = function (item, model) {
+    createTaskCtrl.onTagSelected = function (item, model) {
+        if(AsanaConstants.getRememberTag()) {
+            StorageService.addToArray("tag", item.id);
+        }
         if(item.isTag){
             var tagRef = item;
-            //var tags = $scope.tags;
-            console.log("Creating new tag: " + JSON.stringify(item));
             var options = {data: {}};
-            options.data.workspace = $scope.selectedWorkspaceId;
+            options.data.workspace = createTaskCtrl.selectedWorkspaceId;
             options.data.name = item.name;
-            AsanaGateway.createNewTag(function (response) {
-                console.log("Create tag success: " + JSON.stringify(response));
-                tagRef.id = response.id; //update created tag with new id
-                //tags.push({"id": response.id, "name": response.name, "notes": response.notes}); //update taglist
-            }, function (response) {
-                console.log("Create tag failed: " + JSON.stringify(response));
-            }, options);
+            AsanaGateway.createNewTag(options).then(function (response) {
+                tagRef.id = response.id;
+            });
         }
     };
 
-    $scope.projectTaggingHandler = function (input) {
-        //console.log($scope.projects);
+    createTaskCtrl.onTagDeselected = function(item, model) {
+        StorageService.removeFromArray("tag", item.id);
+    }
+
+    createTaskCtrl.projectTaggingHandler = function (input) {
         var lowInput = input.toLowerCase();
-        for(var i=0; i<$scope.projects.length; i++){
-            if($scope.projects[i].name.toLowerCase().indexOf(lowInput)>=0){
-                return $scope.projects[i];
+        for(var i=0; i<createTaskCtrl.projects.length; i++){
+            if(createTaskCtrl.projects[i].name.toLowerCase().indexOf(lowInput)>=0){
+                return createTaskCtrl.projects[i];
             }
         }
         return { id: 1, name: input, notes: '', prompt: "(new project)", public: true};
     };
 
-    $scope.createProject = function (item, model) {
-        if(item.isTag){
-            console.log("Creating new project: " + JSON.stringify(item));
-            var options = {data: {}};
-            options.data.workspace = $scope.selectedWorkspaceId;
-            options.data.name = item.name;
-
-            AsanaGateway.createNewProject(function (response) {
-                console.log("New project created: " + JSON.stringify(response));
-            }, function (response) {
-                console.log("New project failed: " + JSON.stringify(response));
-            }, options);
+    createTaskCtrl.onFollowerSelected = function (item, model) {
+        if(AsanaConstants.getRememberFollower()) {
+            StorageService.addToArray("follower", item.id);
         }
     };
 
-    $scope.copyPage = function () {
-        chrome.tabs.query({ currentWindow: true, active: true }, function (tabArray) {
-            var tab = tabArray[0];
-            $scope.taskName = tab.title;
-            $scope.taskNotes = tab.url;
-            $scope.taskNameRequired = false;
-        });
+    createTaskCtrl.onFollowerDeselected = function (item, model) {
+        StorageService.removeFromArray("follower", item.id);
     }
+
+    createTaskCtrl.copyPage = function () {
+        ChromeExtensionService.getCurrentTab(function (tab) {
+            $timeout(function () {
+                createTaskCtrl.taskName = tab.title;
+                createTaskCtrl.taskNotes = tab.url;
+                createTaskCtrl.taskNameRequired = false;
+            });
+        });
+    };
+
+    createTaskCtrl.successCopy = function () {
+        createTaskCtrl.taskCreationStatus.message = "Task Copied";
+    };
 }]);
 
-asanaModule.controller("todoController", ['$scope', 'AsanaGateway', 'AsanaConstants', function ($scope, AsanaGateway, AsanaConstants) {
-    $scope.loggedIn = AsanaConstants.isLoggedIn();
+asanaModule.controller("tasksController", ["$scope", "AsanaGateway", "ChromeExtensionService", "$filter", "AsanaConstants", "$q", "StorageService",
+    function ($scope, AsanaGateway, ChromeExtension, $filter, AsanaConstants, $q, StorageService) {
+    var tasksCtrl = this;
+    tasksCtrl.selectedView = "My Tasks";
+    tasksCtrl.filterTask = 'filterMyTasks';
+    tasksCtrl.filterProject = {};
+    tasksCtrl.filterTag = {};
+    tasksCtrl.showTaskManager = true;
+
+    AsanaGateway.getUserData().then(function (response) {
+        tasksCtrl.user = response;
+    });
+
+    AsanaGateway.getWorkspaces().then(function (response) {
+        tasksCtrl.workspaces = response;
+        if(angular.isDefined(response) && response.length > 0){
+            var lastUsedWorkspaceId = StorageService.getString("workspace") || 0;
+            var lastUsedWorkspace = response.find(function(workspace){
+                return workspace.id == lastUsedWorkspaceId;
+            });
+            if(!angular.isDefined(lastUsedWorkspace)) {
+                lastUsedWorkspace = response[0];
+            }
+            tasksCtrl.selectedWorkspace = lastUsedWorkspace;
+            tasksCtrl.selectedWorkspace.selected = lastUsedWorkspace;
+            tasksCtrl.onWorkspaceSelect(lastUsedWorkspace, lastUsedWorkspace);
+        }
+    });
+
+    tasksCtrl.onWorkspaceSelect = function (item, model) {
+        tasksCtrl.selectedWorkspaceId = tasksCtrl.selectedWorkspace.selected.id;
+        StorageService.setString("workspace", tasksCtrl.selectedWorkspaceId);
+        tasksCtrl.workspaceNotSelected = false;
+
+        tasksCtrl.filterProject.selected = undefined;
+        tasksCtrl.filterTag.selected = undefined;
+        tasksCtrl.tasks = [];
+
+        var promise1 = AsanaGateway.getWorkspaceTags({workspace_id: tasksCtrl.selectedWorkspaceId}).then(function (response) {
+            tasksCtrl.tags = response;
+        });
+
+        var promise2 = AsanaGateway.getWorkspaceProjects({workspace_id: tasksCtrl.selectedWorkspaceId}).then(function (response) {
+            tasksCtrl.projects = response;
+        });
+
+        var promise3 = AsanaGateway.getWorkspaceUsers({workspace_id: tasksCtrl.selectedWorkspaceId}).then(function (response) {
+            tasksCtrl.users = response;
+        });
+
+        $q.all([promise1, promise2, promise3]).then(function () {
+            if(tasksCtrl.filterTask == 'filterMyTasks'){
+                tasksCtrl.fetchTasks();
+            }
+        });
+    };
+
+    tasksCtrl.clearNameDescription = function () {
+        StorageService.setString("name", "");
+        StorageService.setString("description", "");
+    }
+
+    tasksCtrl.clearSaved = function () {
+        StorageService.clearArray("project");
+        StorageService.clearArray("tag");
+        StorageService.clearArray("follower");
+    }
+
+    tasksCtrl.tagHandler = function (input){
+        var lowInput = input.toLowerCase();
+        for(var i=0; i<tasksCtrl.tags.length; i++){
+            if(tasksCtrl.tags[i].name.toLowerCase().indexOf(lowInput)>=0){
+                return tasksCtrl.tags[i];
+            }
+        }
+        return { id: 1, name: input, notes: '', prompt: "(new tag)" };
+    };
+
+    tasksCtrl.onTagSelectedTaskList = function (item, model) {
+        tasksCtrl.fetchTasks();
+    };
+
+    tasksCtrl.onTagSelected = function (item, model, callback) {
+        if(item.isTag){
+            var options = {data: {}};
+            options.data.workspace = tasksCtrl.selectedWorkspaceId;
+            options.data.name = item.name;
+            AsanaGateway.onTagSelected(options).then(function (response) {
+                item.id = response.id; //update created tag with new id
+                callback();
+            });
+        } else {
+            callback();
+        }
+    };
+
+    tasksCtrl.projectTaggingHandler = function (input) {
+        var lowInput = input.toLowerCase();
+        for(var i=0; i<tasksCtrl.projects.length; i++){
+            if(tasksCtrl.projects[i].name.toLowerCase().indexOf(lowInput)>=0){
+                return tasksCtrl.projects[i];
+            }
+        }
+        return { id: 1, name: input, notes: '', prompt: "(new project)", public: true};
+    };
+
+    tasksCtrl.createProject = function (item, model, callback) {
+        if(item.isTag){
+            var options = {data: {}};
+            options.data.workspace = tasksCtrl.selectedWorkspaceId;
+            options.data.name = item.name;
+
+            AsanaGateway.createNewProject(options).then(function (response) {
+                item.id = response.id;
+                callback();
+            });
+        } else {
+            callback();
+        }
+    };
+
+    tasksCtrl.switchView = function (choice, filter) {
+        if(tasksCtrl.selectedView != choice){
+            tasksCtrl.tasks = [];
+            tasksCtrl.selectedView = choice;
+            tasksCtrl.filterTask = filter;
+            tasksCtrl.fetchTasks();
+        }
+    };
+
+
+    tasksCtrl.onProjectSelected = function (item, model) {
+        tasksCtrl.fetchTasks();
+    };
+
+    tasksCtrl.fetchTasks = function () {
+        //fetch tasks here
+        tasksCtrl.tasks = [];
+        var options = { query: {} };
+        if(!tasksCtrl.selectedWorkspace.selected) {
+            return;
+        }
+        switch (tasksCtrl.filterTask){
+            case "filterMyTasks":
+                options.query.workspace = tasksCtrl.selectedWorkspace.selected.id;
+                options.query.assignee = "me";
+                break;
+            case "filterProjectTasks":
+                if(!tasksCtrl.filterProject.selected) {
+                    return;
+                }
+                options.query.project = tasksCtrl.filterProject.selected.id;
+                break;
+            case "filterTagsTasks":
+                if(!tasksCtrl.filterTag.selected){
+                    return;
+                }
+                options.query.tag = tasksCtrl.filterTag.selected.id;
+                break;
+        }
+        AsanaGateway.getTasks(options).then(function (response) {
+            tasksCtrl.tasks = response;
+            tasksCtrl.tasks.forEach(task => {
+                tasksCtrl.enrichTask(task);
+            });
+        });
+    };
+
+    tasksCtrl.enrichTask = function (task) {
+        task.link = "https://app.asana.com/0/" + task.workspace.id + "/" + task.id;
+        AsanaConstants.setDefaultPictureUser(task.assignee);
+        task.due = {
+            open: false
+        };
+        var now = new Date().getTime(); // current time since epoch seconds
+        if(task.due_at !== null){
+            task.deadline = new Date(Date.parse(task.due_at));
+            task.deadlineType = AsanaConstants.DEADLINE_TYPE.DUE_AT;
+            task.due = Date.parse(task.due_at);
+            task.schedule = $filter('date')(new Date(task.due), 'MMM d hh:mm a');
+            task.status = task.due < now? 'overdue':'upcoming';
+        }
+        else if(task.due_on !== null) {
+            task.deadline = new Date(Date.parse(task.due_on));
+            task.deadlineType = AsanaConstants.DEADLINE_TYPE.DUE_ON;
+            task.due = Date.parse(task.due_on);
+            task.schedule = $filter('date')(new Date(task.due), 'MMM d');
+            task.status = task.due < now? 'overdue':'upcoming';
+        }
+        else {
+            task.deadlineType = AsanaConstants.DEADLINE_TYPE.NONE;
+            task.due = Number.MAX_VALUE;
+            task.schedule = "";
+        }
+    }
+
+    tasksCtrl.onProjectAdd = function (item, model) {
+        tasksCtrl.createProject(item, model, function () {
+            var options = {
+                task_id: tasksCtrl.selectedTaskId,
+                project_id: item.id
+            };
+            AsanaGateway.addProjectToTask(options).then(function () {
+
+            });
+        });
+    };
+
+    tasksCtrl.onProjectRemove = function (item, model) {
+        var options = {
+            task_id: tasksCtrl.selectedTaskId,
+            project_id: item.id
+        };
+        AsanaGateway.removeProjectFromTask(options).then(function () {
+
+        });
+    };
+
+    tasksCtrl.onTagAdd = function (item, model) {
+        tasksCtrl.onTagSelected(item, model, function () {
+            var options = {
+                task_id: tasksCtrl.selectedTaskId,
+                tag_id: item.id
+            };
+            AsanaGateway.addTag(options).then(function () {
+
+            });
+        });
+    };
+
+    tasksCtrl.onTagRemove = function (item, model) {
+        var options = {
+            task_id: tasksCtrl.selectedTaskId,
+            tag_id : item.id
+        };
+
+        AsanaGateway.removeTag(options).then(function () {
+
+        });
+    };
+
+    tasksCtrl.onFollowerAdd = function (item, model) {
+        var options = {
+            task_id: tasksCtrl.selectedTaskId,
+            follower_id: item.id
+        };
+        AsanaGateway.addFollowerToTask(options).then(function () {
+
+        });
+    };
+
+    tasksCtrl.onFollowerRemove = function (item, model) {
+        var options = {
+            task_id: tasksCtrl.selectedTaskId,
+            follower_id: item.id
+        };
+        AsanaGateway.removeFollowersFromTask(options).then(function () {
+
+        });
+    };
+
+    tasksCtrl.isTask = function (taskName) {
+        return !taskName.endsWith(":");
+    };
+
+    tasksCtrl.showTaskList = function () {
+        tasksCtrl.showTaskManager = true;
+    };
+
+    tasksCtrl.openInAsana = function (url) {
+        ChromeExtension.openLink(url);
+    };
+
+    tasksCtrl.showTask = function (taskId, index) {
+        tasksCtrl.showTaskManager = false;
+        tasksCtrl.selectedTaskId = taskId;
+        tasksCtrl.selectedTaskIndex = index;
+
+        AsanaGateway.getTaskStories({task_id: tasksCtrl.selectedTaskId}).then(function (response) {
+            tasksCtrl.activities = response.filter(function (activity) {
+                return activity.type === "system";
+            });
+            tasksCtrl.comments = response.filter(function (comment) {
+                return comment.type === "comment";
+            });
+        });
+
+        AsanaGateway.getTask({task_id: tasksCtrl.selectedTaskId}).then(function (response) {
+            tasksCtrl.tasks[tasksCtrl.selectedTaskIndex] = response;
+            tasksCtrl.taskDetails = tasksCtrl.tasks[tasksCtrl.selectedTaskIndex]; 
+            tasksCtrl.enrichTask(tasksCtrl.taskDetails);
+        });
+    };
+
+    tasksCtrl.updateName = function () {
+        var options = {
+            task_id: tasksCtrl.selectedTaskId,
+            data: {
+                name: tasksCtrl.taskDetails.name
+            }
+        };
+        tasksCtrl.updateTask(options);
+    };
+
+    tasksCtrl.toggleLiked = function (current_liked) {
+        var option = {
+            task_id: tasksCtrl.selectedTaskId,
+            data: {
+                liked: !current_liked
+            }
+        };
+        tasksCtrl.updateTask(option);
+    }
+
+    tasksCtrl.updateNotes = function () {
+        var options = {
+            task_id: tasksCtrl.selectedTaskId,
+            data: {
+                notes: tasksCtrl.taskDetails.notes
+            }
+        };
+        tasksCtrl.updateTask(options);
+    };
+
+    tasksCtrl.updateAssignee = function () {
+        var options = {
+            task_id: tasksCtrl.selectedTaskId
+        };
+        if(angular.isDefined(tasksCtrl.taskDetails.assignee)){
+            options.data = {
+                assignee: tasksCtrl.taskDetails.assignee.id
+            };
+        } else {
+            options.data = {
+                assignee: null
+            };
+        }
+        tasksCtrl.updateTask(options);
+    };
+
+    tasksCtrl.updateDeadline = function () {
+        var options = {
+            task_id: tasksCtrl.selectedTaskId
+        };
+        switch (tasksCtrl.taskDetails.deadlineType) {
+            case AsanaConstants.DEADLINE_TYPE.DUE_ON:
+                options.data = {
+                    due_on: $filter('date')(tasksCtrl.taskDetails.deadline, 'yyyy-MM-dd'),
+                    due_at: null
+                };
+                break;
+            case AsanaConstants.DEADLINE_TYPE.DUE_AT:
+                options.data = {
+                    due_at: tasksCtrl.taskDetails.deadline,
+                    due_on: null
+                };
+                break;
+            default:
+                options.data = {
+                    due_on: null,
+                    due_at: null
+                };
+                break;
+        }
+        tasksCtrl.updateTask(options);
+    };
+
+    tasksCtrl.setCompleted = function (task_id, task_completed) {
+        var option = {
+            task_id: task_id,
+            query: {
+                completed: task_completed
+            } 
+        };
+        AsanaGateway.updateTask(option);
+    };
+
+    tasksCtrl.updateTask = function (options) {
+        return AsanaGateway.updateTask(options).then(function (response) {
+            var keys = ["likes", "liked", "name", "notes", "assignee", "completed", "due_on", "due_at"];
+            keys.forEach(key => {
+                tasksCtrl.taskDetails[key] = response[key];
+            });
+
+            tasksCtrl.enrichTask(tasksCtrl.taskDetails);
+            return response;
+        });
+    };
+
+    tasksCtrl.addComment = function () {
+        AsanaGateway.addComment({task_id: tasksCtrl.selectedTaskId, commentText: tasksCtrl.commentText}).then(function (response) {
+            tasksCtrl.comments.push({
+                id: response.id,
+                created_at: response.created_at,
+                created_by: {
+                    "id": tasksCtrl.user.id,
+                    "name": tasksCtrl.user.name,
+                    "email": tasksCtrl.user.email,
+                    "photo": tasksCtrl.user.photo
+                },
+                text: tasksCtrl.commentText,
+                type: "comment"
+            });
+            tasksCtrl.commentText = "";
+        });
+    };
+}]);
+
+asanaModule.controller("notificationsController", ['$scope', 'AsanaConstants', function ($scope, AsanaConstants) {
+
 }]);
 
 asanaModule.controller("settingsController", ['$scope', 'AsanaConstants', function ($scope, AsanaConstants) {
-    $scope.hideArchivedProjects = AsanaConstants.getHideArchivedProjects();
-    $scope.changeHideArchivedProjects = function () {
-        $scope.hideArchivedProjects = !$scope.hideArchivedProjects;
-        AsanaConstants.setHideArchivedProjects($scope.hideArchivedProjects);
+    var settingsCtrl = this;
+    settingsCtrl.hideArchivedProjects = AsanaConstants.getHideArchivedProjects();
+    settingsCtrl.changeHideArchivedProjects = function () {
+        AsanaConstants.setHideArchivedProjects(settingsCtrl.hideArchivedProjects);
     };
 
-    $scope.defaultAssigneeMe = AsanaConstants.getDefaultAssigneeMe();
-    $scope.changeDefaultAssigneeMe = function () {
-        $scope.defaultAssigneeMe = !$scope.defaultAssigneeMe;
-        AsanaConstants.setDefaultAssigneeMe($scope.defaultAssigneeMe);
+    settingsCtrl.defaultAssigneeMe = AsanaConstants.getDefaultAssigneeMe();
+    settingsCtrl.changeDefaultAssigneeMe = function () {
+        AsanaConstants.setDefaultAssigneeMe(settingsCtrl.defaultAssigneeMe);
     };
 
-    $scope.projectOptional = AsanaConstants.getProjectOptional();
-    $scope.changeProjectOptional = function () {
-        $scope.projectOptional = !$scope.projectOptional;
-        AsanaConstants.setProjectOptional($scope.projectOptional);
+    settingsCtrl.projectOptional = AsanaConstants.getProjectOptional();
+    settingsCtrl.changeProjectOptional = function () {
+        AsanaConstants.setProjectOptional(settingsCtrl.projectOptional);
+    };
+
+    settingsCtrl.rememberProject = AsanaConstants.getRememberProject();
+    settingsCtrl.changeRememberProject = function () {
+        AsanaConstants.setRememberProject(settingsCtrl.rememberProject);
+    };
+
+    settingsCtrl.rememberTag = AsanaConstants.getRememberTag();
+    settingsCtrl.changeRememberTag = function () {
+        AsanaConstants.setRememberTag(settingsCtrl.rememberTag);
+    };
+
+    settingsCtrl.rememberFollower = AsanaConstants.getRememberFollower();
+    settingsCtrl.changeRememberFollower = function () {
+        AsanaConstants.setRememberFollower(settingsCtrl.rememberFollower);
     };
 
     $scope.enableNotifications = AsanaConstants.getNotificationsEnabled();
@@ -325,8 +754,4 @@ asanaModule.controller("settingsController", ['$scope', 'AsanaConstants', functi
         $scope.enableNotifications = !$scope.enableNotifications;
         AsanaConstants.setNotificationsEnabled($scope.enableNotifications);
     };
-}]);
-
-asanaModule.controller("notificationsController", ['$scope', 'AsanaConstants', function ($scope, AsanaConstants) {
-
 }]);

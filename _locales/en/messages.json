@@ -1,6 +1,6 @@
 {
   "manifest_name":{
-    "message": "AsanaNG - Asana Extension for Chrome",
+    "message": "AsanaNG",
     "description": ""
   },
   "manifest_short_name":{
@@ -8,81 +8,11 @@
     "description": ""
   },
   "manifest_description":{
-    "message": "Access Asana - quick and easy in your own language",
+    "message": "Unofficial Asana Chrome Extension. Access Asana - quick and easy in your own language",
     "description": ""
   },
   "manifest_browser_action_title":{
     "message": "AsanaNG",
     "description": ""
-  },
-
-  "add_task": {
-    "message": "",
-    "description": "Add Task"
-  },
-  "add_section": {
-    "message": "",
-    "description": "Add Section"
-  },
-
-  "followers": {
-    "message": "",
-    "description": "followers"
-  },
-  "following": {
-    "message": "",
-    "description": "following"
-  },
-  "write_comment": {
-    "message": "",
-    "description": "Write a comment"
-  },
-  "navigation_team_conversation": {
-    "message": "",
-    "description": "Team Conversations"
-  },
-  "navigation_team_calendar": {
-    "message": "",
-    "description": "Team Calendar"
-  },
-  "navigation_projects": {
-    "message": "",
-    "description": "Projects"
-  },
-  "my_tasks": {
-    "message": "",
-    "description": "My Tasks"
-  },
-  "inbox": {
-    "message": "",
-    "description": "Inbox"
-  },
-  "dashboard": {
-    "message": "",
-    "description": "Dashboard"
-  },
-  "list": {
-    "message": "",
-    "description": "List"
-  },
-  "calendar": {
-    "message": "",
-    "description": "Calendar"
-  },
-  "files": {
-    "message": "",
-    "description": "Files"
-  },
-  "search": {
-    "message": "",
-    "description": "Search"
-  },
-  "view_task_by_due_date": {
-    "message": "",
-    "description": "View: Tasks by Due Date"
-  },
-  "navigation_show_recent": {
-    "message": "",
-    "description": "Show Recents and more…"
   }
 }

@@ -5,7 +5,7 @@
     <div class="form-group">
         <div class="input-group input-group-sm">
             <div class="checkbox checkbox-info checkbox-circle checkbox-asana">
-                <input id="hideArchivedProjects" class="styled" type="checkbox" data-ng-checked="hideArchivedProjects" data-ng-click="changeHideArchivedProjects()"/>
+                <input id="hideArchivedProjects" class="styled" type="checkbox" data-ng-model="settingsCtrl.hideArchivedProjects" data-ng-change="settingsCtrl.changeHideArchivedProjects()"/>
                 <label for="hideArchivedProjects">Hide Archived Projects</label>
             </div>
         </div>
@@ -14,7 +14,7 @@
     <div class="form-group">
         <div class="input-group input-group-sm">
             <div class="checkbox checkbox-info checkbox-circle checkbox-asana">
-                <input id="defaultAssigneeMe" class="styled" type="checkbox" data-ng-checked="defaultAssigneeMe" data-ng-click="changeDefaultAssigneeMe()"/>
+                <input id="defaultAssigneeMe" class="styled" type="checkbox" data-ng-model="settingsCtrl.defaultAssigneeMe" data-ng-change="settingsCtrl.changeDefaultAssigneeMe()"/>
                 <label for="defaultAssigneeMe">Default Assignee - Me</label>
             </div>
         </div>
@@ -23,8 +23,35 @@
     <div class="form-group">
         <div class="input-group input-group-sm">
             <div class="checkbox checkbox-info checkbox-circle checkbox-asana">
-                <input id="projectOptional" class="styled" type="checkbox" data-ng-checked="projectOptional" data-ng-click="changeProjectOptional()"/>
+                <input id="projectOptional" class="styled" type="checkbox" data-ng-model="settingsCtrl.projectOptional" data-ng-change="settingsCtrl.changeProjectOptional()"/>
                 <label for="projectOptional">Project Optional</label>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <div class="input-group input-group-sm">
+            <div class="checkbox checkbox-info checkbox-circle checkbox-asana">
+                <input id="rememberProject" class="styled" type="checkbox" data-ng-model="settingsCtrl.rememberProject" data-ng-change="settingsCtrl.changeRememberProject()"/>
+                <label for="rememberProject">Remember Project(s)</label>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <div class="input-group input-group-sm">
+            <div class="checkbox checkbox-info checkbox-circle checkbox-asana">
+                <input id="rememberTag" class="styled" type="checkbox" data-ng-model="settingsCtrl.rememberTag" data-ng-change="settingsCtrl.changeRememberTag()"/>
+                <label for="rememberTag">Remember Tag(s)</label>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <div class="input-group input-group-sm">
+            <div class="checkbox checkbox-info checkbox-circle checkbox-asana">
+                <input id="rememberFollower" class="styled" type="checkbox" data-ng-model="settingsCtrl.rememberFollower" data-ng-change="settingsCtrl.changeRememberFollower()"/>
+                <label for="rememberFollower">Remember Follower(s)</label>
             </div>
         </div>
     </div>

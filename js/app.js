@@ -1,27 +1,40 @@
-var asanaModule = angular.module("asana", ["ngRoute", "ngSanitize", "ui.select", "ui.bootstrap", "ui.bootstrap.datetimepicker"]);
+var asanaModule = angular.module("asana", ["ngRoute", "ngSanitize", "ui.select", "ui.bootstrap", "ui.bootstrap.datetimepicker","angular-clipboard"]);
 
 asanaModule.config(function($routeProvider, $locationProvider) {
+    $locationProvider.html5Mode(true);
     $routeProvider
-        .when("/", {
+        .when("/create", {
             // route for the create task page
             templateUrl : "pages/createTask.html",
-            controller  : "createTaskController"
+            controller  : "createTaskController",
+            controllerAs: "createTaskCtrl",
+            activeTab   : "create"
         })
-       .when("/createTask", {
-            // route for the create task page
-            templateUrl : "pages/createTask.html",
-            controller  : "createTaskController"
-        })
-        .when("/todo", {
-            templateUrl : "pages/todo.html",
-            controller  : "todoController"
+        .when("/manage", {
+            // task management page
+            templateUrl : "pages/tasks.html",
+            controller  : "tasksController",
+            controllerAs: "tasksCtrl",
+            activeTab   : "manage"
         })
         .when("/settings", {
+            // settings
             templateUrl : "pages/settings.html",
-            controller  : "settingsController"
+            controller  : "settingsController",
+            controllerAs: "settingsCtrl",
+            activeTab   : "settings"
         }).when("/notifications", {
             templateUrl : "pages/notifications.html",
-            controller  : "notificationsController"
+            controller  : "notificationsController",
+            controllerAs: "notificationsCtrl",
+            activeTab   : "notifications"
+        })
+        .when("popup.html", {
+            redirectTo  : "/create"
+        })
+        .otherwise({
+            //default
+            redirectTo  : "/create"
         });
 });
 
@@ -29,5 +42,6 @@ asanaModule.config([
     "$compileProvider",
     function ($compileProvider) {
         $compileProvider.imgSrcSanitizationWhitelist(/^\s*((https?|chrome-extension):|data:image\/)/);
+        $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|chrome-extension):/);
     }
 ]);
