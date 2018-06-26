@@ -1,8 +1,7 @@
-angular.module("asanabg").run(
-    ['AsanaConstants', 'AsanaGateway', "ChromeExtensionService", "$timeout", "$q",
-        function (AsanaConstants, AsanaGateway, ChromeExtension, $timeout, $q) {
-    ChromeExtension.setBrowserActionBadgeText("NG");
-    ChromeExtension.setBrowserActionBadgeBGColor("#FC636B");
+asanaModule.run(['AsanaConstants', 'AsanaGateway', "ChromeExtensionService", "$timeout", "$q", "StorageService",
+function (AsanaConstants, AsanaGateway, ChromeExtensionService, $timeout, $q, StorageService) {
+    chrome.browserAction.setBadgeText({text: "NG"});
+    chrome.browserAction.setBadgeBackgroundColor({color: "#FC636B"});
 
     ChromeExtension.getCookie(AsanaConstants.getBaseApiUrl(),
         AsanaConstants.ASANA_LOGIN_COOKIE_NAME,
@@ -22,13 +21,21 @@ angular.module("asanabg").run(
         ChromeExtension.enableBrowserAction();
     });
 
-    ChromeExtension.onInstall(function () {
-        ChromeExtension.openLink("info.html");
+    chrome.runtime.onInstalled.addListener(function(details){
+        if(details.reason === "install") {
+            ChromeExtensionService.openLink("info.html");
+        }
+        StorageService.setString("workspace", "");
+        StorageService.clearArray("project");
+        StorageService.clearArray("tag");
+        StorageService.clearArray("follower");
+        StorageService.setString("name", "");
+        StorageService.setString("description", "");
     });
 
     function resetDefaultSuggestion() {
         chrome.omnibox.setDefaultSuggestion({
-            description: "AsanaNG: Search your Asana task/section/project/user/tag"
+            description: "AsanaNG: Search your Asana task/project/tag"
         });
     }
 

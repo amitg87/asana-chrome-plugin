@@ -4,7 +4,7 @@
   "name": "AsanaNG",
   "short_name": "AsanaNG",
   "description": "Unofficial Asana Chrome Extension",
-  "version": "0.7",
+  "version": "0.8",
 
   "icons": {
     "16": "img/icon16.png",
@@ -27,7 +27,7 @@
     "default_popup": "popup.html"
   },
 
-  "omnibox": { "keyword" : "asana"},
+  "omnibox": { "keyword" : "asanang"},
 
   "content_scripts": [
     {

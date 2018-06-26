@@ -84,29 +84,9 @@ angular.module("Asana").service("AsanaGateway",
         options = options || {};
         options.method = "GET";
         options.path = "tasks";
-        options.query.opt_fields = "name,completed,assignee.name,assignee.photo,due_on,due_at";
+        options.query.opt_fields = "name,completed,assignee.name,assignee.photo,due_on,due_at,workspace";
         options.query.completed_since = "now";
-        var now = new Date().getTime(); // current time since epoch seconds
-        return AsanaGateway.api(options).then(function (response) {
-            response.forEach(function (element) {
-                if(element.assignee != null){
-                    AsanaGateway.setDefaultPictureUser(element.assignee);
-                }
-                if(element.due_at !== null){
-                    element.due = Date.parse(element.due_at);
-                    element.schedule = $filter('date')(new Date(element.due), 'MMM d hh:mm a');
-                    element.status = element.due < now? 'overdue':'upcoming';
-                } else if(element.due_on != null) {
-                    element.due = Date.parse(element.due_on);
-                    element.schedule = $filter('date')(new Date(element.due), 'MMM d');
-                    element.status = element.due < now? 'overdue':'upcoming';
-                } else {
-                    element.due = Number.MAX_VALUE;
-                    element.schedule = "";
-                }
-            });
-            return response;
-        });
+        return AsanaGateway.api(options);
     };
 
     AsanaGateway.getProject = function (options) {
@@ -136,49 +116,13 @@ angular.module("Asana").service("AsanaGateway",
         options.method = "GET";
         options.path = "tasks/" + options.task_id;
         options.query = {
-            opt_fields: "assignee.name,assignee.photo,assignee_status,completed,completed_at,created_at,due_at,due_on,followers.name,hearted,hearts,memberships,modified_at,name,notes,num_hearts,projects.name,tags.name,workspace.name"
+            opt_fields: "assignee.name,assignee.photo,assignee_status,completed,completed_at,created_at,due_at,due_on,followers.name,likes,liked,memberships,modified_at,name,notes,projects.name,tags.name,workspace.name"
         };
         return AsanaGateway.api(options).then(function (task) {
             AsanaGateway.setDefaultPictureUser(task.assignee);
             AsanaGateway.setDefaultPicture(task.followers);
             return task;
         });
-    };
-
-    AsanaGateway.setDefaultPictureUser = function (user) {
-        if(user.photo == null){
-            user.photo = {
-                "image_21x21": "../img/nopicture.png",
-                "image_27x27": "../img/nopicture.png",
-                "image_36x36": "../img/nopicture.png",
-                "image_60x60": "../img/nopicture.png",
-                "image_128x128": "../img/nopicture.png",
-                "image_1024x1024": "../img/nopicture.png"
-            };
-        }
-    };
-
-    AsanaGateway.setDefaultPicture = function (users) {
-        users.forEach(function (user) {
-            if(user.photo == null){
-                user.photo = {
-                    "image_21x21": "../img/nopicture.png",
-                    "image_27x27": "../img/nopicture.png",
-                    "image_36x36": "../img/nopicture.png",
-                    "image_60x60": "../img/nopicture.png",
-                    "image_128x128": "../img/nopicture.png",
-                    "image_1024x1024": "../img/nopicture.png"
-                };
-            }
-        });
-    };
-
-    AsanaGateway.taskDone = function (options) {
-        options = options || {};
-        options.method = "PUT";
-        options.path = "tasks/" + options.task_id;
-        options.query = {completed: options.completed};
-        return AsanaGateway.api(options);
     };
 
     AsanaGateway.getTaskStories = function (options) {
@@ -312,20 +256,27 @@ angular.module("Asana").service("AsanaGateway",
         queryParams = encodeURI(queryParams.substr(0, queryParams.length-1));
 
         var url = AsanaConstants.getBaseApiUrl() + options.path + "?" + queryParams;
+        var dataParam = {data: options.data, options: asanaOptions}
         var deferred = $q.defer();
         $http({
             method: options.method,
             url: url,
             respondType: 'json',
             headers: options.headers || {},
-            params: options.params || {},
-            data: {data: options.data, options: asanaOptions}
+            data: dataParam
         }).success(function (response) {
             if(!angular.isDefined(response.next_page))
                 deferred.resolve(response.data);
             else
                 deferred.resolve([response.data, response.next_page]);//destructuring - part of es6
         }).error(function (response) {
+            console.log("API Failure: ", response.status);
+            console.log("API call details: ");
+            console.log("URL: ", url);
+            console.log("Method: ", options.method);
+            console.log("Headers: ", options.headers);
+            console.log("Data: ", JSON.stringify(dataParam));
+            console.log("Response: ", JSON.stringify(response));
             if (response && response.hasOwnProperty("errors")) {
                 deferred.reject(response.errors);
             } else {
@@ -333,5 +284,63 @@ angular.module("Asana").service("AsanaGateway",
             }
         });
         return deferred.promise;
+    };
+}]);
+
+asanaModule.service('StorageService', [function() {
+    var StorageService = this;
+    StorageService.getString = function(key) {
+        return localStorage.getItem(key);
+    }
+
+    StorageService.setString = function(key, value) {
+        localStorage.setItem(key, value)
+    }
+
+    StorageService.clearArray = function(key) {
+        localStorage.setItem(key, JSON.stringify([]));
+    }
+
+    StorageService.getArray = function(key) {
+        return JSON.parse(localStorage.getItem(key));
+    }
+
+    StorageService.addToArray = function(key, value) {
+        var current = StorageService.getArray(key);
+        current.push(value);
+        StorageService.initArray(key, current);
+    }
+
+    StorageService.removeFromArray = function(key, value) {
+        var current = StorageService.getArray(key);
+        var index = current.indexOf(value);
+        if(index > -1) {
+            current.splice(index, 1);
+        }
+        StorageService.initArray(key, current);
+    }
+
+    StorageService.initArray = function(key, value) {
+        localStorage.setItem(key, JSON.stringify(value));
+    }
+}]);
+
+asanaModule.service("ChromeExtensionService", [function () {
+    var ChromeExtension = this;
+
+    ChromeExtension.openLink = function (url) {
+        chrome.tabs.create({url: url}, function () {
+            window.close();
+        });
+    };
+
+    ChromeExtension.openLinkInTab = function (url, tab) {
+        chrome.tabs.update(tab.id, {url: url});
+    };
+
+    ChromeExtension.getCurrentTab = function (callback) {
+        chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+            callback(tabs[0]);
+        });
     };
 }]);

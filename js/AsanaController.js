@@ -7,8 +7,6 @@ angular.module("asanaApp").controller("userController",
 
     AsanaGateway.getUserData().then(function (response) {
         userCtrl.user = response;
-    }).catch(function (response) {
-        console.log("AsanaNG Error: "+response[0].message);
     });
 
     userCtrl.createTab = function (url) {
@@ -20,9 +18,8 @@ angular.module("asanaApp").controller("userController",
     };
 }]);
 
-angular.module("asanaApp").controller("createTaskController",
-    ['$scope', 'AsanaGateway', '$timeout', 'AsanaConstants', 'AsanaSettings', '$filter', 'ChromeExtensionService',
-    function ($scope, AsanaGateway, $timeout, AsanaConstants, AsanaSettings, $filter, ChromeExtension) {
+asanaModule.controller("createTaskController", ['$scope', 'AsanaGateway', '$timeout', 'AsanaConstants', '$filter', 'ChromeExtensionService', '$q', 'StorageService',
+    function ($scope, AsanaGateway, $timeout, AsanaConstants, $filter, ChromeExtensionService, $q, StorageService) {
     var createTaskCtrl = this;
     createTaskCtrl.workspaceNotSelected = true;
     createTaskCtrl.projectRequired = false;
@@ -46,23 +43,69 @@ angular.module("asanaApp").controller("createTaskController",
         }
     };
 
+    createTaskCtrl.init = function (check, storageProperty, allResource, selectedResource) {
+        if(check) {
+            var saved = StorageService.getArray(storageProperty);
+            if(angular.isDefined(saved)) {
+                allResource.forEach(item => {
+                    var found = saved.find(oldItem => {
+                        return item.id == oldItem;
+                    });
+                    if(found) {
+                        selectedResource.push(item);
+                    }
+                });
+                var toSave = saved.filter(item => {
+                    return selectedResource.find(selected => {
+                        return selected.id == item;
+                    });
+                });
+                StorageService.initArray(storageProperty, toSave);
+            }
+        }
+    }
+
     createTaskCtrl.clearFields = function () {
         createTaskCtrl.selectedProject = { list: [] };
+        createTaskCtrl.init(AsanaConstants.getRememberProject(), "project", createTaskCtrl.projects, createTaskCtrl.selectedProject.list);
+
         createTaskCtrl.selectedUser = { selected : undefined};
-        createTaskCtrl.selectedFollowers = { list : [] };
         createTaskCtrl.setDefaultAssignee();
+
+        createTaskCtrl.selectedFollowers = { list : [] };
+        createTaskCtrl.init(AsanaConstants.getRememberFollower(), "follower", createTaskCtrl.users, createTaskCtrl.selectedFollowers.list);
+
         createTaskCtrl.selectedTags = {list: []};
-        createTaskCtrl.taskName = undefined;
-        createTaskCtrl.taskNotes = undefined;
+        createTaskCtrl.init(AsanaConstants.getRememberTag(), "tag", createTaskCtrl.tags, createTaskCtrl.selectedTags.list);
+
+        createTaskCtrl.taskName = StorageService.getString("name");
+        createTaskCtrl.taskNotes = StorageService.getString("description");
+
         createTaskCtrl.deadline = undefined;
         createTaskCtrl.deadlineType = AsanaConstants.DEADLINE_TYPE.NONE;
         createTaskCtrl.taskNameRequired = false;
     };
 
-    createTaskCtrl.clearFields();
+    createTaskCtrl.clearNameDescription = function () {
+        StorageService.setString("name", "");
+        StorageService.setString("description", "");
+    }
+
+    createTaskCtrl.clearSaved = function () {
+        StorageService.clearArray("project");
+        StorageService.clearArray("tag");
+        StorageService.clearArray("follower");
+    }
+
+    createTaskCtrl.onProjectDeselected = function(item, model) {
+        StorageService.removeFromArray("project", item.id);
+    }
 
     createTaskCtrl.onProjectSelected = function (item, model) {
         createTaskCtrl.projectRequired = false;
+        if(AsanaConstants.getRememberProject()) {
+            StorageService.addToArray("project", item.id);
+        }
         if(item.isTag){
             var options = {data: {}};
             options.data.workspace = createTaskCtrl.selectedWorkspaceId;
@@ -70,34 +113,33 @@ angular.module("asanaApp").controller("createTaskController",
 
             AsanaGateway.createNewProject(options).then(function (response) {
                 item.id = response.id;
-            }).catch(function (response) {
-                console.log("New project create failed: " + JSON.stringify(response));
             });
         }
     };
 
     createTaskCtrl.onWorkspaceSelect = function (item, model) {
         createTaskCtrl.selectedWorkspaceId = createTaskCtrl.selectedWorkspace.selected.id;
-        createTaskCtrl.clearFields();
+        StorageService.setString("workspace", createTaskCtrl.selectedWorkspaceId);
         createTaskCtrl.workspaceNotSelected = false;
 
-        AsanaGateway.getWorkspaceTags({workspace_id: createTaskCtrl.selectedWorkspaceId}).then(function (response) {
+        var promise1 = AsanaGateway.getWorkspaceTags({workspace_id: createTaskCtrl.selectedWorkspaceId}).then(function (response) {
             createTaskCtrl.tags = response;
         });
 
-        AsanaGateway.getWorkspaceUsers({workspace_id: createTaskCtrl.selectedWorkspaceId}).then(function (response) {
+        var promise2 = AsanaGateway.getWorkspaceUsers({workspace_id: createTaskCtrl.selectedWorkspaceId}).then(function (response) {
             createTaskCtrl.users = response;
-        }).then(function () {
-            AsanaGateway.getUserData().then(function (response) {
-                createTaskCtrl.user = response;
-                createTaskCtrl.setDefaultAssignee();
-            }).catch(function (response) {
-                console.log("AsanaNG Error: "+response[0].message);
-            });
         });
 
-        AsanaGateway.getWorkspaceProjects({workspace_id: createTaskCtrl.selectedWorkspaceId}).then(function (response) {
+        var promise3 = AsanaGateway.getWorkspaceProjects({workspace_id: createTaskCtrl.selectedWorkspaceId}).then(function (response) {
             createTaskCtrl.projects = response;
+        });
+
+        var promise4 = AsanaGateway.getUserData().then(function (response) {
+            createTaskCtrl.user = response;
+        });
+
+        $q.all([promise1, promise2, promise3, promise4]).then(results => {
+            createTaskCtrl.clearFields();
         });
     };
 
@@ -147,7 +189,7 @@ angular.module("asanaApp").controller("createTaskController",
             options.data.followers = followers;
         }
 
-        if(!angular.isDefined(createTaskCtrl.taskName)){
+        if(!angular.isDefined(createTaskCtrl.taskName) || createTaskCtrl.taskName.trim().length == 0){
             createTaskCtrl.taskCreationStatus.success = false;
             createTaskCtrl.taskCreationStatus.message = "Task name required";
             createTaskCtrl.taskCreationStatus.show = true;
@@ -161,6 +203,7 @@ angular.module("asanaApp").controller("createTaskController",
         options.data.notes = createTaskCtrl.taskNotes;
 
         AsanaGateway.createTask(options).then(function (response) {
+            createTaskCtrl.clearNameDescription();
             createTaskCtrl.clearFields();
 
             var containerId = (response.projects[0])? response.projects[0].id: (response.tags[0])? response.tags[0].id: (response.assignee)? response.assignee.id: 0;
@@ -186,12 +229,17 @@ angular.module("asanaApp").controller("createTaskController",
     AsanaGateway.getWorkspaces().then(function (response) {
         createTaskCtrl.workspaces = response;
         if(angular.isDefined(response) && response.length > 0){
-            createTaskCtrl.selectedWorkspace = response[0];
-            createTaskCtrl.selectedWorkspace.selected = response[0];
-            createTaskCtrl.onWorkspaceSelect(response[0], response[0]);
+            var lastUsedWorkspaceId = StorageService.getString("workspace") || 0;
+            var lastUsedWorkspace = response.find(function(workspace){
+                return workspace.id == lastUsedWorkspaceId;
+            });
+            if(!angular.isDefined(lastUsedWorkspace)) {
+                lastUsedWorkspace = response[0];
+            }
+            createTaskCtrl.selectedWorkspace = lastUsedWorkspace;
+            createTaskCtrl.selectedWorkspace.selected = lastUsedWorkspace;
+            createTaskCtrl.onWorkspaceSelect(lastUsedWorkspace, lastUsedWorkspace);
         }
-    }).catch(function (response) {
-        console.log("AsanaNG Error: "+JSON.stringify(response));
     });
 
     createTaskCtrl.tagHandler = function (input){
@@ -204,20 +252,24 @@ angular.module("asanaApp").controller("createTaskController",
         return { id: 1, name: input, notes: '', prompt: "(new tag)" };
     };
 
-    createTaskCtrl.createNewTag = function (item, model) {
+    createTaskCtrl.onTagSelected = function (item, model) {
+        if(AsanaConstants.getRememberTag()) {
+            StorageService.addToArray("tag", item.id);
+        }
         if(item.isTag){
             var tagRef = item;
             var options = {data: {}};
             options.data.workspace = createTaskCtrl.selectedWorkspaceId;
             options.data.name = item.name;
             AsanaGateway.createNewTag(options).then(function (response) {
-                tagRef.id = response.id; //update created tag with new id
-                //tags.push({"id": response.id, "name": response.name, "notes": response.notes}); //update taglist
-            }).catch(function (response) {
-                console.log("Create tag failed: " + JSON.stringify(response));
+                tagRef.id = response.id;
             });
         }
     };
+
+    createTaskCtrl.onTagDeselected = function(item, model) {
+        StorageService.removeFromArray("tag", item.id);
+    }
 
     createTaskCtrl.projectTaggingHandler = function (input) {
         var lowInput = input.toLowerCase();
@@ -228,6 +280,16 @@ angular.module("asanaApp").controller("createTaskController",
         }
         return { id: 1, name: input, notes: '', prompt: "(new project)", public: true};
     };
+
+    createTaskCtrl.onFollowerSelected = function (item, model) {
+        if(AsanaConstants.getRememberFollower()) {
+            StorageService.addToArray("follower", item.id);
+        }
+    };
+
+    createTaskCtrl.onFollowerDeselected = function (item, model) {
+        StorageService.removeFromArray("follower", item.id);
+    }
 
     createTaskCtrl.copyPage = function () {
         ChromeExtension.getCurrentTab(function (tab) {
@@ -240,14 +302,12 @@ angular.module("asanaApp").controller("createTaskController",
     };
 
     createTaskCtrl.successCopy = function () {
-        console.log("copied to clipboard");
         createTaskCtrl.taskCreationStatus.message = "Task Copied";
     };
 }]);
 
-angular.module("asanaApp").controller("tasksController",
-    ["$scope", "AsanaGateway", "ChromeExtensionService", "$filter", "AsanaConstants", "$q",
-    function ($scope, AsanaGateway, ChromeExtension, $filter, AsanaConstants, $q) {
+asanaModule.controller("tasksController", ["$scope", "AsanaGateway", "ChromeExtensionService", "$filter", "AsanaConstants", "$q", "StorageService",
+    function ($scope, AsanaGateway, ChromeExtension, $filter, AsanaConstants, $q, StorageService) {
     var tasksCtrl = this;
     tasksCtrl.selectedView = "My Tasks";
     tasksCtrl.filterTask = 'filterMyTasks';
@@ -257,23 +317,27 @@ angular.module("asanaApp").controller("tasksController",
 
     AsanaGateway.getUserData().then(function (response) {
         tasksCtrl.user = response;
-    }).catch(function (response) {
-        console.log("AsanaNG Error: "+response[0].message);
     });
 
     AsanaGateway.getWorkspaces().then(function (response) {
         tasksCtrl.workspaces = response;
         if(angular.isDefined(response) && response.length > 0){
-            tasksCtrl.selectedWorkspace = response[0];
-            tasksCtrl.selectedWorkspace.selected = response[0];
-            tasksCtrl.onWorkspaceSelect(response[0], response[0]);
+            var lastUsedWorkspaceId = StorageService.getString("workspace") || 0;
+            var lastUsedWorkspace = response.find(function(workspace){
+                return workspace.id == lastUsedWorkspaceId;
+            });
+            if(!angular.isDefined(lastUsedWorkspace)) {
+                lastUsedWorkspace = response[0];
+            }
+            tasksCtrl.selectedWorkspace = lastUsedWorkspace;
+            tasksCtrl.selectedWorkspace.selected = lastUsedWorkspace;
+            tasksCtrl.onWorkspaceSelect(lastUsedWorkspace, lastUsedWorkspace);
         }
-    }).catch(function (response) {
-        console.log("AsanaNG Error: "+JSON.stringify(response));
     });
 
     tasksCtrl.onWorkspaceSelect = function (item, model) {
         tasksCtrl.selectedWorkspaceId = tasksCtrl.selectedWorkspace.selected.id;
+        StorageService.setString("workspace", tasksCtrl.selectedWorkspaceId);
         tasksCtrl.workspaceNotSelected = false;
 
         tasksCtrl.filterProject.selected = undefined;
@@ -299,6 +363,17 @@ angular.module("asanaApp").controller("tasksController",
         });
     };
 
+    tasksCtrl.clearNameDescription = function () {
+        StorageService.setString("name", "");
+        StorageService.setString("description", "");
+    }
+
+    tasksCtrl.clearSaved = function () {
+        StorageService.clearArray("project");
+        StorageService.clearArray("tag");
+        StorageService.clearArray("follower");
+    }
+
     tasksCtrl.tagHandler = function (input){
         var lowInput = input.toLowerCase();
         for(var i=0; i<tasksCtrl.tags.length; i++){
@@ -309,16 +384,18 @@ angular.module("asanaApp").controller("tasksController",
         return { id: 1, name: input, notes: '', prompt: "(new tag)" };
     };
 
-    tasksCtrl.createNewTag = function (item, model, callback) {
+    tasksCtrl.onTagSelectedTaskList = function (item, model) {
+        tasksCtrl.fetchTasks();
+    };
+
+    tasksCtrl.onTagSelected = function (item, model, callback) {
         if(item.isTag){
             var options = {data: {}};
             options.data.workspace = tasksCtrl.selectedWorkspaceId;
             options.data.name = item.name;
-            AsanaGateway.createNewTag(options).then(function (response) {
+            AsanaGateway.onTagSelected(options).then(function (response) {
                 item.id = response.id; //update created tag with new id
                 callback();
-            }).catch(function (response) {
-                console.log("Create tag failed: " + JSON.stringify(response));
             });
         } else {
             callback();
@@ -344,8 +421,6 @@ angular.module("asanaApp").controller("tasksController",
             AsanaGateway.createNewProject(options).then(function (response) {
                 item.id = response.id;
                 callback();
-            }).catch(function (response) {
-                console.log("New project failed: " + JSON.stringify(response));
             });
         } else {
             callback();
@@ -363,10 +438,6 @@ angular.module("asanaApp").controller("tasksController",
 
 
     tasksCtrl.onProjectSelected = function (item, model) {
-        tasksCtrl.fetchTasks();
-    };
-
-    tasksCtrl.onTagSelected = function (item, model) {
         tasksCtrl.fetchTasks();
     };
 
@@ -396,11 +467,40 @@ angular.module("asanaApp").controller("tasksController",
                 break;
         }
         AsanaGateway.getTasks(options).then(function (response) {
-            tasksCtrl.tasks = response; //response[0].assignee.id -> tasksCtrl.users
-        }).catch(function () {
-            console.log("Error getting tasks");
+            tasksCtrl.tasks = response;
+            tasksCtrl.tasks.forEach(task => {
+                tasksCtrl.enrichTask(task);
+            });
         });
     };
+
+    tasksCtrl.enrichTask = function (task) {
+        task.link = "https://app.asana.com/0/" + task.workspace.id + "/" + task.id;
+        AsanaConstants.setDefaultPictureUser(task.assignee);
+        task.due = {
+            open: false
+        };
+        var now = new Date().getTime(); // current time since epoch seconds
+        if(task.due_at !== null){
+            task.deadline = new Date(Date.parse(task.due_at));
+            task.deadlineType = AsanaConstants.DEADLINE_TYPE.DUE_AT;
+            task.due = Date.parse(task.due_at);
+            task.schedule = $filter('date')(new Date(task.due), 'MMM d hh:mm a');
+            task.status = task.due < now? 'overdue':'upcoming';
+        }
+        else if(task.due_on !== null) {
+            task.deadline = new Date(Date.parse(task.due_on));
+            task.deadlineType = AsanaConstants.DEADLINE_TYPE.DUE_ON;
+            task.due = Date.parse(task.due_on);
+            task.schedule = $filter('date')(new Date(task.due), 'MMM d');
+            task.status = task.due < now? 'overdue':'upcoming';
+        }
+        else {
+            task.deadlineType = AsanaConstants.DEADLINE_TYPE.NONE;
+            task.due = Number.MAX_VALUE;
+            task.schedule = "";
+        }
+    }
 
     tasksCtrl.onProjectAdd = function (item, model) {
         tasksCtrl.createProject(item, model, function () {
@@ -410,8 +510,6 @@ angular.module("asanaApp").controller("tasksController",
             };
             AsanaGateway.addProjectToTask(options).then(function () {
 
-            }).catch(function () {
-                console.log("could not add project to task");
             });
         });
     };
@@ -423,20 +521,17 @@ angular.module("asanaApp").controller("tasksController",
         };
         AsanaGateway.removeProjectFromTask(options).then(function () {
 
-        }).catch(function () {
-            console.log("project could not be removed from task");
         });
     };
 
     tasksCtrl.onTagAdd = function (item, model) {
-        tasksCtrl.createNewTag(item, model, function () {
+        tasksCtrl.onTagSelected(item, model, function () {
             var options = {
                 task_id: tasksCtrl.selectedTaskId,
                 tag_id: item.id
             };
             AsanaGateway.addTag(options).then(function () {
-            }).catch(function () {
-                console.log("Tag add failed");
+
             });
         });
     };
@@ -448,8 +543,7 @@ angular.module("asanaApp").controller("tasksController",
         };
 
         AsanaGateway.removeTag(options).then(function () {
-        }).catch(function () {
-            console.log("Tag could not be removed");
+
         });
     };
 
@@ -459,8 +553,7 @@ angular.module("asanaApp").controller("tasksController",
             follower_id: item.id
         };
         AsanaGateway.addFollowerToTask(options).then(function () {
-        }).catch(function () {
-            console.log("failed to add follower");
+
         });
     };
 
@@ -470,20 +563,7 @@ angular.module("asanaApp").controller("tasksController",
             follower_id: item.id
         };
         AsanaGateway.removeFollowersFromTask(options).then(function () {
-        }).catch(function () {
-            console.log("failed to remove follower");
-        });
-    };
 
-    tasksCtrl.toggleTaskDone = function (task_id, task_completed) {
-        var taskNextStatus = !task_completed;
-        var option = {
-            task_id: task_id,
-            completed: taskNextStatus
-        };
-        AsanaGateway.taskDone(option).then(function (response) {
-        }).catch(function () {
-            console.log("Error marking task as done");
         });
     };
 
@@ -511,34 +591,12 @@ angular.module("asanaApp").controller("tasksController",
             tasksCtrl.comments = response.filter(function (comment) {
                 return comment.type === "comment";
             });
-        }).catch(function () {
-            console.log("Error fetching task stories");
         });
 
         AsanaGateway.getTask({task_id: tasksCtrl.selectedTaskId}).then(function (response) {
             tasksCtrl.tasks[tasksCtrl.selectedTaskIndex] = response;
-            tasksCtrl.taskDetails = tasksCtrl.tasks[tasksCtrl.selectedTaskIndex];
-            tasksCtrl.taskDetails.due = {
-                open: false
-            };
-            var workSpaceId = tasksCtrl.taskDetails.workspace.id;
-            var taskId = tasksCtrl.taskDetails.id;
-            tasksCtrl.taskDetails.link = "https://app.asana.com/0/" + workSpaceId + "/" + taskId;
-            if(response.due_at !== null){
-                tasksCtrl.taskDetails.deadline = new Date(Date.parse(response.due_at));
-                tasksCtrl.taskDetails.deadlineType = AsanaConstants.DEADLINE_TYPE.DUE_AT;
-            }
-            else if(response.due_on !== null) {
-                tasksCtrl.taskDetails.deadline = new Date(Date.parse(response.due_on));
-                tasksCtrl.taskDetails.deadlineType = AsanaConstants.DEADLINE_TYPE.DUE_ON;
-            }
-            else {
-                tasksCtrl.taskDetails.deadlineType = AsanaConstants.DEADLINE_TYPE.NONE;
-            }
-
-            console.dir("Task details: " + JSON.stringify(tasksCtrl.taskDetails));
-        }).catch(function () {
-            console.log("Error fetching task details");
+            tasksCtrl.taskDetails = tasksCtrl.tasks[tasksCtrl.selectedTaskIndex]; 
+            tasksCtrl.enrichTask(tasksCtrl.taskDetails);
         });
     };
 
@@ -551,6 +609,16 @@ angular.module("asanaApp").controller("tasksController",
         };
         tasksCtrl.updateTask(options);
     };
+
+    tasksCtrl.toggleLiked = function (current_liked) {
+        var option = {
+            task_id: tasksCtrl.selectedTaskId,
+            data: {
+                liked: !current_liked
+            }
+        };
+        tasksCtrl.updateTask(option);
+    }
 
     tasksCtrl.updateNotes = function () {
         var options = {
@@ -605,11 +673,25 @@ angular.module("asanaApp").controller("tasksController",
         tasksCtrl.updateTask(options);
     };
 
+    tasksCtrl.setCompleted = function (task_id, task_completed) {
+        var option = {
+            task_id: task_id,
+            query: {
+                completed: task_completed
+            } 
+        };
+        AsanaGateway.updateTask(option);
+    };
+
     tasksCtrl.updateTask = function (options) {
         return AsanaGateway.updateTask(options).then(function (response) {
+            var keys = ["likes", "liked", "name", "notes", "assignee", "completed", "due_on", "due_at"];
+            keys.forEach(key => {
+                tasksCtrl.taskDetails[key] = response[key];
+            });
+
+            tasksCtrl.enrichTask(tasksCtrl.taskDetails);
             return response;
-        }).catch(function () {
-            console.log("Error occurred updating task");
         });
     };
 
@@ -628,8 +710,6 @@ angular.module("asanaApp").controller("tasksController",
                 type: "comment"
             });
             tasksCtrl.commentText = "";
-        }).catch(function (response) {
-            console.log("Failed to add comment.");
         });
     };
 }]);
@@ -652,4 +732,20 @@ angular.module("asanaApp").controller("settingsController",
     settingsCtrl.changeProjectOptional = function () {
         AsanaSettings.setProjectOptional(settingsCtrl.projectOptional);
     };
+
+    settingsCtrl.rememberProject = AsanaConstants.getRememberProject();
+    settingsCtrl.changeRememberProject = function () {
+        AsanaConstants.setRememberProject(settingsCtrl.rememberProject);
+    };
+
+    settingsCtrl.rememberTag = AsanaConstants.getRememberTag();
+    settingsCtrl.changeRememberTag = function () {
+        AsanaConstants.setRememberTag(settingsCtrl.rememberTag);
+    };
+
+    settingsCtrl.rememberFollower = AsanaConstants.getRememberFollower();
+    settingsCtrl.changeRememberFollower = function () {
+        AsanaConstants.setRememberFollower(settingsCtrl.rememberFollower);
+    };
+
 }]);

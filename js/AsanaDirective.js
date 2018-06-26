@@ -141,3 +141,21 @@ angular.module("asanaApp").directive('uiSelectFocus', ['$timeout', function($tim
         }
     };
 }]);
+
+asanaModule.directive('remember', ["StorageService", function(StorageService){
+    return {
+        restrict: 'A',
+        require: 'ngModel',
+        link: function(scope, element, attrs, ngModel) {
+            var key = attrs.remember;
+            var storedValue = StorageService.getString(key) || '';
+            ngModel.$setViewValue(storedValue);
+            ngModel.$render();
+
+            ngModel.$viewChangeListeners.push(function() {
+                var value = ngModel.$viewValue;
+                StorageService.setString(key, value);
+            });
+        }
+    }
+}]);
