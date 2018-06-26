@@ -1,4 +1,5 @@
-asanaModule.service("AsanaGateway", ["$http", "AsanaConstants", "$q", function ($http, AsanaConstants, $q) {
+asanaModule.service("AsanaGateway", ["$http", "AsanaConstants", "$q", "$filter",
+    function ($http, AsanaConstants, $q, $filter) {
 
     var AsanaGateway = this;
     
@@ -15,7 +16,10 @@ asanaModule.service("AsanaGateway", ["$http", "AsanaConstants", "$q", function (
         options.path = "workspaces/" + options.workspace_id + "/users";
         options.query = {opt_fields: "name,email,photo"};
 
-        return AsanaGateway.api(options);
+        return AsanaGateway.api(options).then(function (response) {
+            AsanaConstants.setDefaultPicture(response);
+            return response;
+        });
     };
 
     AsanaGateway.getWorkspaceProjects = function (options) {
@@ -24,21 +28,16 @@ asanaModule.service("AsanaGateway", ["$http", "AsanaConstants", "$q", function (
         options.path = "workspaces/" + options.workspace_id + "/projects";
         options.query = {opt_fields: "name,archived,notes,public"};
 
-        var deferred = $q.defer();
-        AsanaGateway.api(options).then(function (response) {
+        return AsanaGateway.api(options).then(function (response) {
             //filter - archived projects
             var hideArchivedProjects = AsanaConstants.getHideArchivedProjects();
             if(hideArchivedProjects){
-                deferred.resolve(response.filter(function (project) {
+                return response.filter(function (project) {
                     return !project.archived;
-                }));
-            } else {
-                deferred.resolve(response);
+                });
             }
-        }).catch(function (response) {
-            deferred.reject(response);
+            return response;
         });
-        return deferred.promise;
     };
 
     AsanaGateway.getWorkspaceTags = function (options) {
@@ -84,7 +83,7 @@ asanaModule.service("AsanaGateway", ["$http", "AsanaConstants", "$q", function (
         options = options || {};
         options.method = "GET";
         options.path = "tasks";
-        options.query.opt_fields = "name,completed,assignee";
+        options.query.opt_fields = "name,completed,assignee.name,assignee.photo,due_on,due_at,workspace";
         options.query.completed_since = "now";
         return AsanaGateway.api(options);
     };
@@ -93,15 +92,14 @@ asanaModule.service("AsanaGateway", ["$http", "AsanaConstants", "$q", function (
         options = options || {};
         options.method = "GET";
         options.path = "tasks/" + options.task_id;
-        return AsanaGateway.api(options);
-    };
-
-    AsanaGateway.taskDone = function (options) {
-        options = options || {};
-        options.method = "PUT";
-        options.path = "tasks/" + options.task_id;
-        options.query = {completed: options.completed};
-        return AsanaGateway.api(options);
+        options.query = {
+            opt_fields: "assignee.name,assignee.photo,assignee_status,completed,completed_at,created_at,due_at,due_on,followers.name,likes,liked,memberships,modified_at,name,notes,projects.name,tags.name,workspace.name"
+        };
+        return AsanaGateway.api(options).then(function (task) {
+            AsanaConstants.setDefaultPictureUser(task.assignee);
+            AsanaConstants.setDefaultPicture(task.followers);
+            return task;
+        });
     };
 
     AsanaGateway.getTaskStories = function (options) {
@@ -112,7 +110,12 @@ asanaModule.service("AsanaGateway", ["$http", "AsanaConstants", "$q", function (
             opt_fields: "type,text,created_at,created_by.name,created_by.email,created_by.photo.image_36x36"
         };
 
-        return AsanaGateway.api(options);
+        return AsanaGateway.api(options).then(function (stories) {
+            stories.forEach(function (story) {
+                AsanaConstants.setDefaultPictureUser(story.created_by);
+            });
+            return stories;
+        });
     };
 
     AsanaGateway.addComment = function (options) {
@@ -192,6 +195,18 @@ asanaModule.service("AsanaGateway", ["$http", "AsanaConstants", "$q", function (
         return AsanaGateway.api(options);
     };
 
+    AsanaGateway.search = function (options) {
+        options = options || {};
+        options.method = "GET";
+        options.query = {
+            type: options.type,
+            query: options.search_text,
+            opt_fields: "projects,name,id"
+        };
+        options.path = "workspaces/" + options.workspace_id + "/typeahead";
+        return AsanaGateway.api(options);
+    };
+
     //called by others
     AsanaGateway.api = function (options) {
         options.headers = {
@@ -214,7 +229,7 @@ asanaModule.service("AsanaGateway", ["$http", "AsanaConstants", "$q", function (
             asanaOptions = {client_name: client_name};
         } else {
             options.query = options.query || {};
-            options.query["opt_client_name"] = client_name;
+            options.query.opt_client_name = client_name;
         }
         var queryParams = "";
         for (var key in options.query) {
@@ -225,21 +240,70 @@ asanaModule.service("AsanaGateway", ["$http", "AsanaConstants", "$q", function (
         queryParams = encodeURI(queryParams.substr(0, queryParams.length-1));
 
         var url = AsanaConstants.getBaseApiUrl() + options.path + "?" + queryParams;
+        var dataParam = {data: options.data, options: asanaOptions}
         var deferred = $q.defer();
         $http({
             method: options.method,
             url: url,
             respondType: 'json',
             headers: options.headers || {},
-            params: options.params || {},
-            data: {data: options.data, options: asanaOptions}
+            data: dataParam
         }).success(function (response) {
             deferred.resolve(response.data);
-        }).error(function (response, status) {
-            deferred.reject(response.errors);
+        }).error(function (response) {
+            console.log("API Failure: ", response.status);
+            console.log("API call details: ");
+            console.log("URL: ", url);
+            console.log("Method: ", options.method);
+            console.log("Headers: ", options.headers);
+            console.log("Data: ", JSON.stringify(dataParam));
+            console.log("Response: ", JSON.stringify(response));
+            if (response && response.hasOwnProperty("errors")) {
+                deferred.reject(response.errors);
+            } else {
+                deferred.reject(response);
+            }
         });
         return deferred.promise;
     };
+}]);
+
+asanaModule.service('StorageService', [function() {
+    var StorageService = this;
+    StorageService.getString = function(key) {
+        return localStorage.getItem(key);
+    }
+
+    StorageService.setString = function(key, value) {
+        localStorage.setItem(key, value)
+    }
+
+    StorageService.clearArray = function(key) {
+        localStorage.setItem(key, JSON.stringify([]));
+    }
+
+    StorageService.getArray = function(key) {
+        return JSON.parse(localStorage.getItem(key));
+    }
+
+    StorageService.addToArray = function(key, value) {
+        var current = StorageService.getArray(key);
+        current.push(value);
+        StorageService.initArray(key, current);
+    }
+
+    StorageService.removeFromArray = function(key, value) {
+        var current = StorageService.getArray(key);
+        var index = current.indexOf(value);
+        if(index > -1) {
+            current.splice(index, 1);
+        }
+        StorageService.initArray(key, current);
+    }
+
+    StorageService.initArray = function(key, value) {
+        localStorage.setItem(key, JSON.stringify(value));
+    }
 }]);
 
 asanaModule.service("ChromeExtensionService", [function () {
@@ -249,5 +313,15 @@ asanaModule.service("ChromeExtensionService", [function () {
         chrome.tabs.create({url: url}, function () {
             window.close();
         });
-    }
+    };
+
+    ChromeExtension.openLinkInTab = function (url, tab) {
+        chrome.tabs.update(tab.id, {url: url});
+    };
+
+    ChromeExtension.getCurrentTab = function (callback) {
+        chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+            callback(tabs[0]);
+        });
+    };
 }]);

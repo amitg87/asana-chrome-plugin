@@ -28,4 +28,31 @@
             </div>
         </div>
     </div>
+
+    <div class="form-group">
+        <div class="input-group input-group-sm">
+            <div class="checkbox checkbox-info checkbox-circle checkbox-asana">
+                <input id="rememberProject" class="styled" type="checkbox" data-ng-model="settingsCtrl.rememberProject" data-ng-change="settingsCtrl.changeRememberProject()"/>
+                <label for="rememberProject">Remember Project(s)</label>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <div class="input-group input-group-sm">
+            <div class="checkbox checkbox-info checkbox-circle checkbox-asana">
+                <input id="rememberTag" class="styled" type="checkbox" data-ng-model="settingsCtrl.rememberTag" data-ng-change="settingsCtrl.changeRememberTag()"/>
+                <label for="rememberTag">Remember Tag(s)</label>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <div class="input-group input-group-sm">
+            <div class="checkbox checkbox-info checkbox-circle checkbox-asana">
+                <input id="rememberFollower" class="styled" type="checkbox" data-ng-model="settingsCtrl.rememberFollower" data-ng-change="settingsCtrl.changeRememberFollower()"/>
+                <label for="rememberFollower">Remember Follower(s)</label>
+            </div>
+        </div>
+    </div>
 </form>

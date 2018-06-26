@@ -1,5 +1,5 @@
 <form class="task-manager" data-ng-show="tasksCtrl.showTaskManager">
-    <div class="form-group dropdown task-criteria">
+    <div class="form-group dropdown task-criteria" title="Criteria">
         <button class="btn btn-default btn-xs dropdown-toggle" type="button" id="selectedView"
                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
             <span data-ng-bind="tasksCtrl.selectedView"></span>
@@ -12,11 +12,12 @@
         </ul>
     </div>
     <div class="form-group">
-        <ui-select data-ng-model="tasksCtrl.selectedWorkspace.selected" on-select="tasksCtrl.onWorkspaceSelect($item, $model)">
+        <ui-select data-ng-model="tasksCtrl.selectedWorkspace.selected" on-select="tasksCtrl.onWorkspaceSelect($item, $model);tasksCtrl.clearSaved();"
+                title="Select Workspace">
             <ui-select-match placeholder="Select Workspace">
                 <span data-ng-bind="$select.selected.name"></span>
             </ui-select-match>
-            <ui-select-choices repeat="workspace in (tasksCtrl.workspaces | filter: $select.search)" position="down">
+            <ui-select-choices repeat="workspace in tasksCtrl.workspaces | orderBy:'name' | filter: {name: $select.search}" position="down">
                 <div class="overflow-ellipsis">
                     <span data-ng-bind="workspace.name"></span>
                 </div>
@@ -25,12 +26,12 @@
     </div>
 
     <div class="form-group">
-        <ui-select tagging="tasksCtrl.projectTaggingHandler" data-ng-model="tasksCtrl.filterProject.selected"
+        <ui-select tagging="tasksCtrl.projectTaggingHandler" data-ng-model="tasksCtrl.filterProject.selected" title="Select Project"
                    data-ng-show="tasksCtrl.filterTask==='filterProjectTasks'" on-select="tasksCtrl.onProjectSelected($item, $model)">
             <ui-select-match placeholder="Select Project">
                 <span data-ng-bind="$select.selected.name"></span>
             </ui-select-match>
-            <ui-select-choices repeat="project in (tasksCtrl.projects | filter: $select.search)" position="down">
+            <ui-select-choices repeat="project in tasksCtrl.projects | orderBy:'name' | filter: {name: $select.search}" position="down">
                 <div class="overflow-ellipsis">
                     <span data-ng-class="{'archived-project':project.archived}" data-ng-bind="project.name" title="{{project.notes}}"></span>
                     <span data-ng-bind="tasksCtrl.project.prompt"></span>
@@ -42,11 +43,11 @@
 
     <div class="form-group multi-select">
         <ui-select tagging="tasksCtrl.tagHandler" data-ng-model="tasksCtrl.filterTag.selected" data-ng-show="tasksCtrl.filterTask==='filterTagsTasks'"
-                   on-select="tasksCtrl.onTagSelected($item, $model)">
+                   on-select="tasksCtrl.onTagSelectedTaskList($item, $model)" title="Select Tag">
             <ui-select-match placeholder="Select tag">
                 <span data-ng-bind="$select.selected.name"></span>
             </ui-select-match>
-            <ui-select-choices repeat="tag in (tasksCtrl.tags | filter: $select.search) track by tag.id" position="down">
+            <ui-select-choices repeat="tag in tasksCtrl.tags | orderBy:'name' | filter: {name: $select.search}" position="down">
                 <div class="overflow-ellipsis" title="{{tag.notes}}">
                     <i class="fa fa-tag"></i>
                     <span data-ng-bind="tag.name"></span>
@@ -61,16 +62,16 @@
             <li class="list-group-item" data-ng-repeat="task in tasksCtrl.tasks" data-ng-if='tasksCtrl.isTask(task.name)'>
                 <div class="checkbox checkbox-info checkbox-circle checkbox-asana" data-ng-model="task.id">
                     <input id="{{task.id}}" class="styled" type="checkbox" data-ng-checked="task.completed"
-                           data-ng-click="tasksCtrl.toggleTaskDone(task.id, task.completed); task.completed = !task.completed;"
-                           title="{{task.completed?'Mark Not Done': 'Mark Done'}}">
-                    <label for="{{task.id}}">
-                    </label>
+                    data-ng-click="task.completed = !task.completed; tasksCtrl.setCompleted(task.id, task.completed);"
+                           title="{{task.completed?'Mark Incomplete': 'Mark Complete'}}">
+                    <label for="{{task.id}}"></label>
                     <span class="task-name" title="{{task.name}}" data-ng-bind="task.name"></span>
+                    <i data-ng-if="task.schedule"  class="fa fa-clock-o {{task.status}}" title="{{task.schedule}}"></i>
                     <a class="pull-right task-details" data-ng-click="tasksCtrl.showTask(task.id, $index)" title="Show Details">
                         <i class="fa fa-comment-o"></i>
                         <i class="fa fa-chevron-right"></i>
                     </a>
-                    <img class="pull-right img-circle profile-img profile-img-sm" src="../img/nopicture.png"
+                    <img data-ng-if="task.assignee!=null" class="pull-right img-circle profile-img profile-img-sm" src="../img/nopicture.png"
                          data-ng-src="{{task.assignee.photo.image_36x36}}" title="{{task.assignee.name}}">
                 </div>
             </li>
@@ -89,27 +90,29 @@
     <div class="form-group task-title">
         <div class="checkbox checkbox-info checkbox-circle checkbox-asana" data-ng-model="tasksCtrl.taskDetails.id">
             <input id="{{tasksCtrl.selectedTaskId}}" class="styled" type="checkbox"
-                   data-ng-checked="tasksCtrl.taskDetails.completed" title="{{tasksCtrl.task.completed?'Mark Not Done': 'Mark Done'}}"
-                   data-ng-click="tasksCtrl.toggleTaskDone(tasksCtrl.selectedTaskId, taskCtrl.taskDetails.completed)"/>
+                   data-ng-checked="tasksCtrl.taskDetails.completed" title="{{tasksCtrl.taskDetails.completed?'Mark Incomplete': 'Mark Complete'}}"
+                   data-ng-click="tasksCtrl.taskDetails.completed=!tasksCtrl.taskDetails.completed; tasksCtrl.setCompleted(tasksCtrl.selectedTaskId, tasksCtrl.taskDetails.completed)"/>
             <label for="{{tasksCtrl.selectedTaskId}}"></label>
             <textarea id="taskName" class="task-name" rows="1" data-ng-model="tasksCtrl.taskDetails.name" placeholder="Task Name"
-                      data-ng-change="tasksCtrl.updateName()" data-ng-model-options='{ debounce: 1000 }'> </textarea>
+                    data-ng-change="tasksCtrl.updateName()" data-ng-model-options='{ debounce: 1000 }' title="Task Name"> </textarea>
+            <i class="fa fa-thumbs-up task-likes" data-ng-class="{'task-liked':tasksCtrl.taskDetails.liked}" 
+                    data-ng-click="tasksCtrl.toggleLiked(tasksCtrl.taskDetails.liked)">{{tasksCtrl.taskDetails.likes.length}}</i>
         </div>
 
     </div>
     <div class="form-group form-group-box">
         <textarea id="taskNotes" class="task-notes" data-ng-model="tasksCtrl.taskDetails.notes" placeholder="Task Description"
-                  data-ng-change="tasksCtrl.updateNotes()" data-ng-model-options='{ debounce: 1000 }'> </textarea>
+                  data-ng-change="tasksCtrl.updateNotes()" data-ng-model-options='{ debounce: 1000 }' title="Task Description"> </textarea>
     </div>
 
     <div class="form-group multi-select">
         <ui-select multiple tagging="tasksCtrl.projectTaggingHandler" data-ng-model="tasksCtrl.taskDetails.projects"
                    data-ng-disabled="tasksCtrl.workspaceNotSelected" on-select="tasksCtrl.onProjectAdd($item, $model)"
-                   on-remove="tasksCtrl.onProjectRemove($item, $model)" ui-select-focus>
+                   on-remove="tasksCtrl.onProjectRemove($item, $model)" title="Select Project(s)">
             <ui-select-match placeholder="Select Project" style="padding-left: 5px;">
                 {{$item.name}}
             </ui-select-match>
-            <ui-select-choices repeat="project in (tasksCtrl.projects | filter: $select.search)" position="down">
+            <ui-select-choices repeat="project in tasksCtrl.projects | orderBy:'name' | filter: {name: $select.search}" position="down">
                 <div class="overflow-ellipsis">
                     <span data-ng-class="{'archived-project':project.archived}" data-ng-bind="project.name" title="{{project.notes}}"></span>
                     <span data-ng-bind="project.prompt"></span>
@@ -120,14 +123,14 @@
     </div>
 
     <div class="form-group">
-        <ui-select data-ng-model="tasksCtrl.taskDetails.assignee" on-select="tasksCtrl.updateAssignee()" ui-select-focus>
+        <ui-select data-ng-model="tasksCtrl.taskDetails.assignee" on-select="tasksCtrl.updateAssignee()" title="Select Assignee">
             <ui-select-match allow-clear="true" placeholder="Select Assignee">
                 <img class="img-circle profile-img profile-img-sm" src="../img/nopicture.png"
                      data-ng-src="{{tasksCtrl.taskDetails.assignee.photo.image_36x36}}"
                      title="{{tasksCtrl.taskDetails.assignee.name}}">
                 <span data-ng-bind="$select.selected.name"></span>
             </ui-select-match>
-            <ui-select-choices repeat="user in (tasksCtrl.users | filter: $select.search)" position="down">
+            <ui-select-choices repeat="user in tasksCtrl.users | orderBy:'name' | propertyFilter: {name: $select.search, email: $select.search}" position="down">
                 <div class="overflow-ellipsis">
                     <img class="img-circle profile-img profile-img-sm"
                          data-ng-src="{{user.photo.image_36x36}}"
@@ -142,11 +145,11 @@
     <div class="form-group multi-select">
         <ui-select multiple tagging="tasksCtrl.tagHandler" data-ng-model="tasksCtrl.taskDetails.tags"
                    data-ng-disabled="tasksCtrl.workspaceNotSelected" on-select="tasksCtrl.onTagAdd($item, $model)"
-                   on-remove="tasksCtrl.onTagRemove($item, $model)" ui-select-focus>
+                   on-remove="tasksCtrl.onTagRemove($item, $model)" title="Add Tag(s)">
             <ui-select-match placeholder="Select tag(s)" style="padding-left: 5px;">
                 {{$item.name}}
             </ui-select-match>
-            <ui-select-choices repeat="tag in (tasksCtrl.tags | filter: $select.search) track by tag.id" position="down">
+            <ui-select-choices repeat="tag in tasksCtrl.tags | orderBy:'name' | filter: {name: $select.search}" position="down">
                 <div class="overflow-ellipsis" title="{{tag.notes}}">
                     <i class="fa fa-tag"></i>
                     <span data-ng-bind="tag.name"></span>
@@ -157,13 +160,14 @@
     </div>
 
     <div class="form-group multi-select">
-        <ui-select multiple tagging="tasksCtrl.tagHandler"  data-ng-model="tasksCtrl.taskDetails.followers"
+        <ui-select multiple data-ng-model="tasksCtrl.taskDetails.followers"
                    data-ng-disabled="tasksCtrl.workspaceNotSelected" on-select="tasksCtrl.onFollowerAdd($item, $model)"
-                   on-remove="tasksCtrl.onFollowerRemove($item, $model)" ui-select-focus>
+                   on-remove="tasksCtrl.onFollowerRemove($item, $model)" title="Add Follower(s)">
             <ui-select-match placeholder="Select Follower(s)" style="padding-left: 5px;">
-                <span data-ng-bind="$item.name | nameInitials" title="{{$item.name}}"></span>
+                <img class="img-circle profile-img profile-img-xs" data-ng-src="{{$item.photo.image_36x36}}" data-ng-attr-title="{{$item.name}}">
+                <span data-ng-bind="$item.name | nameInitials" data-ng-attr-title="{{$item.name}}"></span>
             </ui-select-match>
-            <ui-select-choices repeat="follower in (tasksCtrl.users | filter: $select.search) track by follower.id">
+            <ui-select-choices repeat="follower in tasksCtrl.users | orderBy:'name' | propertyFilter: {name: $select.search, email: $select.search}">
                 <div class="overflow-ellipsis">
                     <img class="img-circle profile-img profile-img-sm"
                          data-ng-src="{{follower.photo.image_36x36}}"
@@ -176,8 +180,8 @@
     </div>
 
     <div class="form-group">
-        <datetime type="tasksCtrl.taskDetails.deadlineType" date="tasksCtrl.taskDetails.deadline" on-change="tasksCtrl.updateDeadline()">
-        </datetime>
+        <datetime type="tasksCtrl.taskDetails.deadlineType" date="tasksCtrl.taskDetails.deadline" on-change="tasksCtrl.updateDeadline()"
+        title="Set Due Date and Time"> </datetime>
     </div>
 
     <hr/>
@@ -213,7 +217,7 @@
                      data-ng-src="{{tasksCtrl.user.photo.image_36x36}}" src="../img/nopicture.png">
                 <span class="user-name" title="taskCtrl.user.email" data-ng-bind="tasksCtrl.user.name"></span>
                 <div>
-                    <textarea id="add-comment" placeholder="Add Comment" rows="4" data-ng-model="tasksCtrl.commentText"></textarea>
+                    <textarea id="add-comment" placeholder="Write a Comment" rows="4" data-ng-model="tasksCtrl.commentText" title="Comment"></textarea>
                 </div>
             </li>
         </ul>

@@ -8,6 +8,7 @@
     <script src="js/lib/select.min.js"></script>
     <script src="js/lib/ui-bootstrap-tpls.min.js"></script>
     <script src="js/lib/datetime-picker.min.js"></script>
+    <script src="js/lib/angular-clipboard.js"></script>
 
     <script src="js/lib/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
@@ -35,7 +36,7 @@
             <img class="img-circle profile-img profile-img-md" data-ng-src="{{userCtrl.user.photo.image_36x36}}"
                  src="img/nopicture.png">
         </div>
-        <div class="col col-xs-10 padding-left-zero padding-right-zero">
+        <div class="col col-xs-8 padding-left-zero padding-right-zero overflow-ellipsis">
             <div class="col col-xs-12 padding-left-zero line-height-one">
                 <span class="text-primary font-size-12" data-ng-bind="userCtrl.user.name"></span>
             </div>
@@ -43,13 +44,18 @@
                 <span class="text-gray font-size-10" data-ng-bind="userCtrl.user.email"></span>
             </div>
         </div>
+        <div class="col col-xs-2 padding-left-zero text-center">
+            <a href="https://github.com/amitg87/asana-chrome-plugin/wiki/AsanaNG-Wiki" target="_blank" title="Help">
+                <i class="fa fa-question-circle font-size-30"></i>
+            </a>
+        </div>
     </div>
     <ul class="nav nav-pills">
         <li role="presentation" title="Create Task in Asana" data-ng-class="{ active: userCtrl.isActive('create')}">
             <a href="create"><i class="fa fa-plus-circle"></i> Create</a>
         </li>
         <li role="presentation" title="Manage Tasks" data-ng-class="{ active: userCtrl.isActive('manage')}">
-            <a href="manage"><i class="fa fa-check-circle"></i> Manage <span class="superscript">New</span></a>
+            <a href="manage"><i class="fa fa-check-circle"></i> Manage</a>
         </li>
         <li role="presentation" title="AsanaNG Settings" data-ng-class="{ active: userCtrl.isActive('settings')}">
             <a href="settings"><i class="fa fa-gear"></i> Settings</a>
