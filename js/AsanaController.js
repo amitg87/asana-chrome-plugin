@@ -42,18 +42,24 @@ asanaModule.controller("createTaskController", ['$scope', 'AsanaGateway', '$time
         }
     };
 
-    createTaskCtrl.init = function (check, storageProperty, source, target) {
+    createTaskCtrl.init = function (check, storageProperty, allResource, selectedResource) {
         if(check) {
-            var old = StorageService.getArray(storageProperty);
-            if(angular.isDefined(old)) {
-                source.forEach(item => {
-                    var found = old.find(oldItem => {
+            var saved = StorageService.getArray(storageProperty);
+            if(angular.isDefined(saved)) {
+                allResource.forEach(item => {
+                    var found = saved.find(oldItem => {
                         return item.id == oldItem;
                     });
                     if(found) {
-                        target.push(item);
+                        selectedResource.push(item);
                     }
-                })
+                });
+                var toSave = saved.filter(item => {
+                    return selectedResource.find(selected => {
+                        return selected.id == item;
+                    });
+                });
+                StorageService.initArray(storageProperty, toSave);
             }
         }
     }
