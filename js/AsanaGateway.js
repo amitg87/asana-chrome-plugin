@@ -264,24 +264,19 @@ angular.module("Asana").service("AsanaGateway",
             respondType: 'json',
             headers: options.headers || {},
             data: dataParam
-        }).success(function (response) {
-            if(!angular.isDefined(response.next_page))
-                deferred.resolve(response.data);
-            else
-                deferred.resolve([response.data, response.next_page]);//destructuring - part of es6
-        }).error(function (response) {
-            console.log("API Failure: ", response.status);
-            console.log("API call details: ");
+        }).then(function (response) {
+            deferred.resolve(response.data.data);
+            //deferred.resolve([response.data, response.next_page]);//destructuring - part of es6
+        }).catch(function (response) {
+            console.log("API Failure details: ");
             console.log("URL: ", url);
             console.log("Method: ", options.method);
+            console.log("Status Code: ", response.status);
+            console.log("Status Text: ", response.statusText)
             console.log("Headers: ", options.headers);
             console.log("Data: ", JSON.stringify(dataParam));
             console.log("Response: ", JSON.stringify(response));
-            if (response && response.hasOwnProperty("errors")) {
-                deferred.reject(response.errors);
-            } else {
-                deferred.reject(response);
-            }
+            deferred.reject(response.data.errors);
         });
         return deferred.promise;
     };
