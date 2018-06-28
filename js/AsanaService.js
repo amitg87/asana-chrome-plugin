@@ -248,21 +248,18 @@ asanaModule.service("AsanaGateway", ["$http", "AsanaConstants", "$q", "$filter",
             respondType: 'json',
             headers: options.headers || {},
             data: dataParam
-        }).success(function (response) {
-            deferred.resolve(response.data);
-        }).error(function (response) {
-            console.log("API Failure: ", response.status);
-            console.log("API call details: ");
+        }).then(function (response) {
+            deferred.resolve(response.data.data);
+        }).catch(function (response) {
+            console.log("API Failure details: ");
             console.log("URL: ", url);
             console.log("Method: ", options.method);
+            console.log("Status Code: ", response.status);
+            console.log("Status Text: ", response.statusText)
             console.log("Headers: ", options.headers);
             console.log("Data: ", JSON.stringify(dataParam));
             console.log("Response: ", JSON.stringify(response));
-            if (response && response.hasOwnProperty("errors")) {
-                deferred.reject(response.errors);
-            } else {
-                deferred.reject(response);
-            }
+            deferred.reject(response.data.errors);
         });
         return deferred.promise;
     };

@@ -268,6 +268,16 @@ https://github.com/angular-ui/ui-select/issues/379
     padding-left: 0 !important;
 }
 
+.ui-select-bootstrap .ui-select-match-text {
+    position: relative;
+    margin-top: -2px;
+}
+
+.ui-select-bootstrap .ui-select-match-text span {
+    position: relative;
+    vertical-align: middle;
+}
+
 .ui-select-choices .ui-select-choices-row > a{
     padding: 3px 10px;
 }
