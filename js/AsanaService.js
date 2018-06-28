@@ -26,7 +26,7 @@ asanaModule.service("AsanaGateway", ["$http", "AsanaConstants", "$q", "$filter",
         options = options || {};
         options.method = "GET";
         options.path = "workspaces/" + options.workspace_id + "/projects";
-        options.query = {opt_fields: "name,archived,notes,public"};
+        options.query = {opt_fields: "name,archived,notes,public,sections,sections.name"};
 
         return AsanaGateway.api(options).then(function (response) {
             //filter - archived projects
@@ -93,7 +93,7 @@ asanaModule.service("AsanaGateway", ["$http", "AsanaConstants", "$q", "$filter",
         options.method = "GET";
         options.path = "tasks/" + options.task_id;
         options.query = {
-            opt_fields: "assignee.name,assignee.photo,assignee_status,completed,completed_at,created_at,due_at,due_on,followers.name,likes,liked,memberships,modified_at,name,notes,projects.name,tags.name,workspace.name"
+            opt_fields: "assignee.name,assignee.photo,assignee_status,completed,completed_at,created_at,due_at,due_on,followers.name,likes,liked,memberships.section,memberships.section.name,memberships.project,memberships.project.name,modified_at,name,notes,projects.name,tags.name,workspace.name"
         };
         return AsanaGateway.api(options).then(function (task) {
             AsanaConstants.setDefaultPictureUser(task.assignee);
@@ -165,6 +165,16 @@ asanaModule.service("AsanaGateway", ["$http", "AsanaConstants", "$q", "$filter",
         return AsanaGateway.api(options);
     };
 
+    AsanaGateway.addSectionToTask = function (options) {
+        options = options || {};
+        options.method = "POST";
+        options.path = "tasks/" + options.task_id + "/addProject";
+        options.data = {
+            section: options.section_id
+        };
+        return AsanaGateway.api(options);
+    }
+
     AsanaGateway.removeProjectFromTask = function (options) {
         options = options || {};
         options.method = "POST";
@@ -174,6 +184,16 @@ asanaModule.service("AsanaGateway", ["$http", "AsanaConstants", "$q", "$filter",
         };
         return AsanaGateway.api(options);
     };
+
+    AsanaGateway.remoteSectionFromTask = function (options) {
+        options = options || {};
+        options.method = "POST";
+        options.path = "tasks/" + options.task_id + "/removeProject";
+        options.data = {
+            section: options.section_id
+        };
+        return AsanaGateway.api(options);
+    }
 
     AsanaGateway.addFollowerToTask = function (options) {
         options = options || {};
