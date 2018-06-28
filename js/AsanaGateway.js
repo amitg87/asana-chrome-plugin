@@ -1,5 +1,6 @@
-asanaModule.service("AsanaGateway", ["$http", "AsanaConstants", "$q", "$filter",
-    function ($http, AsanaConstants, $q, $filter) {
+angular.module("Asana").service("AsanaGateway",
+    ["$http", "AsanaConstants", "AsanaSettings", "$q", "$filter", "ChromeExtensionService",
+    function ($http, AsanaConstants, AsanaSettings, $q, $filter, ChromeExtension) {
 
     var AsanaGateway = this;
     
@@ -17,7 +18,7 @@ asanaModule.service("AsanaGateway", ["$http", "AsanaConstants", "$q", "$filter",
         options.query = {opt_fields: "name,email,photo"};
 
         return AsanaGateway.api(options).then(function (response) {
-            AsanaConstants.setDefaultPicture(response);
+            AsanaGateway.setDefaultPicture(response);
             return response;
         });
     };
@@ -30,7 +31,7 @@ asanaModule.service("AsanaGateway", ["$http", "AsanaConstants", "$q", "$filter",
 
         return AsanaGateway.api(options).then(function (response) {
             //filter - archived projects
-            var hideArchivedProjects = AsanaConstants.getHideArchivedProjects();
+            var hideArchivedProjects = AsanaSettings.getHideArchivedProjects();
             if(hideArchivedProjects){
                 return response.filter(function (project) {
                     return !project.archived;
@@ -88,6 +89,28 @@ asanaModule.service("AsanaGateway", ["$http", "AsanaConstants", "$q", "$filter",
         return AsanaGateway.api(options);
     };
 
+    AsanaGateway.getProject = function (options) {
+        options = options || {};
+        options.method = "GET";
+        options.path = "projects/"+options.project_id;
+        return AsanaGateway.api(options);
+    };
+
+    AsanaGateway.getProjectTasks = function (options) {
+        options = options || {};
+        options.method = "GET";
+        options.path = "projects/" + options.project_id + "/tasks";
+        options.query = {
+            opt_fields:"name,completed,assignee.name,assignee.photo,due_on,due_at,completed_at,created_at,tags.name,followers,hearts.name,followers.name",
+            limit: 100
+        };
+        if(options.offset){
+            options.query.offset = options.offset;
+        }
+        //https://app.asana.com/api/1.0/projects/145619319717806/tasks?opt_fields=
+        return AsanaGateway.api(options);
+    };
+
     AsanaGateway.getTask = function (options) {
         options = options || {};
         options.method = "GET";
@@ -96,8 +119,8 @@ asanaModule.service("AsanaGateway", ["$http", "AsanaConstants", "$q", "$filter",
             opt_fields: "assignee.name,assignee.photo,assignee_status,completed,completed_at,created_at,due_at,due_on,followers.name,likes,liked,memberships,modified_at,name,notes,projects.name,tags.name,workspace.name"
         };
         return AsanaGateway.api(options).then(function (task) {
-            AsanaConstants.setDefaultPictureUser(task.assignee);
-            AsanaConstants.setDefaultPicture(task.followers);
+            AsanaGateway.setDefaultPictureUser(task.assignee);
+            AsanaGateway.setDefaultPicture(task.followers);
             return task;
         });
     };
@@ -112,7 +135,7 @@ asanaModule.service("AsanaGateway", ["$http", "AsanaConstants", "$q", "$filter",
 
         return AsanaGateway.api(options).then(function (stories) {
             stories.forEach(function (story) {
-                AsanaConstants.setDefaultPictureUser(story.created_by);
+                AsanaGateway.setDefaultPictureUser(story.created_by);
             });
             return stories;
         });
@@ -215,14 +238,7 @@ asanaModule.service("AsanaGateway", ["$http", "AsanaConstants", "$q", "$filter",
             "Asana-Fast-Api": true
         };
 
-        // Be polite to Asana API and tell them who we are.
-        var manifest = chrome.runtime.getManifest();
-        var client_name = [
-            "chrome-extension",
-            chrome.i18n.getMessage("@@extension_id"),
-            manifest.version,
-            manifest.name
-        ].join(":");
+        var client_name = ChromeExtension.getClientName();
 
         var asanaOptions = {};
         if (options.method === "PUT" || options.method === "POST"){
@@ -250,6 +266,7 @@ asanaModule.service("AsanaGateway", ["$http", "AsanaConstants", "$q", "$filter",
             data: dataParam
         }).then(function (response) {
             deferred.resolve(response.data.data);
+            //deferred.resolve([response.data, response.next_page]);//destructuring - part of es6
         }).catch(function (response) {
             console.log("API Failure details: ");
             console.log("URL: ", url);

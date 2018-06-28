@@ -1,4 +1,4 @@
-asanaModule.filter("nameInitials", function () {
+angular.module("asanaApp").filter("nameInitials", function () {
     return function (input, base) {
         var words = input.split(" ");
         return words.reduce(function (total, value) {

@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>AsanaNG - Project Analytics</title>
+    <script src="js/lib/angular.min.js"></script>
+    <script src="js/chrome/ChromeExtension.js"></script>
+    <script src="js/Asana.js"></script>
+    <script src="js/AsanaSettings.js"></script>
+    <script src="js/AsanaConstants.js"></script>
+    <script src="js/AsanaGateway.js"></script>
+    <script src="js/Analytics.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-chart.js/1.1.1/angular-chart.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="css/analytics.css" rel="stylesheet">
+    <base href="/"/>
+</head>
+<body data-ng-app="AsanaAnalytics" data-ng-controller="AsanaAnalyticsController as analyticsCtrl">
+    <div class="container">
+        <h3>Project Analytics</h3>
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <h4 class="panel-title">Project Details</h4>
+            </div>
+            <div class="panel-body" data-ng-if="analyticsCtrl.projectDetailsReady">
+                <table class="table ">
+                    <tr>
+                        <th>Name</th>
+                        <td> {{analyticsCtrl.projectDetails.name}}</td>
+                    </tr>
+                    <tr>
+                        <th>Description</th>
+                        <td>{{analyticsCtrl.projectDetails.notes}}</td>
+                    </tr>
+                    <tr>
+                        <th>Owner</th>
+                        <td>{{analyticsCtrl.projectDetails.owner.name}}</td>
+                    </tr>
+                    <tr>
+                        <th>Tasks Count</th>
+                        <td>{{analyticsCtrl.tasks.length}}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <div data-ng-if="analyticsCtrl.chartsDone">
+            <div class="row">
+                <div class="col-xs-6">
+                    <div class="panel panel-primary">
+                        <div class="panel-heading">
+                            <h4 class="panel-title">Completed Chart</h4>
+                        </div>
+                        <div class="panel-body">
+                            <canvas id="ChartCompleted" class="chart chart-doughnut"
+                                    chart-data="analyticsCtrl.chartCompleted.data" chart-labels="analyticsCtrl.chartCompleted.labels"
+                                    chart-colors="analyticsCtrl.chartCompleted.colors" chart-options="analyticsCtrl.chartCompleted.options">
+                            </canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-6">
+                    <div class="panel panel-primary">
+                        <div class="panel-heading">
+                            <h4 class="panel-title">Assignee Chart</h4>
+                        </div>
+                        <div class="panel-body">
+                            <canvas id="ChartAssigned" class="chart chart-doughnut"
+                                    chart-data="analyticsCtrl.chartAssigned.data" chart-labels="analyticsCtrl.chartAssigned.labels"
+                                    chart-colors="analyticsCtrl.chartAssigned.colors" chart-options="analyticsCtrl.chartCompleted.options">
+                            </canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-6">
+                    <div class="panel panel-primary">
+                        <div class="panel-heading">
+                            <h4 class="panel-title">Schedule Chart</h4>
+                        </div>
+                        <div class="panel-body">
+                            <canvas id="ChartScheduled" class="chart chart-doughnut"
+                                    chart-data="analyticsCtrl.chartScheduled.data" chart-labels="analyticsCtrl.chartScheduled.labels"
+                                    chart-colors="analyticsCtrl.chartScheduled.colors" chart-options="analyticsCtrl.chartCompleted.options">
+                            </canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-6">
+                    <div class="panel panel-primary">
+                        <div class="panel-heading">
+                            <h4 class="panel-title">Due Date Distribution</h4>
+                        </div>
+                        <div class="panel-body">
+                            <canvas id="DueDistribution" class="chart chart-bar"
+                                    chart-data="analyticsCtrl.chartDue.data" chart-labels="analyticsCtrl.chartDue.labels"
+                                    chart-colors="analyticsCtrl.chartDue.colors" chart-options="analyticsCtrl.chartDue.options">
+                            </canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    <h4 class="panel-title">Tag Analysis</h4>
+                </div>
+                <div class="panel-body">
+                    <table class="table">
+                        <tr>
+                            <th class="text-center">Tag</th>
+                            <th class="text-center">Completed</th>
+                            <th class="text-center">Incomplete</th>
+                            <th class="text-center">Assigned</th>
+                            <th class="text-center">Unassigned</th>
+                            <th class="text-center">Scheduled</th>
+                            <th class="text-center">Unscheduled</th>
+                        </tr>
+                        <tr data-ng-repeat="(key, value) in analyticsCtrl.tagAnalysis">
+                            <td class="text-center">{{key}}</td>
+                            <td class="text-center">{{value.completed}}</td>
+                            <td class="text-center">{{value.incomplete}}</td>
+                            <td class="text-center">{{value.assigned}}</td>
+                            <td class="text-center">{{value.unassigned}}</td>
+                            <td class="text-center">{{value.scheduled}}</td>
+                            <td class="text-center">{{value.unscheduled}}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    <h4 class="panel-title">Assignee Analysis</h4>
+                </div>
+                <div class="panel-body">
+                    <table class="table">
+                        <tr>
+                            <th class="text-center">Assignee</th>
+                            <th class="text-center">Completed</th>
+                            <th class="text-center">Incomplete</th>
+                        </tr>
+                        <tr data-ng-repeat="(key, value) in analyticsCtrl.assigneeAnalysis">
+                            <td class="text-center">{{key}}</td>
+                            <td class="text-center">{{value.completed}}</td>
+                            <td class="text-center">{{value.incomplete}}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -3,23 +3,22 @@ function (AsanaConstants, AsanaGateway, ChromeExtensionService, $timeout, $q, St
     chrome.browserAction.setBadgeText({text: "NG"});
     chrome.browserAction.setBadgeBackgroundColor({color: "#FC636B"});
 
-    chrome.cookies.get({
-        url: AsanaConstants.getBaseApiUrl(),
-        name: AsanaConstants.ASANA_LOGIN_COOKIE_NAME
-    }, function (cookie) {
-        var loggedIn = !!(cookie && cookie.value);
-        AsanaConstants.setLoggedIn(loggedIn);
-    });
+    ChromeExtension.getCookie(AsanaConstants.getBaseApiUrl(),
+        AsanaConstants.ASANA_LOGIN_COOKIE_NAME,
+        function (cookie) {
+            var loggedIn = !!(cookie && cookie.value);
+            AsanaConstants.setLoggedIn(loggedIn);
+        }
+    );
 
-    chrome.cookies.onChanged.addListener(function (changeInfo) {
+    ChromeExtension.onCookieChange(function (changeInfo) {
         if (AsanaConstants.isAsanaDomain(changeInfo.cookie.domain) && AsanaConstants.isAsanaLoginCookie(changeInfo.cookie.name)) {
             AsanaConstants.setLoggedIn(!changeInfo.removed);
         }
     });
 
-    chrome.commands.onCommand.addListener(function (command) {
-        if(command === "_execute_browser_action")
-            chrome.browserAction.enable();
+    ChromeExtension.onCommand("_execute_browser_action", function () {
+        ChromeExtension.enableBrowserAction();
     });
 
     chrome.runtime.onInstalled.addListener(function(details){
@@ -120,12 +119,21 @@ function (AsanaConstants, AsanaGateway, ChromeExtensionService, $timeout, $q, St
     });
 
     chrome.omnibox.onInputEntered.addListener(function (url){
-        ChromeExtensionService.getCurrentTab(function (tab) {
-            ChromeExtensionService.openLinkInTab(url, tab);
+        ChromeExtension.getCurrentTab(function (tab) {
+            ChromeExtension.openLinkInTab(url, tab);
         });
     });
 
     chrome.omnibox.onInputCancelled.addListener(function (){
         resetDefaultSuggestion();
     });
+
+    chrome.runtime.onMessage.addListener(
+        function (request, sender, sendResponse) {
+            if(request.action == "projectAnalytics"){
+                var url = chrome.runtime.getURL("analytics.html") + "?projectId=" + request.projectId;
+                ChromeExtension.openPanel(url)
+            }
+        }
+    );
 }]);

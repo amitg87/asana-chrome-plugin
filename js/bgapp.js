@@ -1,1 +1,1 @@
-var asanaModule = angular.module("asanabg", []);
+angular.module("asanabg", ["ChromeExtension", "Asana"]);

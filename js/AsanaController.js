@@ -1,4 +1,5 @@
-asanaModule.controller("userController", ["$scope", "AsanaGateway", "AsanaConstants", "ChromeExtensionService", "$route",
+angular.module("asanaApp").controller("userController",
+    ["$scope", "AsanaGateway", "AsanaConstants", "ChromeExtensionService", "$route",
     function ($scope, AsanaGateway, AsanaConstants, ChromeExtension, $route) {
     var userCtrl = this;
     userCtrl.$route = $route;
@@ -33,7 +34,7 @@ asanaModule.controller("createTaskController", ['$scope', 'AsanaGateway', '$time
     };
 
     createTaskCtrl.setDefaultAssignee = function () {
-        if(AsanaConstants.getDefaultAssigneeMe() && angular.isDefined(createTaskCtrl.users)){
+        if(AsanaSettings.getDefaultAssigneeMe() && angular.isDefined(createTaskCtrl.users)){
             var currentUser = createTaskCtrl.users.filter(function (user) {
                 return user.id == createTaskCtrl.user.id;
             });
@@ -155,7 +156,7 @@ asanaModule.controller("createTaskController", ['$scope', 'AsanaGateway', '$time
         }
 
         var projectList = createTaskCtrl.selectedProject.list;
-        if(createTaskCtrl.selectedProject.list.length === 0 && !AsanaConstants.getProjectOptional()){
+        if(createTaskCtrl.selectedProject.list.length === 0 && !AsanaSettings.getProjectOptional()){
             createTaskCtrl.taskCreationStatus.success = false;
             createTaskCtrl.taskCreationStatus.message = "Missing Project";
             createTaskCtrl.taskCreationStatus.show = true;
@@ -291,7 +292,7 @@ asanaModule.controller("createTaskController", ['$scope', 'AsanaGateway', '$time
     }
 
     createTaskCtrl.copyPage = function () {
-        ChromeExtensionService.getCurrentTab(function (tab) {
+        ChromeExtension.getCurrentTab(function (tab) {
             $timeout(function () {
                 createTaskCtrl.taskName = tab.title;
                 createTaskCtrl.taskNotes = tab.url;
@@ -713,21 +714,23 @@ asanaModule.controller("tasksController", ["$scope", "AsanaGateway", "ChromeExte
     };
 }]);
 
-asanaModule.controller("settingsController", ['$scope', 'AsanaConstants', function ($scope, AsanaConstants) {
+angular.module("asanaApp").controller("settingsController",
+    ['$scope', 'AsanaSettings',
+        function ($scope, AsanaSettings) {
     var settingsCtrl = this;
-    settingsCtrl.hideArchivedProjects = AsanaConstants.getHideArchivedProjects();
+    settingsCtrl.hideArchivedProjects = AsanaSettings.getHideArchivedProjects();
     settingsCtrl.changeHideArchivedProjects = function () {
-        AsanaConstants.setHideArchivedProjects(settingsCtrl.hideArchivedProjects);
+        AsanaSettings.setHideArchivedProjects(settingsCtrl.hideArchivedProjects);
     };
 
-    settingsCtrl.defaultAssigneeMe = AsanaConstants.getDefaultAssigneeMe();
+    settingsCtrl.defaultAssigneeMe = AsanaSettings.getDefaultAssigneeMe();
     settingsCtrl.changeDefaultAssigneeMe = function () {
-        AsanaConstants.setDefaultAssigneeMe(settingsCtrl.defaultAssigneeMe);
+        AsanaSettings.setDefaultAssigneeMe(settingsCtrl.defaultAssigneeMe);
     };
 
-    settingsCtrl.projectOptional = AsanaConstants.getProjectOptional();
+    settingsCtrl.projectOptional = AsanaSettings.getProjectOptional();
     settingsCtrl.changeProjectOptional = function () {
-        AsanaConstants.setProjectOptional(settingsCtrl.projectOptional);
+        AsanaSettings.setProjectOptional(settingsCtrl.projectOptional);
     };
 
     settingsCtrl.rememberProject = AsanaConstants.getRememberProject();
