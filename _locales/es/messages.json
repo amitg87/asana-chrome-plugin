@@ -1,0 +1,18 @@
+{
+  "manifest_name":{
+    "message": "AsanaNG",
+    "description": "AsanaNG"
+  },
+  "manifest_short_name":{
+    "message": "AsanaNG",
+    "description": "AsanaNG"
+  },
+  "manifest_description":{
+    "message": "No oficial extensión de Chrome de Asana",
+    "description": "Unofficial Asana Chrome Extension"
+  },
+  "manifest_browser_action_title":{
+    "message": "AsanaNG",
+    "description": "AsanaNG"
+  }
+}
