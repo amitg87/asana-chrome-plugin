@@ -5,6 +5,7 @@
   "short_name": "__MSG_manifest_short_name__",
   "description": "__MSG_manifest_description__",
   "version": "0.8",
+  "default_locale": "en",
 
   "icons": {
     "16": "img/icon16.png",
@@ -30,7 +31,7 @@
   "omnibox": { "keyword" : "asanang"},
 
   "permissions": ["cookies", "tabs", "*://*.asana.com/"],
-  "content_security_policy": "script-src 'self' https://maxcdn.bootstrapcdn.com; object-src 'self'",
+  "content_security_policy": "script-src 'self' https://maxcdn.bootstrapcdn.com; object-src 'self';script-src 'self' https://cdnjs.cloudflare.com/",
 
   "commands": {
     "_execute_browser_action": {
