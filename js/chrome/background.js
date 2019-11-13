@@ -70,7 +70,7 @@ function (AsanaConstants, AsanaGateway, ChromeExtensionService, $timeout, $q, St
                     var options = {
                         type: type,
                         search_text: text,
-                        workspace_id: workspace.id
+                        workspace_id: workspace.gid
                     };
                     var promise = AsanaGateway.search(options).then(function (response) {
                         if (response && response.length) {
@@ -82,12 +82,7 @@ function (AsanaConstants, AsanaGateway, ChromeExtensionService, $timeout, $q, St
                                     task.name = task.name.replace(":", "");
                                 }
                                 suggestion.description = type.toUpperCase() + " - " + task.name;
-                                if (task.projects && task.projects.length) {
-                                    suggestion.content = AsanaConstants.getAsanaDomain() + "0/" + task.projects[0].id + "/" + task.id;
-                                } else {
-                                    //@todo task without project not supported - what should be the url?
-                                    suggestion.content = AsanaConstants.getAsanaDomain() + "0/" + task.id + "/list";
-                                }
+                                suggestion.content = AsanaConstants.getAsanaDomain() + "0/" + task.gid + "/" + task.gid;
                                 suggestions.push(suggestion);
                             });
                         }

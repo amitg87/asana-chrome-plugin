@@ -200,8 +200,7 @@ asanaModule.service("AsanaGateway", ["$http", "AsanaConstants", "$q", "$filter",
         options.method = "GET";
         options.query = {
             type: options.type,
-            query: options.search_text,
-            opt_fields: "projects,name,id"
+            query: options.search_text
         };
         options.path = "workspaces/" + options.workspace_id + "/typeahead";
         return AsanaGateway.api(options);
